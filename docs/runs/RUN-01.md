@@ -15,7 +15,7 @@ Branche `run/01-souche-next16` · base `main` · 2026-10-08. Documents liés : `
 | 6. Restructuration | Fait : `src/{app,core,brand,ui}`, `brand.config.ts` (fonctionnalités à `false`, politiques). Pas de base de données. |
 | 7. Next.js 16 | Fait : 16.4.0 par le codemod officiel, guide embarqué lu, ESLint flat natif, ADR de versions. Smoke Playwright 375 et 1280 px vert. |
 | 8. Performance et image | **Partiel** : CLS = 0 ; image construite, démarrée, `/api/health` 200, `healthy` ; **First Load JS > base** (voir §4). |
-| 9. CI minimale | Fait : `.github/workflows/ci.yml`. **Non vérifiée sur GitHub** : elle ne s'exécutera qu'à l'ouverture de la PR (voir §6). |
+| 9. CI minimale | Fait : `.github/workflows/ci.yml`. **Verte sur la PR** (3 jobs : `verify`, `e2e`, `docker`) au premier passage, sur le commit `04f28eb`. |
 | 10. Documentation | Fait : README, ARCHITECTURE, DECISIONS, SECURITY, CHANGELOG. `RUNBOOK.md` n'est pas dû avant L0.6. |
 
 Non fait : critère « First Load JS ≤ base » (impossible sous Next 16, §4) ; centralisation des textes par module (ADR-031) ; protection de `/admin` (RUN-02/03).
@@ -88,7 +88,7 @@ Poids brut de l'image : 235 Mo. Mémoire d'exécution : non mesurée (RUN-04).
 
 ## 6. Risques ouverts
 
-1. **CI non exécutée** : écrite et validée localement commande par commande, mais jamais lancée sur GitHub Actions. Les versions d'actions (`checkout`, `setup-node`, `upload-artifact` en v6) ont été relevées sur les étiquettes publiques. Un premier échec de la PR est possible (installation de Chromium, délai de démarrage de l'image) : à corriger dans la PR.
+1. **CI** : verte au premier passage sur la PR (`verify`, `e2e`, `docker`). Les versions d'actions (`checkout`, `setup-node`, `upload-artifact` en v6) ont été relevées sur les étiquettes publiques. Optimisations possibles (caches, artefact de build partagé) : voir §5.
 2. **Budget de poids** (ADR-024) : décision à prendre.
 3. **Node 22 ou 24** (ADR-019) : à trancher avant le RUN-02.
 4. **`/admin` sans authentification** : acceptable tant que la souche n'est pas déployée (RUN-02/03).
