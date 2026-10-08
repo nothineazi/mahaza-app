@@ -46,6 +46,7 @@ Registre des décisions d'architecture (ADR). Format : contexte, décision, alte
 | 035 | Tailwind CSS 4.3.3, configuration CSS-first | ACCEPTÉ (GO de Yass, RUN-01b) |
 | 036 | Couche design factory : deux registres, jetons OKLCH, mode sombre par classe | **À VALIDER** |
 | 037 | Correspondance des statuts de réservation → tons de `StatusBadge` | **À VALIDER** |
+| 038 | Polices auto-hébergées : Inter, Cormorant Garamond, JetBrains Mono | **À VALIDER** |
 
 ---
 
@@ -314,4 +315,21 @@ Ces dix-huit décisions ont été validées par Yass le 2026-10-08 (PLAN v1.0). 
 
   Deux tons génériques s'y ajoutent pour les états qui ne sont pas des statuts de réservation : `success` (actif) et `neutral` (inactif, repère). Les blocs du planning réutilisent les mêmes jetons (fond = `-bg`, liseré gauche = `-fg`). Les cinq couples ont un contraste ≥ 4,5:1 dans les deux thèmes (minimum 5,21 clair, 6,50 sombre).
 - **Alternatives** : réutiliser telles quelles les quatre tons de la factory (confond « terminé » et « confirmé » ou « annulé » et « no-show »).
+- **Statut** : **À VALIDER**.
+
+### ADR-038 — Polices auto-hébergées : Inter, Cormorant Garamond, JetBrains Mono
+- **Contexte** : le build dépendait de Google Fonts (`next/font/google`) : un build sans réseau échouait (risque n° 5 du RUN-01), et le code est cédé aux clients, donc les licences doivent être ouvertes et versionnées.
+- **Décision** : trois rôles, tous via `next/font/local`, fichiers versionnés dans `src/brand/fonts/` avec le `OFL.txt` de chaque police et un `README.md` (provenance, empreintes SHA-256) ; `next/font/google` supprimé (un test unitaire interdit son retour et tout lien vers un service de polices).
+
+  | Rôle | Police (licence) | Poids chargés | Poids réel |
+  |---|---|---|---|
+  | `--font-sans` | **Inter** variable (SIL OFL 1.1) | axe de graisse 100-900, un fichier | 47 Ko |
+  | `--font-display` | **Cormorant Garamond** (SIL OFL 1.1) | 500 (titres), 600 (wordmark, titre d'écran du back-office) | 2 × 23 Ko |
+  | `--font-mono` | **JetBrains Mono** variable (SIL OFL 1.1) | axe de graisse, `preload: false` | 40 Ko, chargée à la première utilisation (back-office) |
+
+  Sous-ensemble `latin` de Fontsource : tout le français (accents, œ, « », €, espace fine insécable). Les rôles pointent vers `--font-face-*` (jamais vers eux-mêmes) ; repli ajusté (`adjustFontFallback`) contre les décalages de mise en page.
+- **Pourquoi ces choix pour OVAGLOW** : Inter est lisible à 13-14 px et sa graisse variable donne exactement les 450 / 520 / 600 de l'échelle kv ; Cormorant Garamond garde la serif éditoriale du site public (même famille qu'au RUN-01, déjà validée visuellement) pour le wordmark et les titres ; JetBrains Mono sert aux références de réservation (chiffres non ambigus). Le site public garde donc sa serif d'affichage.
+- **Retraits pour ne pas charger de fichier inutile** : plus d'italique Cormorant (message de la carte cadeau en romain), plus d'italique Inter (note d'horaires du pied de page en romain), plus de `font-mono` sur le site public (code de carte cadeau en chiffres tabulaires Inter) : la police mono n'est jamais téléchargée par les pages publiques. La police de corps du site public passe de la pile système à Inter.
+- **Alternatives** : Geist (déjà celle de la factory, mais aucune raison de marque) ; fichiers « latin-ext » (inutiles en français) ; polices système seules (rendu différent d'un appareil à l'autre, y compris la graisse 450/520).
+- **Conséquences** : poids des polices public = 47 + 46 = 93 Ko (précédemment ≈ 3 fichiers Google téléchargés à l'exécution) ; le build ne contacte plus aucun serveur (vérifié avec un proxy HTTPS volontairement mort) ; Docker n'a plus besoin de réseau pour les polices. Un dépôt client change de police en remplaçant le dossier **avec sa licence**.
 - **Statut** : **À VALIDER**.

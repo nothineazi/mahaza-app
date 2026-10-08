@@ -45,9 +45,9 @@ export function GiftCardPreview({ amount, to, from, message, code }: { amount: n
               {from && <>De la part de <strong className="font-semibold">{from}</strong></>}
             </p>
           )}
-          {message && <p className="line-clamp-2 font-display text-base italic leading-snug text-inverse-foreground/90 sm:text-lg sm:leading-7">« {message} »</p>}
+          {message && <p className="line-clamp-2 font-display text-base leading-snug text-inverse-foreground/90 sm:text-lg sm:leading-7">« {message} »</p>}
         </div>
-        <p className="font-mono text-xs tracking-[0.25em] text-inverse-foreground/85 sm:text-sm">{code ?? "GC-····-····"}</p>
+        <p className="tabular-nums text-xs tracking-[0.25em] text-inverse-foreground/85 sm:text-sm">{code ?? "GC-····-····"}</p>
       </div>
     </div>
   );
@@ -225,7 +225,7 @@ export function GiftCardStudio() {
             <div className="lux-fade-up space-y-4 rounded-2xl border border-primary/40 bg-card p-5 text-sm text-card-foreground shadow-soft" aria-live="polite">
               <p className="font-display text-2xl font-medium">Votre carte est prête</p>
               <p>
-                Code fictif : <strong className="font-mono tracking-widest">{card.code}</strong>. Pour offrir cette carte de <strong>{formatPrice(card.amount)}</strong>, envoyez ce montant par Mobile Money au numéro marchand :
+                Code fictif : <strong className="tabular-nums tracking-widest">{card.code}</strong>. Pour offrir cette carte de <strong>{formatPrice(card.amount)}</strong>, envoyez ce montant par Mobile Money au numéro marchand :
               </p>
               <div className="flex items-center justify-between gap-3 rounded-xl bg-muted p-3">
                 <div>

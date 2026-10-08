@@ -27,8 +27,14 @@ npm ci
 $env:APP_ENV = "development"
 npm run dev
 
-# Vérifier (types, lint, tests, contrastes, anti-fuite de marque)
+# Vérifier (types, lint, tests, contrastes, anti-fuite de marque, garde-fou design)
 npm run verify
+
+# Garde-fou design seul (back-office) ; --strict échoue s'il reste une violation (mode de la CI)
+npm run check:design -- --strict
+
+# Tableau des contrastes WCAG des deux thèmes
+npm run check:contrast -- --markdown
 
 # Tests unitaires seuls
 npm test

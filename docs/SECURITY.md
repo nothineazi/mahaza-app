@@ -38,7 +38,7 @@ Commande : `npm audit` (jamais `npm audit fix --force`). Triage refait le **2026
 
 1. **`/admin` sans authentification** — la souche n'est pas déployée ; levé par les RUN-02 et RUN-03.
 2. **Pas d'en-têtes de sécurité** — RUN-04.
-3. **`next/font/google` au build** — le build contacte Google Fonts (les fichiers de police sont ensuite servis par l'application). À réévaluer pour un build hors-ligne.
+3. ~~`next/font/google` au build~~ — **levé au RUN-01b** : polices auto-hébergées (ADR-038), le build ne contacte plus aucun service.
 4. **`sw.js` et PWA absents** — RUN-13, HTTPS requis.
 5. **Dépassement du budget de poids** — voir ADR-024 (performance, pas sécurité, mais pèse sur les réseaux lents).
 6. **Cartes cadeaux simulées** — code fictif, non valable ; aucune valeur n'est créée (ADR-032).

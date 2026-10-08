@@ -8,6 +8,19 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Les versions 
 - **Node.js 22 → 24 LTS** (`.nvmrc`, `engines`, Dockerfile, `@types/node` 24) ; ADR-019.
 - **Tailwind CSS 3.4 → 4.3.3**, configuration CSS-first (`@theme`), outil officiel de migration ; `tailwindcss-animate` remplacé par `tw-animate-css` ; ADR-035. Rendu public inchangé.
 
+### Ajouté
+- **Couche design factory** (`docs/reference/factory-core.md`, ADR-036) : deux registres, jetons OKLCH (neutres teintés H = 200), mode sombre par classe `.dark` (`next-themes`) avec bouton clair/sombre, échelle `text-kv-*`, graisses 450/520/600, composants `src/ui/kv` (Panel, StatusBadge, Field, PageHeader, StateBlock, DataTable, ActionBar, Segmented, control-classes), coque à barre latérale, `cn()` étendu.
+- `scripts/check-design.mjs` (périmètre back-office, exceptions déclarées) ; `scripts/check-contrast.mjs` réécrit en OKLCH (80 couples par thème).
+- Polices **auto-hébergées** (`next/font/local`) : Inter, Cormorant Garamond, JetBrains Mono, licences OFL versionnées (ADR-038).
+
+### Modifié
+- Les couleurs de la marque ne sont plus en canaux RGB ; l'accent doré du site public s'appelle `gold` (le nom `accent` a le sens factory) ; filet décoratif `line` pour le site public.
+- Le fond du site public passe du crème au gris-teal neutre de la recette ; le thème sombre est plus profond.
+- Plus d'italique (carte cadeau, pied de page), plus de police mono sur le site public.
+
+### Supprimé
+- `next/font/google` : le build ne contacte plus aucun service de polices.
+
 ### Corrigé
 - Pastille d'état « Active » (salles, équipe) : son fond vert pâle (`bg-success/12`) est enfin appliqué (opacité ignorée par Tailwind 3).
 

@@ -44,7 +44,7 @@ export function StepPractitioners({ draft, onChoose }: { draft: Draft; onChoose:
                       onSelect={() => onChoose(serviceId, p.id)}
                       title={p.name}
                       hint={p.role}
-                      icon={<span className="font-display text-lg">{p.name.charAt(0)}</span>}
+                      icon={<span className="font-display text-lg font-medium">{p.name.charAt(0)}</span>}
                       badge={p.fictive ? <FictiveBadge /> : null}
                     />
                   ))}

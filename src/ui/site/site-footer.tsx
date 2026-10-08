@@ -33,7 +33,7 @@ export function SiteFooter() {
                 </li>
               ))}
             </ul>
-            {brand.hoursToConfirm && <p className="mt-2 text-xs italic text-inverse-foreground/70">Horaires à confirmer par site.</p>}
+            {brand.hoursToConfirm && <p className="mt-2 text-xs text-inverse-foreground/70">Horaires à confirmer par site.</p>}
           </div>
           <div>
             <h2 className="text-xs font-semibold uppercase tracking-[0.25em] text-gold">Contact</h2>
