@@ -220,7 +220,6 @@ export interface BrandConfig {
   logoText: string;
   city: string;
   address: string;
-  hoursLabel: string;
   /** Horaires détaillés (affichés tels quels) ; `hoursToConfirm` ajoute la mention « à confirmer par site ». */
   schedule?: ScheduleRange[];
   hoursToConfirm?: boolean;

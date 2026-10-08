@@ -5,7 +5,7 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Les versions 
 ## [Non publié] — RUN-01 : création de la souche OVAGLOW et migration Next.js 16
 
 ### Ajouté
-- Souche issue d'un import propre de `mahaza-demo@656cfc7` (sans historique, sans média ni contenu Mahaza).
+- Souche issue d'un import propre de la démo d'origine (commit 656cfc7, sans historique, sans média ni contenu de marque cliente).
 - Marque fictive **OVAGLOW** : thèmes clair et sombre (jetons CSS), wordmark texte, favicon et icônes SVG, illustrations SVG générées, jeu de données FICTIF (3 sites, 20 soins, praticiens, salles, réservations).
 - Bandeau « Version de développement – données fictives » et liens WhatsApp sans destinataire tant que `APP_ENV` ≠ `production`.
 - Mention « FICTIF – ne pas payer » sur les numéros d'acompte.
@@ -21,7 +21,7 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Les versions 
 - Image Docker : `HEALTHCHECK`, `APP_ENV` lu à l'exécution, plus de `NEXT_PUBLIC_THEME`.
 
 ### Supprimé
-- Rendu legacy St Louis, `NEXT_PUBLIC_THEME`, tous les aiguillages de thème.
+- Rendu legacy du second client, `NEXT_PUBLIC_THEME`, tous les aiguillages de thème.
 
 ### Corrigé
 - Débordement horizontal du tableau de bord à 1280 px (infobulle du graphique) et du bouton « Générer ma carte cadeau » à 375 px.

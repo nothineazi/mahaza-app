@@ -55,6 +55,9 @@ export interface IcsContext {
 }
 
 /** Fichier .ics d'une réservation : un événement couvrant l'enchaînement des soins. */
+/** Domaine du UID : nom de marque réduit à [a-z0-9] + TLD réservé `.invalid` (RFC 2606), jamais joignable. */
+const uidDomain = (brand: string) => `${brand.normalize("NFD").replace(/[^a-zA-Z0-9]/g, "").toLowerCase() || "brand"}.invalid`;
+
 export function buildIcs(r: Reservation, ctx: IcsContext): string {
   const first = r.lines[0];
   const description = [
@@ -76,7 +79,7 @@ export function buildIcs(r: Reservation, ctx: IcsContext): string {
     "CALSCALE:GREGORIAN",
     "METHOD:PUBLISH",
     "BEGIN:VEVENT",
-    `UID:${r.reference}-${r.id}@ovaglow.invalid`,
+    `UID:${r.reference}-${r.id}@${uidDomain(ctx.brand)}`,
     `DTSTAMP:${formatStamp(ctx.now)}`,
     `DTSTART:${toIcsUtc(r.date, first.start)}`,
     `DTEND:${toIcsUtc(r.date, reservationEnd(r.lines))}`,

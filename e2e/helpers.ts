@@ -33,4 +33,4 @@ export async function expectNoSeriousA11yViolations(page: Page) {
 }
 
 /** Noms des marques des dépôts clients : ne doivent jamais apparaître à l'écran (motif assemblé pour ne pas se signaler lui-même dans l'anti-fuite). */
-export const BRAND_LEAK = new RegExp([["maha", "za"].join(""), ["st\\s?lo", "uis"].join("")].join("|"), "i");
+export const BRAND_LEAK = new RegExp([["maha", "za"].join(""), ["st[ _-]?lo", "uis"].join("")].join("|"), "i");

@@ -209,7 +209,7 @@ function WeekChart({ days, today }: { days: ReturnType<typeof weekBreakdown>; to
           const labelled = d.count > 0 && (d.date === peak.date || isToday);
           return (
             <li key={d.date} tabIndex={0} className="group relative flex h-full flex-1 flex-col items-center justify-end rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label={`${formatDateShort(d.date)} : ${d.count} réservation${d.count > 1 ? "s" : ""}`}>
-              <span role="tooltip" className={cn("pointer-events-none absolute -top-2 z-10 w-max max-w-[11rem] -translate-y-full rounded-lg bg-inverse px-3 py-1.5 text-xs text-inverse-foreground opacity-0 shadow-lift transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100", i <= 2 ? "left-0" : i >= 4 ? "right-0" : "left-1/2 -translate-x-1/2")}>
+              <span role="tooltip" className={cn("pointer-events-none absolute -top-2 z-10 w-max max-w-[11rem] -translate-y-full rounded-lg bg-inverse px-3 py-1.5 text-xs text-inverse-foreground opacity-0 shadow-lift transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100", i / (days.length - 1) < 0.4 ? "left-0" : i / (days.length - 1) > 0.6 ? "right-0" : "left-1/2 -translate-x-1/2")}>
                 {d.count} réservation{d.count > 1 ? "s" : ""} · CA estimé {formatPrice(d.revenue)} (FICTIF)
               </span>
               {labelled && <span className="mb-1 text-xs font-semibold">{d.count}</span>}

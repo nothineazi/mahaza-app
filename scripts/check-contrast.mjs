@@ -109,16 +109,14 @@ function pairsFor(C) {
 const summary = [];
 for (const [name, C] of [["clair", light], ["sombre", darkAttr]]) {
   console.log(`\n== Thème ${name} ==`);
-  let n = 0, min = Infinity;
-  for (const [label, fg, bgc, thr] of pairsFor(C)) {
+  const pairs = pairsFor(C);
+  for (const [label, fg, bgc, thr] of pairs) {
     const r = ratio(fg, bgc);
     const ok = r >= thr;
-    n++;
-    min = Math.min(min, r - thr);
     if (!ok) bad++;
     console.log(`${ok ? "OK  " : "FAIL"} ${r.toFixed(2).padStart(5)}:1 (≥ ${thr})  ${label}  [${hex(fg)} / ${hex(bgc)}]`);
   }
-  summary.push(`${name} : ${n} couples`);
+  summary.push(`${name} : ${pairs.length} couples`);
 }
 console.log(bad ? `\n${bad} échec(s)` : `\nTous les couples respectent le seuil WCAG AA (${summary.join(" · ")})`);
 process.exit(bad ? 1 : 0);

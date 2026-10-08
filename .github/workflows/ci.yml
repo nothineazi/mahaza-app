@@ -37,8 +37,9 @@ jobs:
         run: npm run check:brand
       - run: npm run build
       - name: Budget de First Load JS
-        run: node scripts/measure-first-load.mjs --budget scripts/first-load-budget.json
+        run: npm run measure:first-load -- --budget scripts/first-load-budget.json
 
+  # Job séparé (parallèle) : le build est refait ici pour ne pas allonger la chaîne de vérification.
   e2e:
     name: Smoke e2e (375 et 1280 px)
     runs-on: ubuntu-latest

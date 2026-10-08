@@ -1,5 +1,5 @@
 import { Cormorant_Garamond } from "next/font/google";
-// Le CSS premium est importé ici (voir app/layout.tsx).
+// Habillage (ombres, animations) : importé avec la police.
 import "@/brand/theme/effects.css";
 
 /** Police d'affichage (titres). Repli auto-ajusté par next/font : pas de décalage de mise en page. */

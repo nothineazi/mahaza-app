@@ -1,5 +1,5 @@
 {
-  "_note": "Budget de First Load JS (kB gzip) des routes publiques, mesuré par scripts/measure-first-load.mjs. Valeurs = mesure du RUN-01 sous Next 16 + ~2 % de marge (non-régression). La base de référence de mahaza-demo sous Next 15 était de 142 kB (/) et 168 kB (/reserver) : voir docs/runs/RUN-01.md et ADR-024 (À VALIDER).",
+  "_note": "Budget de First Load JS (kB gzip) des routes publiques, mesuré par scripts/measure-first-load.mjs : mesure du RUN-01 sous Next 16 + ~2 % de marge (non-régression). Voir docs/DECISIONS.md, ADR-024 (À VALIDER).",
   "/": 175,
   "/reserver": 192
 }

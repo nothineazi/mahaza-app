@@ -15,7 +15,6 @@ export const brand: BrandConfig = {
   logoText: "OVAGLOW",
   city: "Ville fictive",
   address: "Adresse fictive",
-  hoursLabel: "Lun – Ven · 9h – 19h | Sam · 9h – 18h | Dim · 10h – 16h (FICTIF)",
   // Horaires FICTIFS, identiques pour tous les sites.
   schedule: [
     { label: "Lundi – vendredi", days: [1, 2, 3, 4, 5], open: "09:00", close: "19:00" },
@@ -30,7 +29,7 @@ export const brand: BrandConfig = {
   // Couleurs, polices et rayon : src/brand/theme/tokens.css (thèmes clair et sombre). Ici : couleur de la barre du navigateur.
   themeColor: { light: "#F8F6F2", dark: "#0E1515" },
 
-  // Fonctionnalités du socle activables par marque. Non construites au RUN-01 : drapeaux uniquement, à `false`.
+  // Fonctionnalités du socle activables par marque. Drapeaux uniquement (fonctionnalités non construites), à `false`.
   features: {
     walkInQueue: false,
     groupBooking: false,

@@ -1,6 +1,7 @@
 import type { BrandPolicies } from "@/core/types";
 import { formatPrice } from "@/core/lib/utils";
 import { phoneDigits } from "@/core/clients/phone";
+import { whatsappLink } from "@/core/whatsapp/whatsapp";
 
 // 32 caractères sans I, O, 0, 1 (ambigus) : 256 % 32 = 0, donc aucun biais de tirage.
 const ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -45,6 +46,5 @@ export function giftCardMessage(card: GiftCardDraft, brand: string): string {
 
 /** Lien wa.me : vers le destinataire si son numéro est connu, sinon sélecteur de contact WhatsApp. */
 export function giftCardWaLink(recipientPhone: string, message: string, recipientless = false): string {
-  const digits = recipientless ? "" : phoneDigits(recipientPhone);
-  return `https://wa.me/${digits}?text=${encodeURIComponent(message)}`;
+  return whatsappLink(phoneDigits(recipientPhone), message, recipientless);
 }

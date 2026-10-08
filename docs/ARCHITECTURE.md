@@ -39,7 +39,7 @@ scripts/                     contrôles (contrastes, anti-fuite, budget), géné
 
 ## 2. Règles `core` / `brand`
 
-1. **`src/core/**` ne contient aucun contenu de marque** : ni nom, ni texte, ni couleur, ni donnée. Il lit la marque **uniquement** via `import { brand } from "@/brand/brand.config"`.
+1. **`src/core/**` ne contient aucun contenu de marque** : ni nom, ni texte, ni couleur, ni donnée. Il lit la marque **uniquement** via le contrat `@/brand/*` : `brand` (`@/brand/brand.config`) et, pour le store de démonstration, `demoClients` / `demoReservations` (`@/brand/seed/demo`).
 2. **`src/brand/**` est le seul dossier qu'un dépôt client remplace.** Les exports attendus (`brand`, `seedSites`, `seedCategories`, `seedServices`, `seedPractitioners`, `seedRooms`, `seedBookings`, `demoClients`, `demoReservations`, `homeCopy`, `displayFont`, `tokens.css`) forment le contrat entre le socle et la marque.
 3. Une personnalisation qui exige de toucher `src/core/` est une **évolution du socle** : elle se fait dans la souche, puis est mergée dans les apps (`git merge upstream/main`). Contrôle côté app : `git diff upstream/main -- src/core` doit être vide.
 4. Les composants de `src/ui/**` lisent aussi `brand` ; ils ne contiennent aucun nom de marque.

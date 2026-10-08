@@ -13,8 +13,8 @@ export default defineConfig({
     baseURL: `http://127.0.0.1:${PORT}`,
     locale: "fr-FR",
     timezoneId: "Africa/Douala",
-    trace: "retain-on-failure",
-    launchOptions: process.env.PW_CHROMIUM_PATH ? { executablePath: process.env.PW_CHROMIUM_PATH } : {},
+    trace: "on-first-retry",
+    launchOptions: { executablePath: process.env.PW_CHROMIUM_PATH },
   },
   projects: [
     { name: "mobile-375", use: { viewport: { width: 375, height: 800 }, isMobile: true, hasTouch: true } },
