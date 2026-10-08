@@ -47,6 +47,7 @@ Registre des décisions d'architecture (ADR). Format : contexte, décision, alte
 | 036 | Couche design factory : deux registres, jetons OKLCH, mode sombre par classe | **À VALIDER** |
 | 037 | Correspondance des statuts de réservation → tons de `StatusBadge` | **À VALIDER** |
 | 038 | Polices auto-hébergées : Inter, Cormorant Garamond, JetBrains Mono | **À VALIDER** |
+| 039 | Matrice statut → action primaire de la fiche de réservation | **À VALIDER** |
 
 ---
 
@@ -333,3 +334,20 @@ Ces dix-huit décisions ont été validées par Yass le 2026-10-08 (PLAN v1.0). 
 - **Alternatives** : Geist (déjà celle de la factory, mais aucune raison de marque) ; fichiers « latin-ext » (inutiles en français) ; polices système seules (rendu différent d'un appareil à l'autre, y compris la graisse 450/520).
 - **Conséquences** : poids des polices public = 47 + 46 = 93 Ko (précédemment ≈ 3 fichiers Google téléchargés à l'exécution) ; le build ne contacte plus aucun serveur (vérifié avec un proxy HTTPS volontairement mort) ; Docker n'a plus besoin de réseau pour les polices. Un dépôt client change de police en remplaçant le dossier **avec sa licence**.
 - **Statut** : **À VALIDER**.
+
+### ADR-039 — Matrice statut → action primaire de la fiche de réservation
+- **Contexte** : la factory (§5.7) impose UNE action primaire adaptée au statut, toutes les autres actions restant visibles en secondaire, et seule l'action destructive dans un menu ; elle précise que cette matrice est une règle métier à faire valider avant de coder. Le run est autonome (`CLAUDE.md` §3) : choix le plus sûr et réversible, consigné ici.
+- **Décision** (les transitions autorisées sont inchangées, `src/core/booking/lifecycle.ts`) :
+
+  | Statut | Primaire | Secondaires (visibles) | Menu « Autres actions » (destructif) |
+  |---|---|---|---|
+  | `pending_deposit` | **Acompte reçu : confirmer** | Déplacer · Rappel WhatsApp | Annuler la réservation |
+  | `confirmed` | **Marquer terminée** | Marquer no-show · Remettre en attente d'acompte · Déplacer · Rappel WhatsApp | Annuler la réservation |
+  | `completed` | – | Rétablir en confirmée · Déplacer | – |
+  | `no_show` | – | Rétablir en confirmée · Déplacer | – |
+  | `cancelled` | – | Rouvrir (en attente d'acompte) · Rouvrir (confirmée) · Déplacer | – |
+
+  Raison : l'action la plus fréquente de chaque statut actif fait avancer le cycle (valider l'acompte, puis clôturer) ; les corrections et réouvertures restent visibles mais ne sont jamais mises en avant ; l'annulation est la seule action destructive. Une action indisponible (ex. « Marquer terminée » avant le jour du rendez-vous) reste affichée, désactivée, avec sa raison écrite sous les actions et reliée par `aria-describedby`.
+- **Écart** : la factory place « tout le reste » en secondaire sans limite ; ici « Remettre en attente d'acompte » et « Marquer no-show » s'ajoutent au statut `confirmed` (quatre secondaires). Sur mobile, les secondaires se partagent la ligne (`flex-1`).
+- **Alternatives** : aucune primaire pour `confirmed` (la clôture serait moins visible) ; primaire « Déplacer » (action fréquente mais pas une avancée du cycle).
+- **Statut** : **À VALIDER** (à confirmer avec la gérante / la réception ; changer la matrice = une table `PRIMARY_TRANSITION` dans `src/ui/admin/reservation-dialog.tsx`).

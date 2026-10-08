@@ -124,6 +124,60 @@ test.describe("back-office", () => {
   });
 });
 
+test.describe("back-office : fiches et formulaires", () => {
+  test("réservation : confirmer un acompte depuis la fiche (action primaire), Échap referme", async ({ page }) => {
+    await page.goto("/admin/reservations");
+    await page.getByRole("button", { name: /^En attente d'acompte/ }).click();
+    const mobile = (page.viewportSize()?.width ?? 1280) < 640;
+    const first = mobile ? page.getByRole("list", { name: "Liste des réservations" }).getByRole("button").first() : page.getByRole("row").filter({ hasText: "En attente d'acompte" }).first();
+    await first.click();
+    const dialog = page.getByRole("dialog");
+    await expect(dialog).toBeVisible();
+    await expectNoSeriousA11yViolations(page);
+    // Statut « en attente d'acompte » : la primaire est « Acompte reçu : confirmer » ; l'annulation est dans le menu « Autres actions ».
+    await expect(dialog.getByRole("button", { name: "Annuler la réservation" })).toHaveCount(0);
+    await dialog.getByRole("button", { name: "Acompte reçu : confirmer" }).click();
+    await expect(dialog.getByText("Statut mis à jour : Acompte reçu : confirmer.")).toBeVisible();
+    await dialog.getByRole("button", { name: "Autres actions" }).click();
+    await expect(dialog.getByRole("menuitem", { name: "Annuler la réservation" })).toBeVisible();
+    await page.keyboard.press("Escape"); // referme le menu seulement
+    await expect(dialog).toBeVisible();
+    await page.keyboard.press("Escape");
+    await expect(dialog).toBeHidden();
+    await expectNoHorizontalScroll(page);
+  });
+
+  test("salles : ajouter une salle par le formulaire (Entrée valide, destructif absent d'une nouvelle fiche)", async ({ page }) => {
+    await page.goto("/admin/salles");
+    await page.getByRole("button", { name: "Ajouter une salle" }).first().click();
+    const dialog = page.getByRole("dialog");
+    await expect(dialog.getByRole("heading", { name: "Nouvelle salle" })).toBeVisible();
+    await expect(dialog.getByRole("button", { name: "Autres actions" })).toHaveCount(0);
+    await expect(dialog.getByRole("button", { name: "Enregistrer" })).toBeDisabled();
+    await dialog.getByLabel(/^Nom/).fill("Salle de test e2e");
+    await dialog.getByRole("checkbox").first().check();
+    await expectNoSeriousA11yViolations(page);
+    await dialog.getByLabel(/^Nom/).press("Enter");
+    await expect(dialog).toBeHidden();
+    await expect(page.getByRole("button", { name: "Modifier Salle de test e2e" })).toBeVisible();
+    await expectNoHorizontalScroll(page);
+  });
+});
+
+test.describe("back-office : accessibilité (axe) de chaque écran, en clair et en sombre", () => {
+  for (const scheme of ["light", "dark"] as const) {
+    test(`les six écrans, thème ${scheme === "light" ? "clair" : "sombre"}`, async ({ page }) => {
+      await page.emulateMedia({ colorScheme: scheme, reducedMotion: "reduce" });
+      for (const path of ["/admin", "/admin/planning", "/admin/reservations", "/admin/clients", "/admin/salles", "/admin/staff"]) {
+        await page.goto(path);
+        await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+        await expect(page.locator("html")).toHaveClass(scheme === "dark" ? /(^|\s)dark(\s|$)/ : /^((?!dark).)*$/);
+        await expectNoSeriousA11yViolations(page);
+      }
+    });
+  }
+});
+
 test.describe("thème clair / sombre", () => {
   test("le bouton du back-office bascule le thème et le choix est mémorisé", async ({ page }) => {
     await page.emulateMedia({ colorScheme: "light", reducedMotion: "reduce" });

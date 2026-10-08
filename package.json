@@ -13,7 +13,7 @@
     "check:brand": "node scripts/check-brand-leak.mjs",
     "check:design": "node scripts/check-design.mjs",
     "assets:generate": "node scripts/generate-brand-assets.mjs",
-    "verify": "npm run typecheck && npm run lint && npm test && npm run check:contrast && npm run check:brand && npm run check:design",
+    "verify": "npm run typecheck && npm run lint && npm test && npm run check:contrast && npm run check:brand && npm run check:design -- --strict",
     "measure:first-load": "node scripts/measure-first-load.mjs",
     "e2e": "playwright test"
   },

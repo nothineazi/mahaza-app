@@ -1,31 +1,34 @@
 "use client";
 
-import { useState } from "react";
-import { Pencil, Plus } from "lucide-react";
+import { useId, useState } from "react";
+import { DoorOpen, Pencil, Plus } from "lucide-react";
 import { brand } from "@/brand/brand.config";
 import type { Room } from "@/core/types";
 import { useAdminData } from "@/core/state/store";
-import { FictiveBadge } from "@/ui/fictive-badge";
-import { Button } from "@/ui/primitives/button";
-import { Card } from "@/ui/primitives/card";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/ui/primitives/dialog";
-import { FieldLabel, Input, Textarea } from "@/ui/primitives/field";
-import { Pill } from "@/ui/primitives/pill";
-import { Switch } from "@/ui/primitives/switch";
-import { Skeleton, LoadingRegion } from "@/ui/primitives/skeleton";
 import { toggle } from "@/ui/admin/helpers";
+import { ActionBar } from "@/ui/kv/action-bar";
+import { controlGhost, controlPrimary, controlSecondary, fieldControl, textareaControl } from "@/ui/kv/control-classes";
+import { Field } from "@/ui/kv/field";
+import { FictiveTag } from "@/ui/kv/fictive-tag";
+import { Modal, ModalBody, ModalContent, ModalHeader } from "@/ui/kv/modal";
+import { PageHeader } from "@/ui/kv/page-header";
+import { Panel } from "@/ui/kv/panel";
+import { LoadingRegion, Skeleton } from "@/ui/kv/skeleton";
+import { StateBlock } from "@/ui/kv/state-block";
+import { StatusBadge } from "@/ui/kv/status-badge";
+import { LabeledSwitch } from "@/ui/kv/switch";
 
 export function RoomsManager() {
-  const { ready, rooms, reservations, saveRoom, removeRoom, newId, siteId } = useAdminData();
+  const { ready, rooms, reservations, saveRoom, removeRoom, newId, siteId, site } = useAdminData();
   const [editing, setEditing] = useState<Room | null>(null);
 
   if (!ready) {
     return (
-      <LoadingRegion label="Chargement des salles">
-        <Skeleton className="mb-4 h-10 w-48" />
+      <LoadingRegion label="Chargement des salles" className="space-y-6">
+        <Skeleton className="h-[52px] w-64" />
         <div className="grid gap-4 sm:grid-cols-2">
-          <Skeleton className="h-44" />
-          <Skeleton className="h-44" />
+          <Skeleton className="h-[176px]" />
+          <Skeleton className="h-[176px]" />
         </div>
       </LoadingRegion>
     );
@@ -35,55 +38,64 @@ export function RoomsManager() {
   const usage = (id: string) => reservations.filter((r) => r.lines.some((l) => l.roomId === id)).length;
 
   return (
-    <div className="space-y-5">
-      <div className="flex items-center justify-between gap-3">
-        <h1 className="font-display text-4xl font-medium">Salles</h1>
-        <Button onClick={startNew}>
-          <Plus /> Ajouter une salle
-        </Button>
-      </div>
+    <div className="space-y-6">
+      <PageHeader
+        title="Salles"
+        subtitle={site.name}
+        action={
+          <button type="button" onClick={startNew} className={controlPrimary}>
+            <Plus aria-hidden /> Ajouter une salle
+          </button>
+        }
+      />
 
-      <ul className="grid gap-4 sm:grid-cols-2">
-        {rooms.map((room) => (
-          <li key={room.id}>
-            <Card className="flex h-full flex-col gap-3 p-5">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="flex flex-wrap items-center gap-2 font-display text-2xl font-medium">
-                    {room.name}
-                    {room.fictive && <FictiveBadge />}
-                  </p>
-                  <p className="text-sm text-muted-foreground">{room.description}</p>
+      {rooms.length === 0 ? (
+        <Panel>
+          <StateBlock
+            icon={DoorOpen}
+            title="Aucune salle"
+            text="Ajoutez-en une pour ouvrir des créneaux à la réservation."
+            action={
+              <button type="button" onClick={startNew} className={controlSecondary}>
+                <Plus aria-hidden /> Ajouter une salle
+              </button>
+            }
+          />
+        </Panel>
+      ) : (
+        <ul className="grid gap-4 sm:grid-cols-2">
+          {rooms.map((room) => (
+            <li key={room.id}>
+              <Panel className="flex h-full flex-col gap-4">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <p className="flex flex-wrap items-center gap-2 text-kv-section">
+                      {room.name}
+                      {room.fictive && <FictiveTag />}
+                    </p>
+                    <p className="text-kv-meta text-muted-foreground">{room.description}</p>
+                  </div>
+                  <StatusBadge tone={room.active ? "success" : "neutral"}>{room.active ? "Active" : "Inactive"}</StatusBadge>
                 </div>
-                <Pill tone={room.active ? "success" : "neutral"}>{room.active ? "Active" : "Inactive"}</Pill>
-              </div>
-              <div className="flex flex-wrap gap-1.5">
-                {room.categories.map((c) => (
-                  <Pill key={c} tone="soft">{c}</Pill>
-                ))}
-              </div>
-              <div className="mt-auto flex items-center justify-between pt-1">
-                <div className="flex items-center gap-2">
-                  <Switch id={`room-${room.id}`} checked={room.active} onCheckedChange={(v) => saveRoom({ ...room, active: v })} />
-                  <label htmlFor={`room-${room.id}`} className="text-sm">Réservable</label>
+                <div className="flex flex-wrap gap-2">
+                  {room.categories.map((c) => (
+                    <StatusBadge key={c} tone="completed">{c}</StatusBadge>
+                  ))}
                 </div>
-                <Button variant="outline" size="sm" onClick={() => setEditing(room)}>
-                  <Pencil /> Modifier<span className="sr-only"> {room.name}</span>
-                </Button>
-              </div>
-            </Card>
-          </li>
-        ))}
-      </ul>
-      {rooms.length === 0 && (
-        <Card className="p-8 text-center">
-          <p className="font-display text-2xl font-medium">Aucune salle</p>
-          <p className="mt-1 text-sm text-muted-foreground">Ajoutez-en une pour ouvrir des créneaux à la réservation.</p>
-        </Card>
+                <div className="mt-auto flex items-center justify-between gap-2">
+                  <LabeledSwitch id={`room-${room.id}`} label="Réservable" checked={room.active} onCheckedChange={(v) => saveRoom({ ...room, active: v })} />
+                  <button type="button" onClick={() => setEditing(room)} className={controlSecondary}>
+                    <Pencil aria-hidden /> Modifier<span className="sr-only"> {room.name}</span>
+                  </button>
+                </div>
+              </Panel>
+            </li>
+          ))}
+        </ul>
       )}
 
-      <Dialog open={Boolean(editing)} onOpenChange={(open) => !open && setEditing(null)}>
-        <DialogContent variant="sheet">
+      <Modal open={Boolean(editing)} onOpenChange={(open) => !open && setEditing(null)}>
+        <ModalContent>
           {editing && (
             <RoomForm
               key={editing.id || "new"}
@@ -101,8 +113,8 @@ export function RoomsManager() {
               }}
             />
           )}
-        </DialogContent>
-      </Dialog>
+        </ModalContent>
+      </Modal>
     </div>
   );
 }
@@ -120,54 +132,58 @@ function RoomForm({ initial, isNew, usedBy, onSave, onDelete, onClose }: FormPro
   const [form, setForm] = useState(initial);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const valid = form.name.trim().length > 0 && form.categories.length > 0;
+  const formId = useId();
 
   return (
-    <form
-      className="grid gap-4"
-      onSubmit={(e) => {
-        e.preventDefault();
-        if (valid) onSave({ ...form, name: form.name.trim(), description: form.description.trim() });
-      }}
-    >
-      <DialogHeader>
-        <DialogTitle>{isNew ? "Nouvelle salle" : `Modifier « ${initial.name} »`}</DialogTitle>
-        <DialogDescription>Une salle n&apos;accueille que les soins des catégories cochées.</DialogDescription>
-      </DialogHeader>
-      <div>
-        <FieldLabel htmlFor="room-name">Nom</FieldLabel>
-        <Input id="room-name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
-      </div>
-      <div>
-        <FieldLabel htmlFor="room-desc">Description</FieldLabel>
-        <Textarea id="room-desc" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
-      </div>
-      <fieldset className="space-y-2">
-        <legend className="mb-1 text-sm font-medium">Catégories de soins</legend>
-        {brand.categories.map((c) => (
-          <label key={c} className="flex min-h-9 items-center gap-2 text-sm">
-            <input type="checkbox" className="size-4 accent-primary" checked={form.categories.includes(c)} onChange={() => setForm({ ...form, categories: toggle(form.categories, c) })} />
-            {c}
-          </label>
-        ))}
-        {form.categories.length === 0 && <p className="text-xs text-destructive">Cochez au moins une catégorie.</p>}
-      </fieldset>
-      <DialogFooter className="sm:justify-between">
-        {!isNew ? (
-          usedBy > 0 ? (
-            <p className="text-xs text-muted-foreground sm:max-w-52">Suppression impossible : {usedBy} réservation(s) liée(s). Désactivez la salle à la place.</p>
-          ) : confirmDelete ? (
-            <Button type="button" variant="danger" onClick={() => onDelete(initial.id)}>Confirmer la suppression</Button>
-          ) : (
-            <Button type="button" variant="danger" onClick={() => setConfirmDelete(true)}>Supprimer</Button>
-          )
-        ) : (
-          <span />
+    <>
+      <ModalHeader title={isNew ? "Nouvelle salle" : `Modifier « ${initial.name} »`} description="Une salle n'accueille que les soins des catégories cochées." />
+      <ModalBody>
+        <form
+          id={formId}
+          className="space-y-4"
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (valid) onSave({ ...form, name: form.name.trim(), description: form.description.trim() });
+          }}
+        >
+          <Field label="Nom" htmlFor={`${formId}-name`} required>
+            <input id={`${formId}-name`} className={fieldControl} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
+          </Field>
+          <Field label="Description" htmlFor={`${formId}-desc`}>
+            <textarea id={`${formId}-desc`} className={textareaControl} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+          </Field>
+          <fieldset className="space-y-1">
+            <legend className="mb-1 text-kv-label uppercase text-muted-foreground">Catégories de soins</legend>
+            {brand.categories.map((c) => (
+              <label key={c} className="flex h-11 items-center gap-2 text-kv-body md:h-8">
+                <input type="checkbox" className="size-4 accent-primary" checked={form.categories.includes(c)} onChange={() => setForm({ ...form, categories: toggle(form.categories, c) })} />
+                {c}
+              </label>
+            ))}
+            {form.categories.length === 0 && <p role="alert" className="text-kv-meta text-destructive">Cochez au moins une catégorie.</p>}
+          </fieldset>
+        </form>
+        {confirmDelete && (
+          <div role="alert" className="space-y-2 rounded-lg border border-destructive bg-danger-bg p-3 text-kv-body text-destructive">
+            <p>Supprimer définitivement « {initial.name} » ? Cette action est irréversible (en mémoire, démo).</p>
+            <div className="flex flex-wrap gap-2">
+              <button type="button" onClick={() => onDelete(initial.id)} className={`${controlSecondary} border-destructive text-destructive`}>
+                Confirmer la suppression
+              </button>
+              <button type="button" onClick={() => setConfirmDelete(false)} className={controlGhost}>
+                Annuler
+              </button>
+            </div>
+          </div>
         )}
-        <div className="flex flex-col-reverse gap-2 sm:flex-row">
-          <Button type="button" variant="outline" onClick={onClose}>Annuler</Button>
-          <Button type="submit" disabled={!valid}>Enregistrer</Button>
-        </div>
-      </DialogFooter>
-    </form>
+        {!isNew && usedBy > 0 && <p className="text-kv-meta text-muted-foreground">Suppression impossible : {usedBy} réservation(s) liée(s). Désactivez la salle à la place.</p>}
+      </ModalBody>
+      <ActionBar
+        primary={{ label: "Enregistrer", submitForm: formId, disabled: !valid }}
+        secondary={[{ label: "Annuler", onClick: onClose }]}
+        destructive={!isNew && usedBy === 0 ? { label: "Supprimer", onClick: () => setConfirmDelete(true) } : undefined}
+        menuLabel="Autres actions"
+      />
+    </>
   );
 }

@@ -3,9 +3,45 @@
 import * as React from "react";
 import { MoreHorizontal, type LucideIcon } from "lucide-react";
 import { cn } from "@/core/lib/utils";
-import { controlDanger, controlIcon, controlPrimary, controlSecondary } from "@/ui/kv/control-classes";
+import { controlDanger, controlIcon, controlPrimary, controlSecondary, controlSuccess } from "@/ui/kv/control-classes";
 
-export type BarAction = { label: string; icon?: LucideIcon; onClick: () => void; disabled?: boolean };
+/**
+ * Une action de la barre. `onClick` ; ou `href` (lien externe : s'ouvre dans un nouvel onglet) ; ou `submitForm` (id d'un
+ * formulaire à soumettre : l'action devient un bouton `submit` lié au formulaire, même hors de celui-ci).
+ */
+export type BarAction = {
+  label: string;
+  icon?: LucideIcon;
+  onClick?: () => void;
+  href?: string;
+  submitForm?: string;
+  disabled?: boolean;
+  /** Identifiant du texte qui explique pourquoi l'action est indisponible. */
+  describedBy?: string;
+  /** `success` : action WhatsApp. */
+  tone?: "default" | "success";
+};
+
+function ActionButton({ action, className }: { action: BarAction; className: string }) {
+  const content = (
+    <>
+      {action.icon && <action.icon aria-hidden />}
+      {action.label}
+    </>
+  );
+  if (action.href) {
+    return (
+      <a href={action.href} target="_blank" rel="noopener noreferrer" onClick={action.onClick} className={className}>
+        {content}
+      </a>
+    );
+  }
+  return (
+    <button type={action.submitForm ? "submit" : "button"} form={action.submitForm} onClick={action.onClick} disabled={action.disabled} aria-describedby={action.describedBy} className={className}>
+      {content}
+    </button>
+  );
+}
 
 /**
  * Barre d'actions collée en bas d'une fiche ou d'un formulaire.
@@ -16,17 +52,9 @@ export type BarAction = { label: string; icon?: LucideIcon; onClick: () => void;
 export function ActionBar({ primary, secondary = [], destructive, menuLabel, className }: { primary?: BarAction; secondary?: BarAction[]; destructive?: BarAction; menuLabel: string; className?: string }) {
   return (
     <div className={cn("flex flex-wrap items-center gap-2 border-t bg-popover p-3", className)}>
-      {primary && (
-        <button type="button" onClick={primary.onClick} disabled={primary.disabled} className={cn(controlPrimary, "w-full sm:w-auto")}>
-          {primary.icon && <primary.icon aria-hidden />}
-          {primary.label}
-        </button>
-      )}
+      {primary && <ActionButton action={primary} className={cn(controlPrimary, "w-full sm:w-auto")} />}
       {secondary.map((a) => (
-        <button key={a.label} type="button" onClick={a.onClick} disabled={a.disabled} className={cn(controlSecondary, "max-sm:flex-1")}>
-          {a.icon && <a.icon aria-hidden />}
-          {a.label}
-        </button>
+        <ActionButton key={a.label} action={a} className={cn(a.tone === "success" ? controlSuccess : controlSecondary, "max-sm:flex-1")} />
       ))}
       {destructive && <DestructiveMenu action={destructive} menuLabel={menuLabel} />}
     </div>
@@ -50,13 +78,17 @@ function DestructiveMenu({ action, menuLabel }: { action: BarAction; menuLabel: 
       if (!root.current?.contains(e.target as Node)) close(false);
     };
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") close(true);
+      if (e.key === "Escape") {
+        // Le menu referme d'abord : Échap ne doit pas fermer aussi la fiche qui le contient.
+        e.stopPropagation();
+        close(true);
+      }
     };
     document.addEventListener("pointerdown", onPointer);
-    document.addEventListener("keydown", onKey);
+    document.addEventListener("keydown", onKey, true);
     return () => {
       document.removeEventListener("pointerdown", onPointer);
-      document.removeEventListener("keydown", onKey);
+      document.removeEventListener("keydown", onKey, true);
     };
   }, [open]);
 
@@ -66,7 +98,7 @@ function DestructiveMenu({ action, menuLabel }: { action: BarAction; menuLabel: 
         <MoreHorizontal aria-hidden />
       </button>
       {open && (
-        <div role="menu" aria-label={menuLabel} className="absolute bottom-full right-0 z-20 mb-1 min-w-44 rounded-lg border bg-popover p-1 shadow-md">
+        <div role="menu" aria-label={menuLabel} className="absolute bottom-full right-0 z-20 mb-1 min-w-52 rounded-lg border bg-popover p-1 shadow-md">
           <button
             ref={item}
             type="button"
@@ -74,7 +106,7 @@ function DestructiveMenu({ action, menuLabel }: { action: BarAction; menuLabel: 
             disabled={action.disabled}
             onClick={() => {
               setOpen(false);
-              action.onClick();
+              action.onClick?.();
             }}
             className={cn(controlDanger, "w-full justify-start border-0 bg-transparent")}
           >

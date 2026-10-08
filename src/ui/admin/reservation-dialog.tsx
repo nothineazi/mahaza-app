@@ -1,8 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useId, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { AlertTriangle, ArrowRightLeft, Clock, MessageCircle, UserRound } from "lucide-react";
+import { AlertTriangle, ArrowRightLeft, Clock, MessageCircle, UserRound, X } from "lucide-react";
 import { brand } from "@/brand/brand.config";
 import type { BookingStatus, Reservation } from "@/core/types";
 import { useAppStore, type Result } from "@/core/state/store";
@@ -18,24 +18,26 @@ import { hoursFor } from "@/core/booking/availability";
 import { addDays, endTime, formatDateLong, minToTime, timeToMin } from "@/core/lib/dates";
 import { getSite, multiSite } from "@/core/sites/sites";
 import { cn, formatPrice } from "@/core/lib/utils";
-import { FictiveBadge } from "@/ui/fictive-badge";
-import { Button } from "@/ui/primitives/button";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/ui/primitives/dialog";
-import { FieldLabel, Input, Select } from "@/ui/primitives/field";
-import { StatusPill } from "@/ui/primitives/pill";
+import { ActionBar, type BarAction } from "@/ui/kv/action-bar";
+import { controlSecondary, fieldControl } from "@/ui/kv/control-classes";
+import { Field } from "@/ui/kv/field";
+import { FictiveTag } from "@/ui/kv/fictive-tag";
+import { Modal, ModalBody, ModalContent, ModalHeader } from "@/ui/kv/modal";
+import { BookingStatusBadge } from "@/ui/kv/status-badge";
 
 const hhmm = (ms: number) => new Intl.DateTimeFormat("fr-FR", { hour: "2-digit", minute: "2-digit", timeZone: "Africa/Douala" }).format(ms);
+
+/** Action primaire de la fiche selon le statut (matrice ADR-039) ; les autres transitions restent visibles en secondaire. */
+const PRIMARY_TRANSITION: Partial<Record<BookingStatus, BookingStatus>> = { pending_deposit: "confirmed", confirmed: "completed" };
 
 /** Détail d'une réservation : cycle de vie, déplacement (avec détection de conflit), rappel WhatsApp J-1. */
 export function ReservationDialog({ reservationId, onClose }: { reservationId: string | null; onClose: () => void }) {
   const { reservations } = useAppStore();
   const reservation = reservations.find((r) => r.id === reservationId);
   return (
-    <Dialog open={Boolean(reservation)} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent variant="sheet" className="sm:max-w-2xl">
-        {reservation && <Detail key={reservation.id} reservation={reservation} onClose={onClose} />}
-      </DialogContent>
-    </Dialog>
+    <Modal open={Boolean(reservation)} onOpenChange={(o) => !o && onClose()}>
+      <ModalContent size="lg">{reservation && <Detail key={reservation.id} reservation={reservation} onClose={onClose} />}</ModalContent>
+    </Modal>
   );
 }
 
@@ -45,6 +47,7 @@ function Detail({ reservation, onClose }: { reservation: Reservation; onClose: (
   const { staff, rooms, today, setStatus, markReminderSent, setFocusClientId } = store;
   const [message, setMessage] = useState<{ tone: "ok" | "error"; text: string; conflicts?: Conflict[] } | null>(null);
   const [moving, setMoving] = useState(false);
+  const whyId = useId();
   const site = getSite(reservation.siteId);
   const status = reservation.status;
   const { recipientless } = useRuntime();
@@ -58,80 +61,83 @@ function Detail({ reservation, onClose }: { reservation: Reservation; onClose: (
   const tomorrow = reservation.date === addDays(today, 1);
   const canRemind = status === "confirmed" || status === "pending_deposit";
 
+  // Transitions : une primaire adaptée au statut, les autres en secondaire, l'annulation dans le menu.
+  const checks = TRANSITIONS[status].map((to) => ({ to, check: checkTransition(reservation, to, today) }));
+  const toAction = ({ to, check }: (typeof checks)[number]): BarAction => ({ label: transitionLabel(status, to), onClick: () => apply(to), disabled: !check.ok, describedBy: check.ok ? undefined : `${whyId}-${to}` });
+  const primaryKey = PRIMARY_TRANSITION[status];
+  const primary = checks.filter((c) => c.to === primaryKey).map(toAction)[0];
+  const cancel = checks.find((c) => c.to === "cancelled");
+  const secondary: BarAction[] = [
+    ...checks.filter((c) => c.to !== primaryKey && c.to !== "cancelled").map(toAction),
+    { label: "Déplacer", icon: ArrowRightLeft, onClick: () => setMoving((m) => !m) },
+    ...(canRemind ? [{ label: "Rappel WhatsApp", icon: MessageCircle, href: reminderLink(reservation, rctx), onClick: () => markReminderSent(reservation.id), tone: "success" as const }] : []),
+  ];
+  const unavailable = checks.filter((c) => !c.check.ok);
+
   return (
     <>
-      <DialogHeader>
-        <DialogTitle>{reservation.lines.map((l) => brand.services.find((s) => s.id === l.serviceId)?.name).join(" + ")}</DialogTitle>
-        <DialogDescription asChild>
-          <div className="flex flex-wrap items-center gap-2">
-            <span>Réf. {reservation.reference}</span>
-            <StatusPill status={status} />
-            {reservation.fictive && <FictiveBadge />}
-          </div>
-        </DialogDescription>
-      </DialogHeader>
+      <ModalHeader
+        title={reservation.lines.map((l) => brand.services.find((s) => s.id === l.serviceId)?.name).join(" + ")}
+        description={
+          <span className="flex flex-wrap items-center gap-2">
+            <span>Réf. <span className="font-mono">{reservation.reference}</span></span>
+            <BookingStatusBadge status={status} />
+            {reservation.fictive && <FictiveTag />}
+          </span>
+        }
+      />
+      <ModalBody>
+        <dl className="divide-y rounded-lg border text-kv-body">
+          <Row k="Client">
+            <button
+              type="button"
+              onClick={() => {
+                setFocusClientId(reservation.clientId);
+                onClose();
+                router.push("/admin/clients");
+              }}
+              className="inline-flex min-h-8 items-center gap-1 rounded-sm font-semibold text-primary-text underline underline-offset-4 hover:text-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              <UserRound className="size-4" aria-hidden /> {reservation.customerName}
+            </button>
+            <span className="block text-muted-foreground">{reservation.customerPhone}</span>
+          </Row>
+          {multiSite && <Row k="Site">{site.name}</Row>}
+          <Row k="Quand">
+            <span className="first-letter:uppercase">{formatDateLong(reservation.date)}</span>, {reservation.lines[0].start} – {reservationEnd(reservation.lines)} <span className="text-muted-foreground">(indicatif)</span>
+          </Row>
+          <Row k="Soins">
+            <ul className="space-y-1">
+              {reservation.lines.map((l) => (
+                <li key={l.serviceId}>
+                  <span className="font-semibold tabular-nums">{l.start} – {endTime(l.start, l.durationMin)}</span> {brand.services.find((s) => s.id === l.serviceId)?.name}
+                  <span className="block text-muted-foreground">
+                    {staff.find((p) => p.id === l.practitionerId)?.name ?? "—"}{l.noPreference ? " (sans préférence)" : ""} · {rooms.find((r) => r.id === l.roomId)?.name ?? "—"}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </Row>
+          <Row k="Acompte (FICTIF)">
+            <span className="tabular-nums">{formatPrice(reservation.depositAmount)}</span> · {status === "pending_deposit" ? "en attente" : status === "cancelled" ? "—" : "reçu"}
+            {status === "pending_deposit" && reservation.holdExpiresAt != null && <HoldInfo expiresAt={reservation.holdExpiresAt} />}
+          </Row>
+          {reservation.reminderSentAt != null && <Row k="Rappel">Ouvert dans WhatsApp à {hhmm(reservation.reminderSentAt)}</Row>}
+        </dl>
 
-      <dl className="divide-y divide-line rounded-2xl border border-line text-sm">
-        <Row k="Client">
-          <button
-            type="button"
-            onClick={() => {
-              setFocusClientId(reservation.clientId);
-              onClose();
-              router.push("/admin/clients");
-            }}
-            className="inline-flex min-h-8 items-center gap-1.5 font-medium text-primary underline underline-offset-4 hover:text-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring"
-          >
-            <UserRound className="size-4" aria-hidden /> {reservation.customerName}
-          </button>
-          <span className="block text-muted-foreground">{reservation.customerPhone}</span>
-        </Row>
-        {multiSite && <Row k="Site">{site.name}</Row>}
-        <Row k="Quand">
-          <span className="first-letter:uppercase">{formatDateLong(reservation.date)}</span>, {reservation.lines[0].start} – {reservationEnd(reservation.lines)} <span className="text-muted-foreground">(indicatif)</span>
-        </Row>
-        <Row k="Soins">
-          <ul className="space-y-1">
-            {reservation.lines.map((l) => (
-              <li key={l.serviceId}>
-                <span className="font-medium">{l.start} – {endTime(l.start, l.durationMin)}</span> {brand.services.find((s) => s.id === l.serviceId)?.name}
-                <span className="block text-muted-foreground">
-                  {staff.find((p) => p.id === l.practitionerId)?.name ?? "—"}{l.noPreference ? " (sans préférence)" : ""} · {rooms.find((r) => r.id === l.roomId)?.name ?? "—"}
-                </span>
+        {unavailable.length > 0 && (
+          <ul className="space-y-1 text-kv-meta text-muted-foreground" aria-label="Actions indisponibles">
+            {unavailable.map(({ to, check }) => (
+              <li key={to} id={`${whyId}-${to}`}>
+                {transitionLabel(status, to)} : {check.ok ? "" : check.reason}
               </li>
             ))}
           </ul>
-        </Row>
-        <Row k="Acompte (FICTIF)">
-          {formatPrice(reservation.depositAmount)} · {status === "pending_deposit" ? "en attente" : status === "cancelled" ? "—" : "reçu"}
-          {status === "pending_deposit" && reservation.holdExpiresAt != null && <HoldInfo expiresAt={reservation.holdExpiresAt} />}
-        </Row>
-        {reservation.reminderSentAt != null && <Row k="Rappel">Ouvert dans WhatsApp à {hhmm(reservation.reminderSentAt)}</Row>}
-      </dl>
+        )}
 
-      {/* Cycle de vie */}
-      <section aria-labelledby="lifecycle-title" className="space-y-3">
-        <h3 id="lifecycle-title" className="font-display text-xl font-medium">Cycle de vie</h3>
-        <ul className="grid gap-2 sm:grid-cols-2">
-          {TRANSITIONS[status].map((to) => {
-            const check = checkTransition(reservation, to, today);
-            return (
-              <li key={to}>
-                <Button variant={to === "cancelled" ? "danger" : to === "confirmed" ? "primary" : "outline"} size="sm" className="w-full" disabled={!check.ok} onClick={() => apply(to)} aria-describedby={check.ok ? undefined : `why-${to}`}>
-                  {transitionLabel(status, to)}
-                </Button>
-                {!check.ok && (
-                  <p id={`why-${to}`} className="mt-1 text-xs text-muted-foreground">
-                    {check.reason}
-                  </p>
-                )}
-              </li>
-            );
-          })}
-        </ul>
         <div aria-live="polite">
           {message && (
-            <div className={cn("rounded-xl border px-4 py-3 text-sm", message.tone === "ok" ? "border-success/40 bg-success/10 text-success" : "border-destructive/40 bg-destructive/5 text-destructive")}>
+            <div className={cn("rounded-lg border px-3 py-2 text-kv-body", message.tone === "ok" ? "border-success bg-success-bg text-success" : "border-destructive bg-danger-bg text-destructive")}>
               <p className="flex gap-2">
                 {message.tone === "error" && <AlertTriangle className="mt-0.5 size-4 shrink-0" aria-hidden />} {message.text}
               </p>
@@ -139,38 +145,26 @@ function Detail({ reservation, onClose }: { reservation: Reservation; onClose: (
             </div>
           )}
         </div>
-      </section>
 
-      {/* Actions */}
-      <div className="flex flex-col gap-2 sm:flex-row">
-        <Button variant="outline" onClick={() => setMoving((m) => !m)} aria-expanded={moving}>
-          <ArrowRightLeft /> Déplacer
-        </Button>
         {canRemind && (
-          <Button asChild variant="whatsapp">
-            <a href={reminderLink(reservation, rctx)} target="_blank" rel="noopener noreferrer" onClick={() => markReminderSent(reservation.id)}>
-              <MessageCircle /> Envoyer un rappel WhatsApp
-            </a>
-          </Button>
+          <p className="text-kv-meta text-muted-foreground">
+            {tomorrow ? "Rendez-vous demain : c'est le moment d'envoyer le rappel J-1." : "Message modèle J-1 pré-rempli ; vous l'envoyez vous-même depuis WhatsApp."}
+            {reservation.fictive && " Numéro fictif de démonstration."}
+          </p>
         )}
-      </div>
-      {canRemind && (
-        <p className="-mt-2 text-xs text-muted-foreground">
-          {tomorrow ? "Rendez-vous demain : c'est le moment d'envoyer le rappel J-1." : "Message modèle J-1 pré-rempli ; vous l'envoyez vous-même depuis WhatsApp."}
-          {reservation.fictive && " Numéro fictif de démonstration."}
-        </p>
-      )}
 
-      {moving && <MoveForm reservation={reservation} onDone={(text) => { setMoving(false); setMessage({ tone: "ok", text }); }} />}
+        {moving && <MoveForm reservation={reservation} onDone={(text) => { setMoving(false); setMessage({ tone: "ok", text }); }} />}
+      </ModalBody>
+      <ActionBar primary={primary} secondary={secondary} destructive={cancel ? { ...toAction(cancel), icon: X } : undefined} menuLabel="Autres actions" />
     </>
   );
 }
 
 function Row({ k, children }: { k: string; children: React.ReactNode }) {
   return (
-    <div className="grid gap-1 px-4 py-3 sm:grid-cols-[140px_1fr] sm:gap-4">
-      <dt className="text-muted-foreground">{k}</dt>
-      <dd>{children}</dd>
+    <div className="grid gap-1 px-3 py-2 sm:grid-cols-[140px_1fr] sm:gap-4">
+      <dt className="text-kv-label uppercase text-muted-foreground">{k}</dt>
+      <dd className="min-w-0">{children}</dd>
     </div>
   );
 }
@@ -180,8 +174,8 @@ function HoldInfo({ expiresAt }: { expiresAt: number }) {
   if (now === 0) return null;
   const left = remainingMs(expiresAt, now);
   return (
-    <span className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
-      <Clock className="size-3.5" aria-hidden /> Expire dans <strong className="tabular-nums text-foreground">{formatCountdown(left)}</strong> (délai FICTIF)
+    <span className="mt-1 flex items-center gap-1 text-kv-meta text-muted-foreground">
+      <Clock className="size-3.5" aria-hidden /> Expire dans <strong className="font-semibold tabular-nums text-foreground">{formatCountdown(left)}</strong> (délai FICTIF)
     </span>
   );
 }
@@ -190,7 +184,7 @@ export function ConflictList({ conflicts }: { conflicts: Conflict[] }) {
   return (
     <ul className="mt-2 space-y-1">
       {conflicts.map((c, i) => (
-        <li key={i} className={cn("flex gap-2 text-sm", c.blocking ? "text-destructive" : "text-foreground")}>
+        <li key={i} className={cn("flex gap-2 text-kv-body", c.blocking ? "text-destructive" : "text-foreground")}>
           <span aria-hidden>{c.blocking ? "⛔" : "⚠️"}</span>
           <span>
             <span className="sr-only">{c.blocking ? "Conflit bloquant : " : "Avertissement : "}</span>
@@ -210,6 +204,7 @@ function MoveForm({ reservation, onDone }: { reservation: Reservation; onDone: (
   const [start, setStart] = useState(reservation.lines[0].start);
   const [assign, setAssign] = useState(reservation.lines.map((l) => ({ practitionerId: l.practitionerId, roomId: l.roomId })));
   const [error, setError] = useState<string | null>(null);
+  const uid = useId();
 
   const siteStaff = staff.filter((p) => (p.siteId ?? reservation.siteId) === reservation.siteId);
   const siteRooms = rooms.filter((r) => (r.siteId ?? reservation.siteId) === reservation.siteId);
@@ -235,52 +230,48 @@ function MoveForm({ reservation, onDone }: { reservation: Reservation; onDone: (
   };
 
   return (
-    <form onSubmit={submit} className="lux-fade space-y-4 rounded-2xl border border-primary/30 bg-secondary/40 p-4" aria-label="Déplacer la réservation">
-      <h3 className="font-display text-xl font-medium">Déplacer la réservation</h3>
-      <div className="grid gap-3 sm:grid-cols-2">
-        <div>
-          <FieldLabel htmlFor="move-date">Jour</FieldLabel>
-          <Input id="move-date" type="date" min={today} value={date} onChange={(e) => { setDate(e.target.value); setError(null); }} required />
-        </div>
-        <div>
-          <FieldLabel htmlFor="move-start">Heure de début</FieldLabel>
-          <Select id="move-start" value={start} onChange={(e) => { setStart(e.target.value); setError(null); }} disabled={!hours}>
+    <form onSubmit={submit} className="kv-content-fade space-y-4 rounded-lg border bg-muted/50 p-4" aria-label="Déplacer la réservation">
+      <h3 className="text-kv-section">Déplacer la réservation</h3>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Field label="Jour" htmlFor={`${uid}-date`}>
+          <input id={`${uid}-date`} className={fieldControl} type="date" min={today} value={date} onChange={(e) => { setDate(e.target.value); setError(null); }} required />
+        </Field>
+        <Field label="Heure de début" htmlFor={`${uid}-start`}>
+          <select id={`${uid}-start`} className={fieldControl} value={start} onChange={(e) => { setStart(e.target.value); setError(null); }} disabled={!hours}>
             {!times.includes(start) && <option value={start}>{start}</option>}
             {times.map((t) => (
               <option key={t} value={t}>{t}</option>
             ))}
-          </Select>
-        </div>
+          </select>
+        </Field>
       </div>
       {reservation.lines.map((l, i) => (
-        <fieldset key={l.serviceId} className="grid gap-3 rounded-xl bg-card p-3 sm:grid-cols-2">
-          <legend className="px-1 text-sm font-medium">{brand.services.find((s) => s.id === l.serviceId)?.name}</legend>
-          <div>
-            <FieldLabel htmlFor={`move-p-${i}`}>Praticien</FieldLabel>
-            <Select id={`move-p-${i}`} value={assign[i].practitionerId} onChange={(e) => setAssign((a) => a.map((x, j) => (j === i ? { ...x, practitionerId: e.target.value } : x)))}>
+        <fieldset key={l.serviceId} className="grid gap-4 rounded-lg border bg-card p-3 sm:grid-cols-2">
+          <legend className="px-1 text-kv-section">{brand.services.find((s) => s.id === l.serviceId)?.name}</legend>
+          <Field label="Praticien" htmlFor={`${uid}-p-${i}`}>
+            <select id={`${uid}-p-${i}`} className={fieldControl} value={assign[i].practitionerId} onChange={(e) => setAssign((a) => a.map((x, j) => (j === i ? { ...x, practitionerId: e.target.value } : x)))}>
               {siteStaff.map((p) => (
                 <option key={p.id} value={p.id}>{p.name}{p.active ? "" : " (inactif)"}</option>
               ))}
-            </Select>
-          </div>
-          <div>
-            <FieldLabel htmlFor={`move-r-${i}`}>Salle</FieldLabel>
-            <Select id={`move-r-${i}`} value={assign[i].roomId} onChange={(e) => setAssign((a) => a.map((x, j) => (j === i ? { ...x, roomId: e.target.value } : x)))}>
+            </select>
+          </Field>
+          <Field label="Salle" htmlFor={`${uid}-r-${i}`}>
+            <select id={`${uid}-r-${i}`} className={fieldControl} value={assign[i].roomId} onChange={(e) => setAssign((a) => a.map((x, j) => (j === i ? { ...x, roomId: e.target.value } : x)))}>
               {siteRooms.map((r) => (
                 <option key={r.id} value={r.id}>{r.name}{r.active ? "" : " (inactive)"}</option>
               ))}
-            </Select>
-          </div>
+            </select>
+          </Field>
         </fieldset>
       ))}
       <div aria-live="polite" data-testid="conflicts">
-        {!hours && <p className="text-sm text-destructive">Le site est fermé ce jour-là.</p>}
-        {conflicts.length === 0 && hours ? <p className="text-sm text-success">Aucun conflit : créneau libre.</p> : <ConflictList conflicts={conflicts} />}
-        {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
+        {!hours && <p className="text-kv-body text-destructive">Le site est fermé ce jour-là.</p>}
+        {conflicts.length === 0 && hours ? <p className="text-kv-body text-success">Aucun conflit : créneau libre.</p> : <ConflictList conflicts={conflicts} />}
+        {error && <p role="alert" className="text-kv-body text-destructive">{error}</p>}
       </div>
-      <Button type="submit" disabled={blocked}>
+      <button type="submit" disabled={blocked} className={cn(controlSecondary, "border-primary text-primary-text")}>
         Valider le déplacement
-      </Button>
+      </button>
     </form>
   );
 }

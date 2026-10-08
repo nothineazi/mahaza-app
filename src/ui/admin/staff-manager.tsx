@@ -1,31 +1,34 @@
 "use client";
 
-import { useState } from "react";
-import { Pencil, Plus } from "lucide-react";
+import { useId, useState } from "react";
+import { Pencil, Plus, UserRound } from "lucide-react";
 import { brand } from "@/brand/brand.config";
 import type { Practitioner } from "@/core/types";
 import { useAdminData } from "@/core/state/store";
-import { FictiveBadge } from "@/ui/fictive-badge";
-import { Button } from "@/ui/primitives/button";
-import { Card } from "@/ui/primitives/card";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/ui/primitives/dialog";
-import { FieldLabel, Input } from "@/ui/primitives/field";
-import { Pill } from "@/ui/primitives/pill";
-import { Switch } from "@/ui/primitives/switch";
-import { Skeleton, LoadingRegion } from "@/ui/primitives/skeleton";
 import { toggle } from "@/ui/admin/helpers";
+import { ActionBar } from "@/ui/kv/action-bar";
+import { controlGhost, controlPrimary, controlSecondary, fieldControl } from "@/ui/kv/control-classes";
+import { Field } from "@/ui/kv/field";
+import { FictiveTag } from "@/ui/kv/fictive-tag";
+import { Modal, ModalBody, ModalContent, ModalHeader } from "@/ui/kv/modal";
+import { PageHeader } from "@/ui/kv/page-header";
+import { Panel } from "@/ui/kv/panel";
+import { LoadingRegion, Skeleton } from "@/ui/kv/skeleton";
+import { StateBlock } from "@/ui/kv/state-block";
+import { StatusBadge } from "@/ui/kv/status-badge";
+import { LabeledSwitch } from "@/ui/kv/switch";
 
 export function StaffManager() {
-  const { ready, staff, reservations, saveStaff, removeStaff, newId, siteId } = useAdminData();
+  const { ready, staff, reservations, saveStaff, removeStaff, newId, siteId, site } = useAdminData();
   const [editing, setEditing] = useState<Practitioner | null>(null);
 
   if (!ready) {
     return (
-      <LoadingRegion label="Chargement de l'équipe">
-        <Skeleton className="mb-4 h-10 w-48" />
+      <LoadingRegion label="Chargement de l'équipe" className="space-y-6">
+        <Skeleton className="h-[52px] w-64" />
         <div className="grid gap-4 sm:grid-cols-2">
-          <Skeleton className="h-44" />
-          <Skeleton className="h-44" />
+          <Skeleton className="h-[176px]" />
+          <Skeleton className="h-[176px]" />
         </div>
       </LoadingRegion>
     );
@@ -35,60 +38,69 @@ export function StaffManager() {
   const usage = (id: string) => reservations.filter((r) => r.lines.some((l) => l.practitionerId === id)).length;
 
   return (
-    <div className="space-y-5">
-      <div className="flex items-center justify-between gap-3">
-        <h1 className="font-display text-4xl font-medium">Staff</h1>
-        <Button onClick={startNew}>
-          <Plus /> Ajouter un praticien
-        </Button>
-      </div>
+    <div className="space-y-6">
+      <PageHeader
+        title="Staff"
+        subtitle={site.name}
+        action={
+          <button type="button" onClick={startNew} className={controlPrimary}>
+            <Plus aria-hidden /> Ajouter un praticien
+          </button>
+        }
+      />
 
-      <ul className="grid gap-4 sm:grid-cols-2">
-        {staff.map((p) => (
-          <li key={p.id}>
-            <Card className="flex h-full flex-col gap-3 p-5">
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-secondary font-display text-xl font-medium text-secondary-foreground">{p.name.charAt(0)}</span>
-                  <div>
-                    <p className="flex flex-wrap items-center gap-2 font-display text-2xl font-medium leading-tight">
-                      {p.name}
-                      {p.fictive && <FictiveBadge />}
-                    </p>
-                    <p className="text-sm text-muted-foreground">{p.role}</p>
+      {staff.length === 0 ? (
+        <Panel>
+          <StateBlock
+            icon={UserRound}
+            title="Aucun praticien"
+            text="Ajoutez-en un pour ouvrir des créneaux à la réservation."
+            action={
+              <button type="button" onClick={startNew} className={controlSecondary}>
+                <Plus aria-hidden /> Ajouter un praticien
+              </button>
+            }
+          />
+        </Panel>
+      ) : (
+        <ul className="grid gap-4 sm:grid-cols-2">
+          {staff.map((p) => (
+            <li key={p.id}>
+              <Panel className="flex h-full flex-col gap-4">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex min-w-0 items-center gap-2">
+                    <span aria-hidden className="flex size-10 shrink-0 items-center justify-center rounded-full bg-secondary font-display text-xl font-semibold text-secondary-foreground">{p.name.charAt(0)}</span>
+                    <div className="min-w-0">
+                      <p className="flex flex-wrap items-center gap-2 text-kv-section">
+                        {p.name}
+                        {p.fictive && <FictiveTag />}
+                      </p>
+                      <p className="text-kv-meta text-muted-foreground">{p.role}</p>
+                    </div>
                   </div>
+                  <StatusBadge tone={p.active ? "success" : "neutral"}>{p.active ? "Actif" : "Inactif"}</StatusBadge>
                 </div>
-                <Pill tone={p.active ? "success" : "neutral"}>{p.active ? "Actif" : "Inactif"}</Pill>
-              </div>
-              <div className="flex flex-wrap gap-1.5">
-                {p.serviceIds.slice(0, 6).map((id) => (
-                  <Pill key={id} tone="soft">{brand.services.find((s) => s.id === id)?.name ?? id}</Pill>
-                ))}
-                {p.serviceIds.length > 6 && <Pill tone="neutral">+{p.serviceIds.length - 6}</Pill>}
-                {p.serviceIds.length === 0 && <span className="text-xs text-muted-foreground">Aucun soin assigné</span>}
-              </div>
-              <div className="mt-auto flex items-center justify-between pt-1">
-                <div className="flex items-center gap-2">
-                  <Switch id={`staff-${p.id}`} checked={p.active} onCheckedChange={(v) => saveStaff({ ...p, active: v })} />
-                  <label htmlFor={`staff-${p.id}`} className="text-sm">Réservable</label>
+                <div className="flex flex-wrap gap-2">
+                  {p.serviceIds.slice(0, 6).map((id) => (
+                    <StatusBadge key={id} tone="completed">{brand.services.find((s) => s.id === id)?.name ?? id}</StatusBadge>
+                  ))}
+                  {p.serviceIds.length > 6 && <StatusBadge tone="neutral">+{p.serviceIds.length - 6}</StatusBadge>}
+                  {p.serviceIds.length === 0 && <span className="text-kv-meta text-muted-foreground">Aucun soin assigné</span>}
                 </div>
-                <Button variant="outline" size="sm" onClick={() => setEditing(p)}>
-                  <Pencil /> Modifier<span className="sr-only"> {p.name}</span>
-                </Button>
-              </div>
-            </Card>
-          </li>
-        ))}
-      </ul>
-      {staff.length === 0 && (
-        <Card className="p-8 text-center">
-          <p className="font-display text-2xl font-medium">Aucun praticien</p>
-          <p className="mt-1 text-sm text-muted-foreground">Ajoutez-en un pour ouvrir des créneaux à la réservation.</p>
-        </Card>
+                <div className="mt-auto flex items-center justify-between gap-2">
+                  <LabeledSwitch id={`staff-${p.id}`} label="Réservable" checked={p.active} onCheckedChange={(v) => saveStaff({ ...p, active: v })} />
+                  <button type="button" onClick={() => setEditing(p)} className={controlSecondary}>
+                    <Pencil aria-hidden /> Modifier<span className="sr-only"> {p.name}</span>
+                  </button>
+                </div>
+              </Panel>
+            </li>
+          ))}
+        </ul>
       )}
 
-      <Dialog open={Boolean(editing)} onOpenChange={(open) => !open && setEditing(null)}>
-        <DialogContent variant="sheet">
+      <Modal open={Boolean(editing)} onOpenChange={(open) => !open && setEditing(null)}>
+        <ModalContent>
           {editing && (
             <StaffForm
               key={editing.id || "new"}
@@ -106,8 +118,8 @@ export function StaffManager() {
               }}
             />
           )}
-        </DialogContent>
-      </Dialog>
+        </ModalContent>
+      </Modal>
     </div>
   );
 }
@@ -125,60 +137,64 @@ function StaffForm({ initial, isNew, usedBy, onSave, onDelete, onClose }: FormPr
   const [form, setForm] = useState(initial);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const valid = form.name.trim().length > 0 && form.role.trim().length > 0;
+  const formId = useId();
 
   return (
-    <form
-      className="grid gap-4"
-      onSubmit={(e) => {
-        e.preventDefault();
-        if (valid) onSave({ ...form, name: form.name.trim(), role: form.role.trim() });
-      }}
-    >
-      <DialogHeader>
-        <DialogTitle>{isNew ? "Nouveau praticien" : `Modifier « ${initial.name} »`}</DialogTitle>
-        <DialogDescription>Un praticien n&apos;est proposé que pour les soins cochés.</DialogDescription>
-      </DialogHeader>
-      <div>
-        <FieldLabel htmlFor="staff-name">Nom</FieldLabel>
-        <Input id="staff-name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
-      </div>
-      <div>
-        <FieldLabel htmlFor="staff-role">Fonction</FieldLabel>
-        <Input id="staff-role" value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })} required />
-      </div>
-      <fieldset className="space-y-3">
-        <legend className="mb-1 text-sm font-medium">Soins assurés</legend>
-        {brand.categories.map((category) => (
-          <div key={category} className="space-y-1">
-            <p className="text-xs font-semibold uppercase tracking-wider text-primary">{category}</p>
-            {brand.services
-              .filter((s) => s.category === category)
-              .map((s) => (
-                <label key={s.id} className="flex min-h-9 items-center gap-2 text-sm">
-                  <input type="checkbox" className="size-4 accent-primary" checked={form.serviceIds.includes(s.id)} onChange={() => setForm({ ...form, serviceIds: toggle(form.serviceIds, s.id) })} />
-                  {s.name}
-                </label>
-              ))}
+    <>
+      <ModalHeader title={isNew ? "Nouveau praticien" : `Modifier « ${initial.name} »`} description="Un praticien n'est proposé que pour les soins cochés." />
+      <ModalBody>
+        <form
+          id={formId}
+          className="space-y-4"
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (valid) onSave({ ...form, name: form.name.trim(), role: form.role.trim() });
+          }}
+        >
+          <Field label="Nom" htmlFor={`${formId}-name`} required>
+            <input id={`${formId}-name`} className={fieldControl} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
+          </Field>
+          <Field label="Fonction" htmlFor={`${formId}-role`} required>
+            <input id={`${formId}-role`} className={fieldControl} value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })} required />
+          </Field>
+          <fieldset className="space-y-4">
+            <legend className="mb-1 text-kv-label uppercase text-muted-foreground">Soins assurés</legend>
+            {brand.categories.map((category) => (
+              <div key={category} className="space-y-1">
+                <p className="text-kv-section text-primary-text">{category}</p>
+                {brand.services
+                  .filter((s) => s.category === category)
+                  .map((s) => (
+                    <label key={s.id} className="flex h-11 items-center gap-2 text-kv-body md:h-8">
+                      <input type="checkbox" className="size-4 accent-primary" checked={form.serviceIds.includes(s.id)} onChange={() => setForm({ ...form, serviceIds: toggle(form.serviceIds, s.id) })} />
+                      {s.name}
+                    </label>
+                  ))}
+              </div>
+            ))}
+          </fieldset>
+        </form>
+        {confirmDelete && (
+          <div role="alert" className="space-y-2 rounded-lg border border-destructive bg-danger-bg p-3 text-kv-body text-destructive">
+            <p>Supprimer définitivement « {initial.name} » ? Cette action est irréversible (en mémoire, démo).</p>
+            <div className="flex flex-wrap gap-2">
+              <button type="button" onClick={() => onDelete(initial.id)} className={`${controlSecondary} border-destructive text-destructive`}>
+                Confirmer la suppression
+              </button>
+              <button type="button" onClick={() => setConfirmDelete(false)} className={controlGhost}>
+                Annuler
+              </button>
+            </div>
           </div>
-        ))}
-      </fieldset>
-      <DialogFooter className="sm:justify-between">
-        {!isNew ? (
-          usedBy > 0 ? (
-            <p className="text-xs text-muted-foreground sm:max-w-52">Suppression impossible : {usedBy} réservation(s) liée(s). Désactivez le praticien à la place.</p>
-          ) : confirmDelete ? (
-            <Button type="button" variant="danger" onClick={() => onDelete(initial.id)}>Confirmer la suppression</Button>
-          ) : (
-            <Button type="button" variant="danger" onClick={() => setConfirmDelete(true)}>Supprimer</Button>
-          )
-        ) : (
-          <span />
         )}
-        <div className="flex flex-col-reverse gap-2 sm:flex-row">
-          <Button type="button" variant="outline" onClick={onClose}>Annuler</Button>
-          <Button type="submit" disabled={!valid}>Enregistrer</Button>
-        </div>
-      </DialogFooter>
-    </form>
+        {!isNew && usedBy > 0 && <p className="text-kv-meta text-muted-foreground">Suppression impossible : {usedBy} réservation(s) liée(s). Désactivez le praticien à la place.</p>}
+      </ModalBody>
+      <ActionBar
+        primary={{ label: "Enregistrer", submitForm: formId, disabled: !valid }}
+        secondary={[{ label: "Annuler", onClick: onClose }]}
+        destructive={!isNew && usedBy === 0 ? { label: "Supprimer", onClick: () => setConfirmDelete(true) } : undefined}
+        menuLabel="Autres actions"
+      />
+    </>
   );
 }

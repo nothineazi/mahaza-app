@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, Award, Search, UserRoundX } from "lucide-react";
+import { useEffect, useId, useMemo, useState } from "react";
+import { ArrowLeft, Award, Search, UserRound, UserRoundX } from "lucide-react";
 import { brand } from "@/brand/brand.config";
 import type { Client, Reservation } from "@/core/types";
 import { useAdminData } from "@/core/state/store";
@@ -10,21 +10,26 @@ import { reservationEnd } from "@/core/booking/scheduling";
 import { phoneKey } from "@/core/clients/phone";
 import { formatDateShort } from "@/core/lib/dates";
 import { cn } from "@/core/lib/utils";
-import { FictiveBadge } from "@/ui/fictive-badge";
-import { Button } from "@/ui/primitives/button";
-import { Card } from "@/ui/primitives/card";
-import { FieldLabel, Input, Textarea } from "@/ui/primitives/field";
-import { Pill, StatusPill } from "@/ui/primitives/pill";
-import { Skeleton, LoadingRegion } from "@/ui/primitives/skeleton";
 import { ReservationDialog } from "@/ui/admin/reservation-dialog";
+import { controlGhost, controlPrimary, fieldControl, focusRing, textareaControl } from "@/ui/kv/control-classes";
+import { DataTable, type Column } from "@/ui/kv/data-table";
+import { Field } from "@/ui/kv/field";
+import { FictiveTag } from "@/ui/kv/fictive-tag";
+import { PageHeader } from "@/ui/kv/page-header";
+import { Panel, PanelHeader } from "@/ui/kv/panel";
+import { LoadingRegion, Skeleton } from "@/ui/kv/skeleton";
+import { StateBlock } from "@/ui/kv/state-block";
+import { BookingStatusBadge, StatusBadge } from "@/ui/kv/status-badge";
 
 const norm = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 const loyalty = (c: Client, history: Reservation[]) => loyaltyFor(c, history.map((r) => r.status), brand.policies.loyalty);
+const serviceNames = (r: Reservation) => r.lines.map((x) => brand.services.find((s) => s.id === x.serviceId)?.name).join(" + ");
 
 export function Clients() {
-  const { ready, clients, reservations, focusClientId, setFocusClientId } = useAdminData();
+  const { ready, clients, reservations, focusClientId, setFocusClientId, site } = useAdminData();
   const [query, setQuery] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(focusClientId);
+  const searchId = useId();
 
   useEffect(() => {
     if (focusClientId) setFocusClientId(null);
@@ -46,11 +51,11 @@ export function Clients() {
 
   if (!ready) {
     return (
-      <LoadingRegion label="Chargement des clients">
-        <Skeleton className="mb-4 h-10 w-48" />
+      <LoadingRegion label="Chargement des clients" className="space-y-6">
+        <Skeleton className="h-[52px] w-48" />
         <div className="grid gap-4 lg:grid-cols-[340px_1fr]">
-          <Skeleton className="h-96" />
-          <Skeleton className="hidden h-96 lg:block" />
+          <Skeleton className="h-[480px]" />
+          <Skeleton className="h-[480px] max-lg:hidden" />
         </div>
       </LoadingRegion>
     );
@@ -59,23 +64,33 @@ export function Clients() {
   const selected = clients.find((c) => c.id === selectedId) ?? null;
 
   return (
-    <div className="space-y-5">
-      <h1 className="font-display text-4xl font-medium">Clients</h1>
-      <div className="grid gap-5 lg:grid-cols-[340px_1fr] lg:items-start">
-        <div className={cn("space-y-3", selected && "hidden lg:block")}>
+    <div className="space-y-6">
+      <PageHeader title="Clients" subtitle={site.name} />
+      <div className="grid gap-4 lg:grid-cols-[340px_1fr] lg:items-start">
+        <div className={cn("space-y-2", selected && "max-lg:hidden")}>
           <div className="relative">
-            <label htmlFor="client-q" className="sr-only">Rechercher un client</label>
-            <Search className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
-            <Input id="client-q" type="search" className="pl-11" placeholder="Nom ou téléphone" value={query} onChange={(e) => setQuery(e.target.value)} />
+            <label htmlFor={searchId} className="sr-only">Rechercher un client</label>
+            <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
+            <input id={searchId} type="search" className={cn(fieldControl, "pl-9")} placeholder="Nom ou téléphone" value={query} onChange={(e) => setQuery(e.target.value)} />
           </div>
-          <p aria-live="polite" className="text-xs text-muted-foreground">
+          <p aria-live="polite" className="text-kv-meta text-muted-foreground">
             {rows.length} client{rows.length > 1 ? "s" : ""} pour ce site
           </p>
           {rows.length === 0 ? (
-            <Card className="flex flex-col items-center gap-2 p-8 text-center">
-              <UserRoundX className="size-7 text-muted-foreground" aria-hidden />
-              <p className="font-display text-xl font-medium">Aucun client trouvé</p>
-            </Card>
+            <Panel>
+              <StateBlock
+                icon={UserRoundX}
+                title="Aucun client trouvé"
+                text="Aucun client ne correspond à cette recherche."
+                action={
+                  query && (
+                    <button type="button" onClick={() => setQuery("")} className={controlGhost}>
+                      Effacer la recherche
+                    </button>
+                  )
+                }
+              />
+            </Panel>
           ) : (
             <ul className="space-y-2">
               {rows.map((c) => {
@@ -83,17 +98,17 @@ export function Clients() {
                 const l = loyalty(c, history);
                 return (
                   <li key={c.id}>
-                    <button type="button" aria-pressed={c.id === selectedId} onClick={() => setSelectedId(c.id)} className="block w-full rounded-2xl text-left focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring">
-                      <Card interactive className={cn("flex items-center justify-between gap-3 p-3.5", c.id === selectedId && "border-primary ring-1 ring-primary")}>
+                    <button type="button" aria-pressed={c.id === selectedId} onClick={() => setSelectedId(c.id)} className={cn("block w-full rounded-lg text-left", focusRing)}>
+                      <span className={cn("flex items-center justify-between gap-2 rounded-lg border bg-card p-3 transition-colors hover:bg-muted/50", c.id === selectedId && "border-primary ring-1 ring-primary")}>
                         <span className="min-w-0">
-                          <span className="block truncate font-medium">{c.name}</span>
-                          <span className="block text-xs text-muted-foreground">{c.phone}</span>
+                          <span className="block truncate text-kv-body font-semibold">{c.name}</span>
+                          <span className="block text-kv-meta tabular-nums text-muted-foreground">{c.phone}</span>
                         </span>
                         <span className="flex shrink-0 flex-col items-end gap-1">
-                          <Pill tone="soft">{l.tier.label}</Pill>
-                          <span className="text-xs text-muted-foreground">{l.visits} visite{l.visits > 1 ? "s" : ""}</span>
+                          <StatusBadge tone="completed">{l.tier.label}</StatusBadge>
+                          <span className="text-kv-meta text-muted-foreground">{l.visits} visite{l.visits > 1 ? "s" : ""}</span>
                         </span>
-                      </Card>
+                      </span>
                     </button>
                   </li>
                 );
@@ -102,14 +117,13 @@ export function Clients() {
           )}
         </div>
 
-        <div className={cn(!selected && "hidden lg:block")}>
+        <div className={cn(!selected && "max-lg:hidden")}>
           {selected ? (
             <ClientDetail key={selected.id} client={selected} history={byClient.get(selected.id) ?? []} onBack={() => setSelectedId(null)} />
           ) : (
-            <Card className="p-10 text-center">
-              <p className="font-display text-2xl font-medium">Sélectionnez un client</p>
-              <p className="mt-1 text-sm text-muted-foreground">Historique, notes et points de fidélité s&apos;affichent ici.</p>
-            </Card>
+            <Panel>
+              <StateBlock icon={UserRound} title="Sélectionnez un client" text="Historique, notes et points de fidélité s'affichent ici." />
+            </Panel>
           )}
         </div>
       </div>
@@ -122,6 +136,7 @@ function ClientDetail({ client, history, onBack }: { client: Client; history: Re
   const [notes, setNotes] = useState(client.notes);
   const [saved, setSaved] = useState(false);
   const [openId, setOpenId] = useState<string | null>(null);
+  const notesId = useId();
 
   const l = loyalty(client, history);
   const sorted = [...history].sort((a, b) => `${b.date} ${b.lines[0].start}`.localeCompare(`${a.date} ${a.lines[0].start}`));
@@ -138,75 +153,90 @@ function ClientDetail({ client, history, onBack }: { client: Client; history: Re
     setTimeout(() => setSaved(false), 2500);
   };
 
-  return (
-    <div className="space-y-5">
-      <Button variant="ghost" size="sm" className="-ml-3 lg:hidden" onClick={onBack}>
-        <ArrowLeft /> Retour à la liste
-      </Button>
+  const columns: Column<Reservation>[] = [
+    { id: "when", header: "Quand", cell: (r) => <><span className="inline-block first-letter:uppercase">{formatDateShort(r.date)}</span> · {r.lines[0].start} – {reservationEnd(r.lines)}</> },
+    { id: "services", header: "Soins", cell: serviceNames, maxWidth: "max-w-[260px]" },
+    { id: "status", header: "Statut", cell: (r) => <BookingStatusBadge status={r.status} /> },
+  ];
 
-      <Card className="space-y-4 p-6">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <h2 className="font-display text-3xl font-medium">{client.name}</h2>
-            <p className="text-sm text-muted-foreground">{client.phone}</p>
+  return (
+    <div className="space-y-4">
+      <button type="button" onClick={onBack} className={cn(controlGhost, "-ml-3 lg:hidden")}>
+        <ArrowLeft aria-hidden /> Retour à la liste
+      </button>
+
+      <Panel>
+        <div className="flex flex-wrap items-start justify-between gap-2">
+          <div className="min-w-0">
+            <h2 className="text-kv-title">{client.name}</h2>
+            <p className="text-kv-meta tabular-nums text-muted-foreground">{client.phone}</p>
           </div>
-          {client.fictive ? <FictiveBadge /> : <Pill tone="soft">Créé via le parcours web (démo)</Pill>}
+          {client.fictive ? <FictiveTag /> : <StatusBadge tone="neutral">Créé via le parcours web (démo)</StatusBadge>}
         </div>
-        <dl className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
+        <dl className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
           <Metric k="Visites terminées" v={String(l.visits)} />
           <Metric k="No-shows" v={String(noShows)} />
           <Metric k="Annulations" v={String(cancelled)} />
           <Metric k="Praticien habituel" v={fav ?? "—"} />
         </dl>
-      </Card>
+      </Panel>
 
-      <Card className="space-y-3 p-6">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <h3 className="flex items-center gap-2 font-display text-2xl font-medium">
-            <Award className="size-5 text-primary" aria-hidden /> Fidélité
-          </h3>
-          <FictiveBadge />
-        </div>
-        <p className="font-sans text-3xl font-semibold">
-          {l.points} <span className="text-base font-normal text-muted-foreground">points · palier {l.tier.label}</span>
+      <Panel>
+        <PanelHeader
+          title={
+            <span className="flex items-center gap-2">
+              <Award className="size-4 text-primary" aria-hidden /> Fidélité
+            </span>
+          }
+          action={<FictiveTag />}
+        />
+        <p className="text-kv-display tabular-nums">
+          {l.points} <span className="text-kv-body text-muted-foreground">points · palier {l.tier.label}</span>
         </p>
-        <div className="h-2 overflow-hidden rounded-full bg-line" role="meter" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(l.progress * 100)} aria-label="Progression vers le palier suivant">
-          <div className="h-full rounded-full bg-primary transition-[width] duration-700 motion-reduce:transition-none" style={{ width: `${Math.round(l.progress * 100)}%` }} />
+        <div className="mt-2 h-2 overflow-hidden rounded-full bg-muted" role="meter" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(l.progress * 100)} aria-label="Progression vers le palier suivant">
+          {/* check-design-allow: largeur calculée de la jauge */}
+          <div className="h-full rounded-full bg-primary" style={{ width: `${Math.round(l.progress * 100)}%` }} />
         </div>
-        <p className="text-xs text-muted-foreground">
+        <p className="mt-2 text-kv-meta text-muted-foreground">
           {l.next ? `Encore ${l.toNext} points avant le palier ${l.next.label}.` : "Palier maximal atteint."} Règle FICTIVE : {brand.policies.loyalty.pointsPerVisit} points par visite terminée (+ bonus {client.bonusPoints}), à confirmer par {brand.name}.
         </p>
-      </Card>
+      </Panel>
 
-      <Card className="space-y-3 p-6">
-        <FieldLabel htmlFor={`notes-${client.id}`} className="font-display text-2xl font-medium">Notes</FieldLabel>
-        <Textarea id={`notes-${client.id}`} value={notes} onChange={(e) => { setNotes(e.target.value); setSaved(false); }} onBlur={() => notes.trim() !== client.notes && save()} placeholder="Préférences, allergies, remarques…" maxLength={500} />
-        <div className="flex items-center gap-3">
-          <Button size="sm" onClick={save}>Enregistrer la note</Button>
-          <p role="status" className="text-sm text-success">{saved ? "Note enregistrée (en mémoire, démo)." : ""}</p>
+      <Panel>
+        <Field label="Notes" htmlFor={notesId} hint="Préférences, allergies, remarques (500 caractères au plus).">
+          <textarea id={notesId} className={textareaControl} value={notes} onChange={(e) => { setNotes(e.target.value); setSaved(false); }} onBlur={() => notes.trim() !== client.notes && save()} placeholder="Préférences, allergies, remarques…" maxLength={500} />
+        </Field>
+        <div className="mt-4 flex items-center gap-2">
+          <button type="button" onClick={save} className={controlPrimary}>
+            Enregistrer la note
+          </button>
+          <p role="status" className="text-kv-meta text-success">{saved ? "Note enregistrée (en mémoire, démo)." : ""}</p>
         </div>
-      </Card>
+      </Panel>
 
-      <Card className="space-y-3 p-6">
-        <h3 className="font-display text-2xl font-medium">Historique</h3>
+      <Panel>
+        <PanelHeader title="Historique" />
         {sorted.length === 0 ? (
-          <p className="rounded-xl border border-dashed border-line p-6 text-center text-sm text-muted-foreground">Aucune réservation pour ce client.</p>
+          <StateBlock icon={UserRoundX} title="Aucune réservation" text="Ce client n'a pas encore de réservation sur ce site." className="py-6" />
         ) : (
-          <ul className="divide-y divide-line">
-            {sorted.map((r) => (
-              <li key={r.id}>
-                <button type="button" onClick={() => setOpenId(r.id)} className="flex min-h-14 w-full items-center justify-between gap-3 rounded-xl py-3 text-left transition-colors hover:bg-muted/60 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring">
-                  <span className="min-w-0">
-                    <span className="block text-sm font-medium"><span className="first-letter:uppercase">{formatDateShort(r.date)}</span> · {r.lines[0].start} – {reservationEnd(r.lines)}</span>
-                    <span className="block truncate text-sm text-muted-foreground">{r.lines.map((x) => brand.services.find((s) => s.id === x.serviceId)?.name).join(" + ")}</span>
-                  </span>
-                  <StatusPill status={r.status} className="shrink-0" />
-                </button>
-              </li>
-            ))}
-          </ul>
+          <DataTable
+            label={`Historique de ${client.name}`}
+            columns={columns}
+            rows={sorted}
+            rowKey={(r) => r.id}
+            onRowClick={(r) => setOpenId(r.id)}
+            mobileCard={(r) => (
+              <div className="flex items-center justify-between gap-2">
+                <span className="min-w-0 text-kv-body">
+                  <span className="block font-semibold"><span className="first-letter:uppercase">{formatDateShort(r.date)}</span> · {r.lines[0].start} – {reservationEnd(r.lines)}</span>
+                  <span className="block truncate text-kv-meta text-muted-foreground">{serviceNames(r)}</span>
+                </span>
+                <BookingStatusBadge status={r.status} className="shrink-0" />
+              </div>
+            )}
+          />
         )}
-      </Card>
+      </Panel>
 
       <ReservationDialog reservationId={openId} onClose={() => setOpenId(null)} />
     </div>
@@ -215,9 +245,9 @@ function ClientDetail({ client, history, onBack }: { client: Client; history: Re
 
 function Metric({ k, v }: { k: string; v: string }) {
   return (
-    <div className="rounded-xl bg-muted/60 p-3">
-      <dt className="text-xs text-muted-foreground">{k}</dt>
-      <dd className="mt-0.5 font-sans text-lg font-semibold">{v}</dd>
+    <div className="min-w-0 rounded-md bg-muted p-3">
+      <dt className="text-kv-meta text-muted-foreground">{k}</dt>
+      <dd className="mt-1 truncate text-kv-title tabular-nums">{v}</dd>
     </div>
   );
 }

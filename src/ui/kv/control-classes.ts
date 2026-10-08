@@ -30,3 +30,9 @@ export const fieldControl = `block h-11 w-full rounded-md border border-input bg
 
 /** Zone de texte : même habillage, hauteur libre. */
 export const textareaControl = `${fieldControl} h-auto min-h-24 py-2 md:h-auto`;
+
+/** Filtre à bascule (`aria-pressed`) : contour au repos, plein quand il est actif. */
+export const controlChip = `${controlSecondary} aria-pressed:border-primary aria-pressed:bg-primary aria-pressed:text-primary-foreground aria-pressed:hover:bg-primary/90`;
+
+/** Action WhatsApp (ouvre un message pré-rempli) : vert « succès ». */
+export const controlSuccess = `${controlBase} bg-success text-success-foreground hover:bg-success/90`;
