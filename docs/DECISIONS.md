@@ -373,12 +373,12 @@ Ces dix-huit décisions ont été validées par Yass le 2026-10-08 (PLAN v1.0). 
 
   | Route | Base Next 15 | RUN-01 (Next 16) | Fin d'étape 5 | **Après allègement** | Budget CI (ADR-040) | Ancien budget |
   |---|---:|---:|---:|---:|---:|---:|
-  | `/` | 142 | 171,0 | 172,4 | **146,8** | **149** | 175 |
-  | `/reserver` | 168 | 187,6 | 188,7 | **169,5** | **172** | 192 |
+  | `/` | 142 | 171,0 | 172,4 | **146,9** | **149** | 175 |
+  | `/reserver` | 168 | 187,6 | 188,7 | **170,2** | **172** | 192 |
   | `/_not-found` | 104 | 144,1 | 145,4 | **136,5** | – | – |
   | `/admin` (6 écrans : 183,4 à 187,8) | 149-156 | 179-183 | 183-187 | 183,4 à 187,8 | – | – |
 
-  Écart restant à la base : **+4,8 kB sur `/`** et **+1,5 kB sur `/reserver`**, alors que le plancher de Next 16 est à 134,7 kB (contre 103 pour Next 15). Les 12,1 kB de `/` au-dessus du plancher se répartissent entre `next/image` et `next/link` (code client du framework), `lucide-react`, le thème (`next-themes`, 1,4 kB) et le hero.
+  Écart restant à la base : **+4,9 kB sur `/`** et **+2,2 kB sur `/reserver`**, alors que le plancher de Next 16 est à 134,7 kB (contre 103 pour Next 15). Les 12,1 kB de `/` au-dessus du plancher se répartissent entre `next/image` et `next/link` (code client du framework), `lucide-react`, le thème (`next-themes`, 1,4 kB) et le hero.
 - **Budget** : `scripts/first-load-budget.json` passe à **149 kB (`/`) et 172 kB (`/reserver`)** (mesure + ~1,5 %), contrôlé en CI. Les routes `/admin/*` ne sont pas budgétées (outil interne, derrière authentification dès le RUN-02) ; elles pèsent ≈ 187 kB (store, kv, Radix) et resteront mesurées dans les rapports.
 - **Non fait** : `tailwind-merge` (8,6 kB gzip) reste dans `/reserver` et `/admin` (les composants clients appellent `cn()`), l'alléger ferait perdre la fusion des classes ; `next/image` n'est pas remplacé par `<img>` (les dépôts clients y mettront des photos AVIF/WebP, `STANDARDS.md` §7).
 - **Alternatives** : garder le store dans le layout racine (+9 kB sur `/`, aucun risque de perte d'état) ; déférer par `ssr: false` (interdit dans un composant serveur, et supprimerait le texte du serveur).

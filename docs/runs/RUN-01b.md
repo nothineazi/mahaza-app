@@ -24,7 +24,7 @@ Non fait (voulu) : FR + EN, copy et valeurs Koverit, page de paiement, Copilot, 
 3. **Coque à barre latérale** (factory §5.9) construite à l'étape 3 : elle porte le bouton de thème demandé.
 4. **Deux jetons renommés** : le laiton du site public devient `gold` (le nom `accent` prend le sens factory) ; le filet décoratif public est `line` ; `--border` devient le filet fort ≥ 3:1 (ADR-036).
 5. **`tw-animate-css`** remplace `tailwindcss-animate` (plugin v3 non maintenu) ; `next-themes` 0.4.6 ajouté (demandé).
-6. **Tests e2e** : le menu du back-office est un tiroir sous 768 px (helper `adminNav`), l'assertion « fond sombre = rgb(14, 21, 21) » devient « classe `.dark` sur `<html>` » ; 13 scénarios ajoutés (voir §4).
+6. **Tests e2e** : le menu du back-office est un tiroir sous 768 px (helper `adminNav`), l'assertion « fond sombre = rgb(14, 21, 21) » devient « classe `.dark` sur `<html>` » ; 7 scénarios ajoutés, 6 → 13 (voir §4).
 7. **Interlignes** : 5 éléments reçoivent `sm:leading-*` pour garder le rendu de Tailwind 3 (en v4 `leading-*` l'emporte sur le `sm:text-*` suivant).
 8. **Italiques supprimés** (message de carte cadeau, note d'horaires) et `font-mono` retiré du site public, pour ne charger aucun fichier de police inutile.
 9. **Docker dans la sandbox** : `dockerd` démarré à la main, réseau hôte, proxy et CA injectés dans une copie locale du Dockerfile (celui de la CI est inchangé hormis `node:24-alpine`).
@@ -57,7 +57,7 @@ Non fait (voulu) : FR + EN, copy et valeurs Koverit, page de paiement, Copilot, 
 | Route | Base Next 15 | RUN-01 | Fin d'étape 5 | **Après allègement** | Budget CI | Ancien budget |
 |---|---:|---:|---:|---:|---:|---:|
 | `/` | 142 | 171,0 | 172,4 | **146,9** | **149** | 175 |
-| `/reserver` | 168 | 187,6 | 188,7 | **169,6** | **172** | 192 |
+| `/reserver` | 168 | 187,6 | 188,7 | **170,2** | **172** | 192 |
 | `/_not-found` | 104 | 144,1 | 145,4 | **136,5** | – | – |
 | `/admin` | 156 | 183,3 | 187,3 | 187,6 | – | – |
 | `/admin/clients` | 150 | 182,6 | 187,7 | 188,0 | – | – |
@@ -66,7 +66,7 @@ Non fait (voulu) : FR + EN, copy et valeurs Koverit, page de paiement, Copilot, 
 | `/admin/salles` | 149 | 179,3 | 183,3 | 183,6 | – | – |
 | `/admin/staff` | 149 | 179,4 | 183,4 | 183,7 | – | – |
 
-Tailwind 4 seul : `/` 171,0 · `/reserver` 187,6 · admin inchangé (poids JS identique). La couche design (kv, thème, polices) ajoute ≈ 1,4 kB sur les routes publiques et ≈ 4 kB sur l'admin ; l'allègement retire 25,5 kB sur `/` et 19,1 kB sur `/reserver`.
+Tailwind 4 seul : `/` 171,0 · `/reserver` 187,6 · admin inchangé (poids JS identique). La couche design (kv, thème, polices) ajoute ≈ 1,4 kB sur les routes publiques et ≈ 4 kB sur l'admin ; l'allègement retire 25,5 kB sur `/` et 18,5 kB sur `/reserver`.
 
 ### Écart de `/_not-found` (104 → 144 kB) : framework ou application ?
 
@@ -77,7 +77,7 @@ Tailwind 4 seul : `/` 171,0 · `/reserver` 187,6 · admin inchangé (poids JS id
 | OVAGLOW `/_not-found` avant allègement (Next 16) | 144,1 |
 | OVAGLOW `/_not-found` après allègement | **136,5** |
 
-Conclusion chiffrée : sur les **+40,1 kB** observés au RUN-01, **31,7 kB (79 %) viennent du framework** (Next 16 + React 19.3 : aucun code applicatif ne peut les retirer) et **8,4 kB (21 %) du code applicatif** du layout racine (store de la démo, données seed, moteur de planification). Ces 8,4 kB sont supprimés : `/_not-found` est à 1,8 kB du plancher de Next 16. Le plancher de Next 16 (134,7) est lui-même **au-dessus** de la base de `/` sous Next 15 (142) moins le code de page : l'écart restant de `/` (+4,9 kB) et de `/reserver` (+1,6 kB) est donc quasi incompressible.
+Conclusion chiffrée : sur les **+40,1 kB** observés au RUN-01, **31,7 kB (79 %) viennent du framework** (Next 16 + React 19.3 : aucun code applicatif ne peut les retirer) et **8,4 kB (21 %) du code applicatif** du layout racine (store de la démo, données seed, moteur de planification). Ces 8,4 kB sont supprimés : `/_not-found` est à 1,8 kB du plancher de Next 16. Le plancher de Next 16 (134,7) est lui-même **au-dessus** de la base de `/` sous Next 15 (142) moins le code de page : l'écart restant de `/` (+4,9 kB) et de `/reserver` (+2,2 kB) est donc quasi incompressible.
 
 ### Autres mesures
 - Polices : 47 + 2 × 23 Ko préchargées sur le site public (93 Ko) ; JetBrains Mono (40 Ko) jamais téléchargée par les pages publiques.

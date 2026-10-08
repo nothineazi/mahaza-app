@@ -20,7 +20,7 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Les versions 
 - Plus d'italique (carte cadeau, pied de page), plus de police mono sur le site public.
 
 ### Performance
-- **First Load JS** : `/` 172,4 → **146,9 kB**, `/reserver` 188,7 → **169,6 kB**, `/_not-found` 145,4 → **136,5 kB** (gzip). Store de la démo hors de l'accueil (groupe de routes `(app)`), cartes cadeaux et étapes tardives du tunnel en chargement différé, hero réduit à ses images côté client. Budget CI 149 / 172 kB (ADR-040).
+- **First Load JS** : `/` 172,4 → **146,9 kB**, `/reserver` 188,7 → **170,2 kB**, `/_not-found` 145,4 → **136,5 kB** (gzip). Store de la démo hors de l'accueil (groupe de routes `(app)`), cartes cadeaux et étapes tardives du tunnel en chargement différé, hero réduit à ses images côté client. Budget CI 149 / 172 kB (ADR-040).
 
 ### Supprimé
 - `next/font/google` : le build ne contacte plus aucun service de polices.
