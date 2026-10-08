@@ -22,22 +22,22 @@ export function GiftCardPreview({ amount, to, from, message, code }: { amount: n
     <div
       role="img"
       aria-label={`Aperçu de la carte cadeau${amount ? ` de ${formatPrice(amount)}` : ""}${to ? ` pour ${to}` : ""}. Carte fictive de démonstration.`}
-      className="relative isolate aspect-8/5 w-full overflow-hidden rounded-3xl bg-inverse p-5 text-inverse-foreground shadow-lift ring-1 ring-accent/60 sm:p-7"
+      className="relative isolate aspect-8/5 w-full overflow-hidden rounded-3xl bg-inverse p-5 text-inverse-foreground shadow-lift ring-1 ring-gold/60 sm:p-7"
     >
-      <span aria-hidden className="absolute inset-2 -z-10 rounded-[1.25rem] border border-accent/40" />
+      <span aria-hidden className="absolute inset-2 -z-10 rounded-[1.25rem] border border-gold/40" />
       {decor && (
         <Image src={decor.src} alt="" width={decor.width} height={decor.height} aria-hidden className="pointer-events-none absolute -bottom-3 -right-3 -z-10 w-28 opacity-25 sm:w-36" />
       )}
       <div aria-hidden className="flex h-full flex-col justify-between">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <p className="font-heading text-2xl font-medium leading-none sm:text-3xl sm:leading-9">{brand.name}</p>
-            <p className="mt-1 text-[10px] uppercase tracking-[0.3em] text-accent sm:text-xs">Carte cadeau</p>
+            <p className="font-display text-2xl font-medium leading-none sm:text-3xl sm:leading-9">{brand.name}</p>
+            <p className="mt-1 text-[10px] uppercase tracking-[0.3em] text-gold sm:text-xs">Carte cadeau</p>
           </div>
-          <span className="rotate-6 rounded-sm border border-accent px-2 py-0.5 text-[10px] font-semibold tracking-widest text-accent">FICTIF</span>
+          <span className="rotate-6 rounded-sm border border-gold px-2 py-0.5 text-[10px] font-semibold tracking-widest text-gold">FICTIF</span>
         </div>
         <div className="space-y-1">
-          <p className="font-heading text-4xl font-medium text-accent sm:text-5xl">{amount ? formatPrice(amount) : "— FCFA"}</p>
+          <p className="font-display text-4xl font-medium text-gold sm:text-5xl">{amount ? formatPrice(amount) : "— FCFA"}</p>
           {(to || from) && (
             <p className="text-xs text-inverse-foreground/85 sm:text-sm">
               {to && <>Pour <strong className="font-semibold">{to}</strong></>}
@@ -45,7 +45,7 @@ export function GiftCardPreview({ amount, to, from, message, code }: { amount: n
               {from && <>De la part de <strong className="font-semibold">{from}</strong></>}
             </p>
           )}
-          {message && <p className="line-clamp-2 font-heading text-base italic leading-snug text-inverse-foreground/90 sm:text-lg sm:leading-7">« {message} »</p>}
+          {message && <p className="line-clamp-2 font-display text-base italic leading-snug text-inverse-foreground/90 sm:text-lg sm:leading-7">« {message} »</p>}
         </div>
         <p className="font-mono text-xs tracking-[0.25em] text-inverse-foreground/85 sm:text-sm">{code ?? "GC-····-····"}</p>
       </div>
@@ -130,7 +130,7 @@ export function GiftCardStudio() {
                       onClick={() => setChoice(a)}
                       className={cn(
                         "min-h-12 rounded-full border text-sm font-semibold transition-[background-color,border-color,color] duration-200 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring",
-                        choice === a ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-card-foreground hover:border-primary",
+                        choice === a ? "border-primary bg-primary text-primary-foreground" : "border-line bg-card text-card-foreground hover:border-primary",
                       )}
                     >
                       {formatPrice(a)}
@@ -142,7 +142,7 @@ export function GiftCardStudio() {
                     onClick={() => setChoice(CUSTOM)}
                     className={cn(
                       "min-h-12 rounded-full border text-sm font-semibold transition-[background-color,border-color,color] duration-200 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring",
-                      choice === CUSTOM ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-card-foreground hover:border-primary",
+                      choice === CUSTOM ? "border-primary bg-primary text-primary-foreground" : "border-line bg-card text-card-foreground hover:border-primary",
                     )}
                   >
                     Autre montant
@@ -223,7 +223,7 @@ export function GiftCardStudio() {
 
           {card ? (
             <div className="lux-fade-up space-y-4 rounded-2xl border border-primary/40 bg-card p-5 text-sm text-card-foreground shadow-soft" aria-live="polite">
-              <p className="font-heading text-2xl font-medium">Votre carte est prête</p>
+              <p className="font-display text-2xl font-medium">Votre carte est prête</p>
               <p>
                 Code fictif : <strong className="font-mono tracking-widest">{card.code}</strong>. Pour offrir cette carte de <strong>{formatPrice(card.amount)}</strong>, envoyez ce montant par Mobile Money au numéro marchand :
               </p>

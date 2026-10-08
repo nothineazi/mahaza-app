@@ -41,8 +41,8 @@ export function HeroCarousel() {
       <div className="absolute inset-0 -z-10 bg-linear-to-r from-inverse/92 via-inverse/90 to-inverse/88" aria-hidden />
 
       <div className="mx-auto flex min-h-[560px] max-w-6xl flex-col items-start justify-center gap-7 px-4 py-20 text-inverse-foreground sm:min-h-[640px] sm:px-6">
-        <p className="lux-fade-up text-xs font-semibold uppercase tracking-[0.32em] text-accent sm:text-sm">{home.heroKicker}</p>
-        <h1 className="lux-fade-up max-w-3xl font-heading text-5xl font-medium leading-[1.05] [animation-delay:80ms] sm:text-7xl sm:leading-none">{home.heroTitle}</h1>
+        <p className="lux-fade-up text-xs font-semibold uppercase tracking-[0.32em] text-gold sm:text-sm">{home.heroKicker}</p>
+        <h1 className="lux-fade-up max-w-3xl font-display text-5xl font-medium leading-[1.05] [animation-delay:80ms] sm:text-7xl sm:leading-none">{home.heroTitle}</h1>
         <p className="lux-fade-up max-w-xl text-lg leading-relaxed text-inverse-foreground/90 [animation-delay:160ms]">{brand.description}</p>
         <div className="lux-fade-up flex flex-wrap gap-3 [animation-delay:240ms]">
           <Button asChild variant="gold" size="lg">
@@ -63,7 +63,7 @@ export function HeroCarousel() {
               onClick={() => setIndex(i)}
               aria-label={`Afficher le visuel ${i + 1} sur ${count}`}
               aria-current={i === index}
-              className="flex size-11 items-center justify-center rounded-full focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
+              className="flex size-11 items-center justify-center rounded-full focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-gold"
             >
               <span className={cn("block size-2.5 rounded-full border border-inverse-foreground transition-colors", i === index ? "bg-inverse-foreground" : "bg-transparent")} />
             </button>

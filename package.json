@@ -11,8 +11,9 @@
     "test": "vitest run",
     "check:contrast": "node scripts/check-contrast.mjs",
     "check:brand": "node scripts/check-brand-leak.mjs",
+    "check:design": "node scripts/check-design.mjs",
     "assets:generate": "node scripts/generate-brand-assets.mjs",
-    "verify": "npm run typecheck && npm run lint && npm test && npm run check:contrast && npm run check:brand",
+    "verify": "npm run typecheck && npm run lint && npm test && npm run check:contrast && npm run check:brand && npm run check:design",
     "measure:first-load": "node scripts/measure-first-load.mjs",
     "e2e": "playwright test"
   },
@@ -25,6 +26,7 @@
     "clsx": "^2.1.1",
     "lucide-react": "^1.52.0",
     "next": "16.4.0",
+    "next-themes": "^0.4.6",
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "tailwind-merge": "^3.7.0"

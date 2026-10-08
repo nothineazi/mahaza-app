@@ -1,6 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { expect, test } from "@playwright/test";
-import { BRAND_LEAK, expectNoHorizontalScroll, expectNoSeriousA11yViolations, layoutShiftScore } from "./helpers";
+import { BRAND_LEAK, adminNav, expectNoHorizontalScroll, expectNoSeriousA11yViolations, layoutShiftScore } from "./helpers";
 
 const BANNER = "Version de développement – données fictives";
 
@@ -29,7 +29,8 @@ test.describe("accueil", () => {
     await page.goto("/");
     await expectNoSeriousA11yViolations(page);
     await page.emulateMedia({ colorScheme: "dark" });
-    await expect(page.locator("body")).toHaveCSS("background-color", "rgb(14, 21, 21)");
+    // Thème par défaut = thème du système : next-themes pose la classe `.dark` sur <html>.
+    await expect(page.locator("html")).toHaveClass(/(^|\s)dark(\s|$)/);
     await expectNoSeriousA11yViolations(page);
   });
 });
@@ -94,14 +95,12 @@ test.describe("back-office", () => {
     await expectNoHorizontalScroll(page);
     await expectNoSeriousA11yViolations(page);
 
-    const nav = page.getByRole("navigation", { name: "Navigation du back-office" });
-
-    await nav.getByRole("link", { name: "Planning" }).click();
+    await (await adminNav(page)).getByRole("link", { name: "Planning" }).click();
     await expect(page).toHaveURL(/\/admin\/planning$/);
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
     await expectNoHorizontalScroll(page);
 
-    await nav.getByRole("link", { name: "Réservations" }).click();
+    await (await adminNav(page)).getByRole("link", { name: "Réservations" }).click();
     await expect(page).toHaveURL(/\/admin\/reservations$/);
     await expectNoHorizontalScroll(page);
     const [csv] = await Promise.all([page.waitForEvent("download"), page.getByRole("button", { name: /Exporter en CSV/ }).click()]);
@@ -110,18 +109,37 @@ test.describe("back-office", () => {
     expect(content).toContain("Référence;Statut;Date");
     expect(content).toContain("FICTIF");
 
-    await nav.getByRole("link", { name: "Clients" }).click();
+    await (await adminNav(page)).getByRole("link", { name: "Clients" }).click();
     await expect(page).toHaveURL(/\/admin\/clients$/);
     await expectNoHorizontalScroll(page);
 
-    await nav.getByRole("link", { name: "Salles" }).click();
+    await (await adminNav(page)).getByRole("link", { name: "Salles" }).click();
     await expect(page).toHaveURL(/\/admin\/salles$/);
     await expectNoHorizontalScroll(page);
 
-    await nav.getByRole("link", { name: "Staff" }).click();
+    await (await adminNav(page)).getByRole("link", { name: "Staff" }).click();
     await expect(page).toHaveURL(/\/admin\/staff$/);
     await expectNoHorizontalScroll(page);
     await expect(page.locator("body")).not.toContainText(BRAND_LEAK);
+  });
+});
+
+test.describe("thème clair / sombre", () => {
+  test("le bouton du back-office bascule le thème et le choix est mémorisé", async ({ page }) => {
+    await page.emulateMedia({ colorScheme: "light", reducedMotion: "reduce" });
+    await page.goto("/admin");
+    const html = page.locator("html");
+    await expect(html).not.toHaveClass(/(^|\s)dark(\s|$)/);
+    const toggle = page.getByRole("button", { name: "Basculer entre le thème clair et le thème sombre" }).and(page.locator(":visible"));
+    await toggle.first().click();
+    await expect(html).toHaveClass(/(^|\s)dark(\s|$)/);
+    await expect(html).toHaveCSS("color-scheme", "dark");
+    await expectNoSeriousA11yViolations(page);
+    await page.reload();
+    await expect(html).toHaveClass(/(^|\s)dark(\s|$)/);
+    await page.getByRole("button", { name: "Basculer entre le thème clair et le thème sombre" }).and(page.locator(":visible")).first().click();
+    await expect(html).not.toHaveClass(/(^|\s)dark(\s|$)/);
+    await expect(html).toHaveCSS("color-scheme", "light");
   });
 });
 

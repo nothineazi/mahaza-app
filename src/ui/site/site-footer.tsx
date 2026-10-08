@@ -11,11 +11,11 @@ export function SiteFooter() {
       <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
         <div className="grid gap-10 md:grid-cols-[1.2fr_1fr_1fr_1fr]">
           <div className="space-y-3">
-            <p className="font-heading text-3xl font-medium">{brand.name}</p>
+            <p className="font-display text-3xl font-medium">{brand.name}</p>
             <p className="max-w-xs text-sm leading-relaxed text-inverse-foreground/80">{brand.description}</p>
           </div>
           <div>
-            <h2 className="text-xs font-semibold uppercase tracking-[0.25em] text-accent">Nos sites</h2>
+            <h2 className="text-xs font-semibold uppercase tracking-[0.25em] text-gold">Nos sites</h2>
             <ul className="mt-4 space-y-1.5 text-sm">
               {sites.map((s) => (
                 <li key={s.id}>
@@ -25,7 +25,7 @@ export function SiteFooter() {
             </ul>
           </div>
           <div>
-            <h2 className="text-xs font-semibold uppercase tracking-[0.25em] text-accent">Horaires</h2>
+            <h2 className="text-xs font-semibold uppercase tracking-[0.25em] text-gold">Horaires</h2>
             <ul className="mt-4 space-y-1.5 text-sm">
               {brand.schedule?.map((r) => (
                 <li key={r.label}>
@@ -36,10 +36,10 @@ export function SiteFooter() {
             {brand.hoursToConfirm && <p className="mt-2 text-xs italic text-inverse-foreground/70">Horaires à confirmer par site.</p>}
           </div>
           <div>
-            <h2 className="text-xs font-semibold uppercase tracking-[0.25em] text-accent">Contact</h2>
+            <h2 className="text-xs font-semibold uppercase tracking-[0.25em] text-gold">Contact</h2>
             {brand.contactEmail && (
               <p className="mt-4 text-sm">
-                <a href={`mailto:${brand.contactEmail}`} className="text-accent underline underline-offset-4 hover:text-inverse-foreground">
+                <a href={`mailto:${brand.contactEmail}`} className="text-gold underline underline-offset-4 hover:text-inverse-foreground">
                   {brand.contactEmail}
                 </a>
               </p>
@@ -48,7 +48,7 @@ export function SiteFooter() {
               <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-1.5 text-sm" aria-label="Réseaux sociaux">
                 {brand.socials.map((s) => (
                   <li key={s.network}>
-                    <a href={s.url} target="_blank" rel="noopener noreferrer" className="text-accent underline underline-offset-4 hover:text-inverse-foreground">
+                    <a href={s.url} target="_blank" rel="noopener noreferrer" className="text-gold underline underline-offset-4 hover:text-inverse-foreground">
                       {s.label}
                     </a>
                   </li>
@@ -61,7 +61,7 @@ export function SiteFooter() {
           <p>
             Marque fictive de démonstration. Aucune réservation n&apos;est réellement enregistrée et aucun paiement n&apos;est effectué. Les données marquées FICTIF sont inventées.
           </p>
-          <Link href="/admin" className="shrink-0 text-accent underline underline-offset-4 hover:text-inverse-foreground">
+          <Link href="/admin" className="shrink-0 text-gold underline underline-offset-4 hover:text-inverse-foreground">
             Accès back-office (démo)
           </Link>
         </div>

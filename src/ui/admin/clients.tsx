@@ -60,7 +60,7 @@ export function Clients() {
 
   return (
     <div className="space-y-5">
-      <h1 className="font-heading text-4xl font-medium">Clients</h1>
+      <h1 className="font-display text-4xl font-medium">Clients</h1>
       <div className="grid gap-5 lg:grid-cols-[340px_1fr] lg:items-start">
         <div className={cn("space-y-3", selected && "hidden lg:block")}>
           <div className="relative">
@@ -74,7 +74,7 @@ export function Clients() {
           {rows.length === 0 ? (
             <Card className="flex flex-col items-center gap-2 p-8 text-center">
               <UserRoundX className="size-7 text-muted-foreground" aria-hidden />
-              <p className="font-heading text-xl font-medium">Aucun client trouvé</p>
+              <p className="font-display text-xl font-medium">Aucun client trouvé</p>
             </Card>
           ) : (
             <ul className="space-y-2">
@@ -107,7 +107,7 @@ export function Clients() {
             <ClientDetail key={selected.id} client={selected} history={byClient.get(selected.id) ?? []} onBack={() => setSelectedId(null)} />
           ) : (
             <Card className="p-10 text-center">
-              <p className="font-heading text-2xl font-medium">Sélectionnez un client</p>
+              <p className="font-display text-2xl font-medium">Sélectionnez un client</p>
               <p className="mt-1 text-sm text-muted-foreground">Historique, notes et points de fidélité s&apos;affichent ici.</p>
             </Card>
           )}
@@ -147,7 +147,7 @@ function ClientDetail({ client, history, onBack }: { client: Client; history: Re
       <Card className="space-y-4 p-6">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <h2 className="font-heading text-3xl font-medium">{client.name}</h2>
+            <h2 className="font-display text-3xl font-medium">{client.name}</h2>
             <p className="text-sm text-muted-foreground">{client.phone}</p>
           </div>
           {client.fictive ? <FictiveBadge /> : <Pill tone="soft">Créé via le parcours web (démo)</Pill>}
@@ -162,7 +162,7 @@ function ClientDetail({ client, history, onBack }: { client: Client; history: Re
 
       <Card className="space-y-3 p-6">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <h3 className="flex items-center gap-2 font-heading text-2xl font-medium">
+          <h3 className="flex items-center gap-2 font-display text-2xl font-medium">
             <Award className="size-5 text-primary" aria-hidden /> Fidélité
           </h3>
           <FictiveBadge />
@@ -170,7 +170,7 @@ function ClientDetail({ client, history, onBack }: { client: Client; history: Re
         <p className="font-sans text-3xl font-semibold">
           {l.points} <span className="text-base font-normal text-muted-foreground">points · palier {l.tier.label}</span>
         </p>
-        <div className="h-2 overflow-hidden rounded-full bg-border" role="meter" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(l.progress * 100)} aria-label="Progression vers le palier suivant">
+        <div className="h-2 overflow-hidden rounded-full bg-line" role="meter" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(l.progress * 100)} aria-label="Progression vers le palier suivant">
           <div className="h-full rounded-full bg-primary transition-[width] duration-700 motion-reduce:transition-none" style={{ width: `${Math.round(l.progress * 100)}%` }} />
         </div>
         <p className="text-xs text-muted-foreground">
@@ -179,7 +179,7 @@ function ClientDetail({ client, history, onBack }: { client: Client; history: Re
       </Card>
 
       <Card className="space-y-3 p-6">
-        <FieldLabel htmlFor={`notes-${client.id}`} className="font-heading text-2xl font-medium">Notes</FieldLabel>
+        <FieldLabel htmlFor={`notes-${client.id}`} className="font-display text-2xl font-medium">Notes</FieldLabel>
         <Textarea id={`notes-${client.id}`} value={notes} onChange={(e) => { setNotes(e.target.value); setSaved(false); }} onBlur={() => notes.trim() !== client.notes && save()} placeholder="Préférences, allergies, remarques…" maxLength={500} />
         <div className="flex items-center gap-3">
           <Button size="sm" onClick={save}>Enregistrer la note</Button>
@@ -188,11 +188,11 @@ function ClientDetail({ client, history, onBack }: { client: Client; history: Re
       </Card>
 
       <Card className="space-y-3 p-6">
-        <h3 className="font-heading text-2xl font-medium">Historique</h3>
+        <h3 className="font-display text-2xl font-medium">Historique</h3>
         {sorted.length === 0 ? (
-          <p className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">Aucune réservation pour ce client.</p>
+          <p className="rounded-xl border border-dashed border-line p-6 text-center text-sm text-muted-foreground">Aucune réservation pour ce client.</p>
         ) : (
-          <ul className="divide-y divide-border">
+          <ul className="divide-y divide-line">
             {sorted.map((r) => (
               <li key={r.id}>
                 <button type="button" onClick={() => setOpenId(r.id)} className="flex min-h-14 w-full items-center justify-between gap-3 rounded-xl py-3 text-left transition-colors hover:bg-muted/60 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring">

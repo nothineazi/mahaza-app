@@ -6,8 +6,8 @@ import { cn } from "@/core/lib/utils";
 type Tone = "neutral" | "gold" | "success" | "danger" | "soft";
 
 const TONES: Record<Tone, string> = {
-  neutral: "border-border bg-card text-foreground",
-  gold: "border-transparent bg-accent/25 text-foreground",
+  neutral: "border-line bg-card text-foreground",
+  gold: "border-transparent bg-gold/25 text-foreground",
   success: "border-transparent bg-success/12 text-success",
   danger: "border-transparent bg-destructive/10 text-destructive",
   soft: "border-transparent bg-secondary text-secondary-foreground",

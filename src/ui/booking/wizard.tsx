@@ -125,7 +125,7 @@ export function BookingWizard() {
                 <ArrowLeft /> Retour
               </Button>
             )}
-            <h1 ref={headingRef} tabIndex={-1} className="font-heading text-4xl font-medium leading-tight outline-hidden sm:text-5xl sm:leading-none">
+            <h1 ref={headingRef} tabIndex={-1} className="font-display text-4xl font-medium leading-tight outline-hidden sm:text-5xl sm:leading-none">
               {STEP_TITLES[step]}
             </h1>
             {LEADS[step] && <p className="max-w-xl text-muted-foreground">{LEADS[step]}</p>}

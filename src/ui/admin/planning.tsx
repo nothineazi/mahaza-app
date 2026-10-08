@@ -22,7 +22,7 @@ type GroupBy = "praticien" | "salle";
 const HOUR_PX = 64;
 
 const BLOCK: Record<BookingStatus, string> = {
-  pending_deposit: "border-accent bg-accent/25",
+  pending_deposit: "border-gold bg-gold/25",
   confirmed: "border-success bg-success/15",
   completed: "border-muted-foreground bg-muted",
   cancelled: "border-destructive bg-destructive/10",
@@ -54,7 +54,7 @@ export function Planning() {
 
   return (
     <div className="space-y-5">
-      <h1 className="font-heading text-4xl font-medium">Planning</h1>
+      <h1 className="font-display text-4xl font-medium">Planning</h1>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-1">
           <Button variant="outline" size="icon" onClick={() => setDate(addDays(current, -step))} aria-label={view === "jour" ? "Jour précédent" : "Semaine précédente"}>
@@ -73,7 +73,7 @@ export function Planning() {
         </div>
       </div>
 
-      <h2 className="font-heading text-2xl font-medium first-letter:uppercase">{label}</h2>
+      <h2 className="font-display text-2xl font-medium first-letter:uppercase">{label}</h2>
 
       {view === "jour" ? (
         <DayView date={current} reservations={reservations} staff={staff} rooms={rooms} groupBy={groupBy} onOpen={setOpenId} />
@@ -106,7 +106,7 @@ export function Planning() {
 
 function Segmented<T extends string>({ label, value, onChange, options, className }: { label: string; value: T; onChange: (v: T) => void; options: [T, string][]; className?: string }) {
   return (
-    <div role="group" aria-label={label} className={cn("inline-flex rounded-full border border-border bg-card p-1", className)}>
+    <div role="group" aria-label={label} className={cn("inline-flex rounded-full border border-line bg-card p-1", className)}>
       {options.map(([v, text]) => (
         <button
           key={v}
@@ -137,14 +137,14 @@ function DayView({ date, reservations, staff, rooms, groupBy, onOpen }: { date: 
     return (
       <Card className="flex flex-col items-center gap-2 p-10 text-center">
         <CalendarOff className="size-8 text-muted-foreground" aria-hidden />
-        <p className="font-heading text-2xl font-medium">Site fermé ce jour-là</p>
+        <p className="font-display text-2xl font-medium">Site fermé ce jour-là</p>
       </Card>
     );
   }
   if (entries.length === 0) {
     return (
       <Card className="p-10 text-center">
-        <p className="font-heading text-2xl font-medium">Aucune réservation ce jour-là</p>
+        <p className="font-display text-2xl font-medium">Aucune réservation ce jour-là</p>
         {hiddenCancelled > 0 && <p className="mt-1 text-sm text-muted-foreground">{hiddenCancelled} réservation(s) annulée(s) masquée(s).</p>}
       </Card>
     );
@@ -180,10 +180,10 @@ function DayView({ date, reservations, staff, rooms, groupBy, onOpen }: { date: 
       </ul>
 
       {/* Desktop : grille par praticien ou par salle */}
-      <div className="hidden overflow-x-auto rounded-2xl border border-border bg-card shadow-soft md:block">
+      <div className="hidden overflow-x-auto rounded-2xl border border-line bg-card shadow-soft md:block">
         <div className="flex" style={{ minWidth: 56 + columns.length * 150 }}>
-          <div className="w-14 shrink-0 border-r border-border">
-            <div className="h-12 border-b border-border" />
+          <div className="w-14 shrink-0 border-r border-line">
+            <div className="h-12 border-b border-line" />
             <div className="relative" style={{ height }}>
               {hourMarks.map((h) => (
                 <span key={h} className="absolute right-2 -translate-y-1/2 text-[11px] text-muted-foreground" style={{ top: ((h - open) / 60) * HOUR_PX }}>
@@ -193,14 +193,14 @@ function DayView({ date, reservations, staff, rooms, groupBy, onOpen }: { date: 
             </div>
           </div>
           {columns.map((c) => (
-            <div key={c.id} className="min-w-[150px] flex-1 border-r border-border last:border-r-0">
-              <div className="flex h-12 flex-col items-center justify-center border-b border-border px-1 text-center leading-tight">
+            <div key={c.id} className="min-w-[150px] flex-1 border-r border-line last:border-r-0">
+              <div className="flex h-12 flex-col items-center justify-center border-b border-line px-1 text-center leading-tight">
                 <span className="text-sm font-semibold">{c.title}</span>
                 {c.sub && <span className="text-[11px] text-muted-foreground">{c.sub}</span>}
               </div>
               <div className="relative" style={{ height }}>
                 {hourMarks.map((h) => (
-                  <div key={h} className="absolute inset-x-0 border-t border-border/60" style={{ top: ((h - open) / 60) * HOUR_PX }} />
+                  <div key={h} className="absolute inset-x-0 border-t border-line/60" style={{ top: ((h - open) / 60) * HOUR_PX }} />
                 ))}
                 {entries.filter(c.match).map(({ r, l }) => (
                   <button
@@ -228,19 +228,19 @@ function DayView({ date, reservations, staff, rooms, groupBy, onOpen }: { date: 
 
 function WeekView({ days, today, reservations, onOpen, onPickDay }: { days: string[]; today: string; reservations: Reservation[]; onOpen: (id: string) => void; onPickDay: (d: string) => void }) {
   return (
-    <div className="grid gap-3 md:grid-cols-7 md:gap-0 md:overflow-hidden md:rounded-2xl md:border md:border-border md:bg-card md:shadow-soft">
+    <div className="grid gap-3 md:grid-cols-7 md:gap-0 md:overflow-hidden md:rounded-2xl md:border md:border-line md:bg-card md:shadow-soft">
       {days.map((d) => {
         const list = reservations.filter((r) => r.date === d && r.status !== "cancelled").sort((a, b) => a.lines[0].start.localeCompare(b.lines[0].start));
         const closed = hoursFor(brand.opening, d) === null;
         return (
-          <section key={d} aria-label={formatDateLong(d)} className="rounded-2xl border border-border bg-card md:rounded-none md:border-0 md:border-r md:last:border-r-0">
+          <section key={d} aria-label={formatDateLong(d)} className="rounded-2xl border border-line bg-card md:rounded-none md:border-0 md:border-r md:last:border-r-0">
             <button
               type="button"
               onClick={() => onPickDay(d)}
-              className={cn("flex min-h-16 w-full items-center justify-between border-b border-border px-3 py-2 text-sm transition-colors hover:bg-muted md:flex-col md:justify-center", d === today && "bg-secondary font-semibold text-secondary-foreground")}
+              className={cn("flex min-h-16 w-full items-center justify-between border-b border-line px-3 py-2 text-sm transition-colors hover:bg-muted md:flex-col md:justify-center", d === today && "bg-secondary font-semibold text-secondary-foreground")}
             >
               <span className="capitalize">{formatDate(d, { weekday: "short" })}</span>
-              <span className="font-heading text-2xl font-medium leading-tight">{formatDate(d, { day: "numeric" })}</span>
+              <span className="font-display text-2xl font-medium leading-tight">{formatDate(d, { day: "numeric" })}</span>
               <span className="text-[11px] text-muted-foreground">{closed ? "Fermé" : `${list.length} résa`}</span>
             </button>
             <ul className="min-h-12 space-y-1.5 p-1.5 md:min-h-40">

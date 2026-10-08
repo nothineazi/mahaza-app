@@ -19,7 +19,7 @@
 }
 
 @layer components {
-  .font-heading {
+  .font-display {
     font-feature-settings: "liga", "kern";
     letter-spacing: 0.005em;
   }

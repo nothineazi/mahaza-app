@@ -1,5 +1,17 @@
 import { clsx, type ClassValue } from "clsx";
-import { twMerge } from "tailwind-merge";
+import { extendTailwindMerge } from "tailwind-merge";
+
+/**
+ * Échelle typographique kv (src/ui/kv/kv.css). Sans cette extension, tailwind-merge prend `text-kv-body` pour une couleur
+ * et supprime `text-muted-foreground` (ou l'inverse).
+ */
+const twMerge = extendTailwindMerge({
+  extend: {
+    classGroups: {
+      "font-size": [{ text: ["kv-display", "kv-title", "kv-section", "kv-body", "kv-meta", "kv-label"] }],
+    },
+  },
+});
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));

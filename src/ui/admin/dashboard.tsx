@@ -67,12 +67,12 @@ export function Dashboard() {
     <div className="space-y-8">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="font-heading text-4xl font-medium">Tableau de bord</h1>
+          <h1 className="font-display text-4xl font-medium">Tableau de bord</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             {site.name} · <span className="first-letter:uppercase">{formatDateLong(today)}</span>
           </p>
         </div>
-        <div role="group" aria-label="Période" className="inline-flex rounded-full border border-border bg-card p-1">
+        <div role="group" aria-label="Période" className="inline-flex rounded-full border border-line bg-card p-1">
           {(["day", "week"] as const).map((p) => (
             <button
               key={p}
@@ -97,7 +97,7 @@ export function Dashboard() {
         />
         <Kpi icon={Percent} label={`Taux de remplissage ${label}`} value={pct(occupancy)} note="Minutes réservées ÷ minutes d'ouverture × praticiens actifs (créneaux de 60 min indicatifs)">
           {occupancy != null && (
-            <div className="mt-3 h-2 overflow-hidden rounded-full bg-border" role="meter" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(occupancy * 100)} aria-label="Taux de remplissage">
+            <div className="mt-3 h-2 overflow-hidden rounded-full bg-line" role="meter" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(occupancy * 100)} aria-label="Taux de remplissage">
               <div className="h-full rounded-full bg-primary transition-[width] duration-700 motion-reduce:transition-none" style={{ width: `${Math.round(occupancy * 100)}%` }} />
             </div>
           )}
@@ -107,11 +107,11 @@ export function Dashboard() {
 
       <div className="grid gap-6 lg:grid-cols-2">
         <Card className="min-w-0 p-5">
-          <h2 className="font-heading text-2xl font-medium">Prochains rendez-vous</h2>
+          <h2 className="font-display text-2xl font-medium">Prochains rendez-vous</h2>
           {next.length === 0 ? (
-            <p className="mt-4 rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">Aucun rendez-vous à venir pour ce site.</p>
+            <p className="mt-4 rounded-xl border border-dashed border-line p-6 text-center text-sm text-muted-foreground">Aucun rendez-vous à venir pour ce site.</p>
           ) : (
-            <ul className="mt-3 divide-y divide-border">
+            <ul className="mt-3 divide-y divide-line">
               {next.map((r) => (
                 <ReservationRow key={r.id} r={r} onOpen={setOpenId} />
               ))}
@@ -120,12 +120,12 @@ export function Dashboard() {
         </Card>
 
         <Card className="min-w-0 p-5">
-          <h2 className="font-heading text-2xl font-medium">Rappels J-1 à envoyer</h2>
+          <h2 className="font-display text-2xl font-medium">Rappels J-1 à envoyer</h2>
           <p className="mt-1 text-xs text-muted-foreground">Rendez-vous de demain, confirmés ou en attente d&apos;acompte. L&apos;envoi se fait depuis WhatsApp.</p>
           {reminders.length === 0 ? (
-            <p className="mt-4 rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">Aucun rendez-vous demain : rien à rappeler.</p>
+            <p className="mt-4 rounded-xl border border-dashed border-line p-6 text-center text-sm text-muted-foreground">Aucun rendez-vous demain : rien à rappeler.</p>
           ) : (
-            <ul className="mt-3 divide-y divide-border">
+            <ul className="mt-3 divide-y divide-line">
               {reminders.map((r) => (
                 <li key={r.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
                   <div className="min-w-0">
@@ -195,12 +195,12 @@ function WeekChart({ days, today }: { days: ReturnType<typeof weekBreakdown>; to
   return (
     <Card className="min-w-0 p-5">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h2 className="font-heading text-2xl font-medium">Réservations de la semaine</h2>
+        <h2 className="font-display text-2xl font-medium">Réservations de la semaine</h2>
         <FictiveBadge />
       </div>
       <p className="mt-1 text-xs text-muted-foreground">Hors annulées. Survolez ou focalisez une barre pour le détail.</p>
-      <ul className="relative mt-5 flex items-end justify-between gap-2 border-b border-border" style={{ height: H + 36 }} aria-label="Graphique : réservations par jour">
-        <li aria-hidden className="pointer-events-none absolute inset-x-0 border-t border-border/70" style={{ bottom: 36 + H }}>
+      <ul className="relative mt-5 flex items-end justify-between gap-2 border-b border-line" style={{ height: H + 36 }} aria-label="Graphique : réservations par jour">
+        <li aria-hidden className="pointer-events-none absolute inset-x-0 border-t border-line/70" style={{ bottom: 36 + H }}>
           <span className="absolute -top-5 left-0 text-[11px] text-muted-foreground">{max}</span>
         </li>
         {days.map((d, i) => {
@@ -234,7 +234,7 @@ function WeekChart({ days, today }: { days: ReturnType<typeof weekBreakdown>; to
           </thead>
           <tbody>
             {days.map((d) => (
-              <tr key={d.date} className="border-t border-border">
+              <tr key={d.date} className="border-t border-line">
                 <th scope="row" className="py-1.5 text-left font-normal capitalize">{formatDate(d.date, { weekday: "long", day: "numeric", month: "short" })}</th>
                 <td className="py-1.5">{d.count}</td>
                 <td className="py-1.5 text-right tabular-nums">{formatPrice(d.revenue)}</td>

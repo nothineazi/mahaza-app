@@ -66,7 +66,7 @@ export function StepDeposit({ draft, onChange, onConfirm, error, onPickAnotherSl
       )}
 
       <section className="space-y-4 rounded-2xl border border-primary/40 bg-secondary p-6 text-secondary-foreground">
-        <h2 className="font-heading text-2xl font-medium">Réglez l&apos;acompte par Mobile Money</h2>
+        <h2 className="font-display text-2xl font-medium">Réglez l&apos;acompte par Mobile Money</h2>
         <p className="text-sm">
           Envoyez <strong>{formatPrice(deposit)}</strong> (acompte forfaitaire par réservation, montant FICTIF de démonstration) au numéro marchand ci-dessous.
         </p>
@@ -104,7 +104,7 @@ export function StepDeposit({ draft, onChange, onConfirm, error, onPickAnotherSl
       </section>
 
       <section className="space-y-5">
-        <h2 className="font-heading text-2xl font-medium">Vos coordonnées</h2>
+        <h2 className="font-display text-2xl font-medium">Vos coordonnées</h2>
         <div>
           <FieldLabel htmlFor={`${uid}-name`}>Nom complet</FieldLabel>
           <Input id={`${uid}-name`} autoComplete="name" value={draft.name} onChange={(e) => onChange({ name: e.target.value })} aria-invalid={touched && !nameOk} aria-describedby={`${uid}-name-err`} />

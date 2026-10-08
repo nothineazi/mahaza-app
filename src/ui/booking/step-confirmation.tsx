@@ -50,7 +50,7 @@ export function StepConfirmation({ draft, onUpdate, onRestart }: { draft: Draft;
         ) : (
           <XCircle className="size-12 text-destructive" aria-hidden />
         )}
-        <h2 className="font-heading text-4xl font-medium">
+        <h2 className="font-display text-4xl font-medium">
           {status === "confirmed" ? "Rendez-vous confirmé" : status === "pending_deposit" ? "Réservation enregistrée" : expired ? "Réservation expirée" : "Rendez-vous annulé"}
         </h2>
         <p className="max-w-lg text-sm">
@@ -71,12 +71,12 @@ export function StepConfirmation({ draft, onUpdate, onRestart }: { draft: Draft;
 
       {/* Ticket récapitulatif */}
       <Card className="overflow-hidden">
-        <div aria-hidden className="h-1 bg-accent" />
+        <div aria-hidden className="h-1 bg-gold" />
         <div className="space-y-5 p-6">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Référence</p>
-              <p className="font-heading text-3xl font-medium">{reservation.reference}</p>
+              <p className="font-display text-3xl font-medium">{reservation.reference}</p>
             </div>
             <StatusPill status={status} />
           </div>
@@ -100,7 +100,7 @@ export function StepConfirmation({ draft, onUpdate, onRestart }: { draft: Draft;
               <dd className="mt-1 font-medium">{formatPrice(reservation.depositAmount)}</dd>
             </div>
           </dl>
-          <ul className="divide-y divide-border rounded-2xl border border-border">
+          <ul className="divide-y divide-line rounded-2xl border border-line">
             {reservation.lines.map((l) => (
               <li key={l.serviceId} className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 px-4 py-3 text-sm">
                 <span>
@@ -154,7 +154,7 @@ export function StepConfirmation({ draft, onUpdate, onRestart }: { draft: Draft;
       </div>
 
       {status === "pending_deposit" && (
-        <div className="rounded-2xl border border-dashed border-border p-5 text-sm">
+        <div className="rounded-2xl border border-dashed border-line p-5 text-sm">
           <p className="font-medium">Outil de démonstration</p>
           <p className="mt-1 text-muted-foreground">Dans la réalité, le site confirme après vérification de l&apos;acompte. Simulez cette étape pour voir l&apos;état « confirmé ».</p>
           <Button variant="soft" size="sm" className="mt-3" onClick={() => setStatus(reservation.id, "confirmed")}>

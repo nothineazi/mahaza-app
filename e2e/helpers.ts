@@ -34,3 +34,14 @@ export async function expectNoSeriousA11yViolations(page: Page) {
 
 /** Noms des marques des dépôts clients : ne doivent jamais apparaître à l'écran (motif assemblé pour ne pas se signaler lui-même dans l'anti-fuite). */
 export const BRAND_LEAK = new RegExp([["maha", "za"].join(""), ["st[ _-]?lo", "uis"].join("")].join("|"), "i");
+
+/** Navigation du back-office : barre latérale sur bureau, tiroir (à ouvrir) sous 768 px. */
+export async function adminNav(page: Page) {
+  // Le tiroir précédent peut finir son animation de fermeture : on attend qu'il ait disparu avant d'en ouvrir un autre.
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  const burger = page.getByRole("button", { name: "Ouvrir le menu du back-office" });
+  if (await burger.isVisible()) await burger.click();
+  const nav = page.getByRole("navigation", { name: "Navigation du back-office" });
+  await expect(nav).toBeVisible();
+  return nav;
+}

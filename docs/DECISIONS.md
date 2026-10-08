@@ -44,6 +44,8 @@ Registre des décisions d'architecture (ADR). Format : contexte, décision, alte
 | 033 | Jobs e2e et Docker dans la CI du RUN-01 | ACCEPTÉ |
 | 034 | Turbopack par défaut | ACCEPTÉ |
 | 035 | Tailwind CSS 4.3.3, configuration CSS-first | ACCEPTÉ (GO de Yass, RUN-01b) |
+| 036 | Couche design factory : deux registres, jetons OKLCH, mode sombre par classe | **À VALIDER** |
+| 037 | Correspondance des statuts de réservation → tons de `StatusBadge` | **À VALIDER** |
 
 ---
 
@@ -219,7 +221,7 @@ Ces dix-huit décisions ont été validées par Yass le 2026-10-08 (PLAN v1.0). 
 ### ADR-027 — Thèmes clair et sombre, surfaces inversées
 - **Décision** : `src/brand/theme/tokens.css` définit les jetons (canaux RGB) en clair, en sombre selon `prefers-color-scheme` et en sombre forcé par `<html data-theme="dark">`. Deux jetons ajoutés : `inverse` / `inverse-foreground` (pied de page, hero, carte cadeau, infobulle : toujours des surfaces sombres) et `success-foreground`. `scripts/check-contrast.mjs` lit ce fichier et vérifie 48 couples par thème (WCAG 2.x AA), ainsi que l'égalité des deux blocs sombres. Aucune bascule manuelle : le thème suit le système.
 - **Alternatives** : bascule manuelle clair / sombre ; inversion `foreground` / `background` (contrastes impossibles avec l'or).
-- **Statut** : **REMPLACÉ** (Yass, RUN-01b) par le mode sombre de la factory : classe `.dark`, `next-themes`, bascule dans le back-office (voir ADR-035 et ADR-036).
+- **Statut** : **REMPLACÉ** (Yass, RUN-01b) par le mode sombre de la factory : classe `.dark`, `next-themes`, bascule dans le back-office (voir ADR-036).
 
 ### ADR-028 — Illustrations SVG générées, servies depuis `public/brand/`
 - **Décision** : les visuels sont des SVG abstraits produits par `scripts/generate-brand-assets.mjs` (sortie déterministe), sans photo ni visage. Ils sont dans `public/brand/` (et `src/app/icon.svg` pour le favicon) plutôt que dans `src/brand/assets/`, car `next/image` et le favicon exigent des fichiers servis. `src/brand/copy/home.ts` les référence.
@@ -263,3 +265,53 @@ Ces dix-huit décisions ont été validées par Yass le 2026-10-08 (PLAN v1.0). 
 - **Alternatives** : rester en Tailwind 3 (chaîne de build portant 5 des 10 alertes `npm audit`).
 - **Conséquences** : rendu public pixel-identique (32 captures comparées, voir le rapport) ; `npm audit` passe de 10 à 5 alertes (voir `docs/SECURITY.md`). Les jetons en canaux RGB sont conservés jusqu'à la couche design factory (étape 3).
 - **Statut** : **ACCEPTÉ** (GO de Yass).
+
+### ADR-036 — Couche design factory : deux registres, jetons OKLCH, mode sombre par classe
+- **Contexte** : Yass demande d'appliquer `docs/reference/factory-core.md` (design system de la factory) avant de construire les écrans du back-office. Il remplace ADR-027 (thèmes par `prefers-color-scheme` / `data-theme`, jetons en canaux RGB).
+- **Décision** :
+  1. **Deux registres.** Le back-office (`/admin`) suit strictement le système factory ; le site public garde son registre premium éditorial (pilules, rayons 2xl/3xl, ombres douces, graisses 500/600, serif d'affichage) et **ne partage que les jetons de couleur**. Les règles du back-office (échelle `text-kv-*`, graisses 450/520/600, rayons 0,5 rem, filet `--border`) ne s'appliquent que dans une zone `.kv-app` : posée sur la coque du back-office et sur `<body>` tant qu'il est affiché (les dialogues Radix sont rendus hors de la coque).
+  2. **Jetons** : `src/brand/theme/tokens.css`, seul fichier de couleurs de la marque, en OKLCH, recette des neutres teintés (§2.2) avec la teinte **H = 200** (teal d'OVAGLOW, mesurée sur `#1F5B5E` : L 0,434 · C 0,061 · H 199,8). Les rapports L/C de la recette sont conservés ; les chromas que la gamme sRGB ne peut pas atteindre à cette teinte sont bornés (`secondary-foreground` 0,06 au lieu de 0,18 ; `muted-foreground` 0,065 au lieu de 0,08). Accent = `--primary` (clair `#1F5B5E`, sombre teal clair L 0,79) ; `--primary-text` existe (égal à `--primary` dans les deux thèmes : l'accent sombre est déjà clair, il passe 4,5:1 en texte).
+  3. **Conflit de noms** : en factory `--accent` est une surface teintée discrète ; sur le site public `accent` était le laiton doré. Le laiton devient `--gold` / `--gold-foreground` (classes `bg-gold`, `text-gold`…, 38 occurrences renommées), `--accent` prend le sens factory. Les surfaces toujours sombres du site public restent `--inverse` / `--inverse-foreground`.
+  4. **Filet** : `--border` / `--input` ≥ 3:1 (WCAG 1.4.11) comme la factory, mais ce filet est lourd pour le site public ; celui-ci utilise `--line` (filet décoratif, `border-line`). Défaut du projet : `--line` ; dans `.kv-app` : `--border`.
+  5. **Mode sombre** : classe `.dark` sur `<html>` par `next-themes@0.4.6` (`attribute="class"`, `defaultTheme="system"`), `color-scheme` natif dans les deux thèmes, bouton clair/sombre dans la coque du back-office (les deux icônes sont alternées en CSS : pas d'état client, pas de décalage d'hydratation). Le choix est mémorisé dans le navigateur ; le site public suit le même thème (même classe).
+  6. **Échelle kv** (§3) déclarée en `@theme` sans `inline`, surcharge mobile < 640 px, graisses redéfinies dans `.kv-app`, `cn()` étendu (`extendTailwindMerge`, six tailles kv, testé).
+  7. **Composants** `src/ui/kv/` : `Panel`, `PanelHeader`, `StatusBadge`, `Field`, `PageHeader`, `StateBlock`, `DataTable`, `ActionBar`, `Segmented`, `control-classes`, plus `Skeleton`, `ThemeToggle`. Les primitives du site public (`src/ui/primitives`) ne sont pas modifiées.
+  8. **Coque** (§5.9) : barre latérale de 216 px dès `md` (jetons `sidebar-*`, elle suit le thème), en-tête mobile et tiroir Radix sous `md`, sélecteur de site dans la barre latérale.
+  9. **Garde-fou** `scripts/check-design.mjs` : périmètre `src/app/admin`, `src/ui/admin`, `src/ui/kv` (le site public est exclu) ; 8 motifs (les 3 de la factory plus ses angles morts : rayons 2xl+, `p-6` / `py-16` / `gap-3`, graisses 700+, couleurs en dur, ombres premium) ; **exception déclarée** par commentaire `check-design-allow: <raison>` (le mécanisme manquait en factory) ; `--strict` en CI.
+  10. **Contrastes** : `scripts/check-contrast.mjs` réécrit (OKLCH, composition des transparences, refus d'un jeton hors gamme sRGB) : 80 couples par thème, 0 échec. Tableau complet : `docs/runs/RUN-01b-contrastes.md`. Extrait (couples du §9 de la factory) :
+
+    | Couple | Seuil | Clair | Sombre |
+    |---|---:|---:|---:|
+    | foreground / background | 4,5 | 18,97 | 19,22 |
+    | muted-foreground / card | 4,5 | 5,82 | 7,69 |
+    | muted-foreground / muted | 4,5 | 5,21 | 6,50 |
+    | primary-foreground / primary (bouton) | 4,5 | 7,74 | 9,60 |
+    | primary-text sur card | 4,5 | 7,74 | 9,99 |
+    | primary-text sur info-bg | 4,5 | 6,56 | 7,68 |
+    | destructive / card | 4,5 | 6,08 | 7,06 |
+    | badges de statut (fg / bg), minimum des cinq | 4,5 | 5,21 | 6,50 |
+    | border / card (non-texte) | 3 clair · 1,3 sombre | 3,15 | **1,70** (bordure de carte décorative, comme la factory) |
+    | input / card (champ) | 3 | 3,15 | 3,54 |
+    | ring / card | 3 | 7,74 | 9,99 |
+
+- **Ignoré volontairement** (hors périmètre OVAGLOW) : FR + EN, copy Koverit, page de paiement, Copilot, PWA (RUN-13), graphiques (aucune dataviz). Aucune valeur de marque Koverit n'est reprise.
+- **Écarts à la factory** : filet `--line` du site public (point 4) ; couleur de la barre `themeColor` du navigateur : suit toujours la préférence système (écart n° 10 de la factory), car le bouton ne la modifie pas ; `next-themes` injecte un script en ligne : à couvrir par le nonce de la CSP au RUN-04.
+- **Conséquence visible** : le fond du site public passe du crème `#F8F6F2` au gris-teal quasi neutre de la recette (`oklch(0,985 0,002 200)`) ; le sombre devient plus profond. À valider visuellement (4 combinaisons).
+- **Alternatives** : thème sombre par `prefers-color-scheme` seul (pas de bouton) ; un seul registre pour les deux sites (perd l'identité éditoriale du site public).
+- **Statut** : **À VALIDER**.
+
+### ADR-037 — Correspondance des statuts de réservation → tons de `StatusBadge`
+- **Contexte** : la factory définit quatre tons de facture (`paid`, `overdue`, `pending`, `draft`) ; OVAGLOW a cinq statuts de réservation. Un badge coloré par ligne au maximum ; le texte porte toujours le sens.
+- **Décision** :
+
+  | Statut | Ton | Jetons (`--status-*`) | Lecture |
+  |---|---|---|---|
+  | `pending_deposit` | `pending` | `warning` sur `warning-bg` (ambre) | action attendue : valider l'acompte |
+  | `confirmed` | `confirmed` | `success` sur `success-bg` (vert) | acquis |
+  | `completed` | `completed` | `primary-text` sur `info-bg` (teinte de marque) | terminé, sans action |
+  | `cancelled` | `cancelled` | `muted-foreground` sur `muted` (neutre) | sans effet |
+  | `no_show` | `noshow` | `status-noshow-fg` (rouge, valeur propre) sur `danger-bg` | à surveiller |
+
+  Deux tons génériques s'y ajoutent pour les états qui ne sont pas des statuts de réservation : `success` (actif) et `neutral` (inactif, repère). Les blocs du planning réutilisent les mêmes jetons (fond = `-bg`, liseré gauche = `-fg`). Les cinq couples ont un contraste ≥ 4,5:1 dans les deux thèmes (minimum 5,21 clair, 6,50 sombre).
+- **Alternatives** : réutiliser telles quelles les quatre tons de la factory (confond « terminé » et « confirmé » ou « annulé » et « no-show »).
+- **Statut** : **À VALIDER**.

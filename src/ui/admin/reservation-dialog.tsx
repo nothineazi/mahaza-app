@@ -71,7 +71,7 @@ function Detail({ reservation, onClose }: { reservation: Reservation; onClose: (
         </DialogDescription>
       </DialogHeader>
 
-      <dl className="divide-y divide-border rounded-2xl border border-border text-sm">
+      <dl className="divide-y divide-line rounded-2xl border border-line text-sm">
         <Row k="Client">
           <button
             type="button"
@@ -111,7 +111,7 @@ function Detail({ reservation, onClose }: { reservation: Reservation; onClose: (
 
       {/* Cycle de vie */}
       <section aria-labelledby="lifecycle-title" className="space-y-3">
-        <h3 id="lifecycle-title" className="font-heading text-xl font-medium">Cycle de vie</h3>
+        <h3 id="lifecycle-title" className="font-display text-xl font-medium">Cycle de vie</h3>
         <ul className="grid gap-2 sm:grid-cols-2">
           {TRANSITIONS[status].map((to) => {
             const check = checkTransition(reservation, to, today);
@@ -236,7 +236,7 @@ function MoveForm({ reservation, onDone }: { reservation: Reservation; onDone: (
 
   return (
     <form onSubmit={submit} className="lux-fade space-y-4 rounded-2xl border border-primary/30 bg-secondary/40 p-4" aria-label="Déplacer la réservation">
-      <h3 className="font-heading text-xl font-medium">Déplacer la réservation</h3>
+      <h3 className="font-display text-xl font-medium">Déplacer la réservation</h3>
       <div className="grid gap-3 sm:grid-cols-2">
         <div>
           <FieldLabel htmlFor="move-date">Jour</FieldLabel>

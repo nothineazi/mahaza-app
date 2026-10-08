@@ -1,27 +1,25 @@
 "use client";
 
-import { MapPin } from "lucide-react";
+import { useId } from "react";
 import { useAppStore } from "@/core/state/store";
 import { getSite, multiSite, sites } from "@/core/sites/sites";
-import { Select } from "@/ui/primitives/field";
+import { Field } from "@/ui/kv/field";
+import { fieldControl } from "@/ui/kv/control-classes";
 
 /** Sélecteur de site du back-office : filtre tableau de bord, planning, réservations, clients, salles et staff. */
 export function AdminSiteSelector() {
   const { adminSiteId, setAdminSiteId } = useAppStore();
+  const id = useId();
   if (!multiSite) return null;
   return (
-    <div className="mb-5 flex flex-col gap-2 rounded-2xl border border-border bg-card p-3 shadow-soft sm:flex-row sm:items-center sm:gap-4 sm:px-4">
-      <label htmlFor="admin-site" className="inline-flex shrink-0 items-center gap-1.5 text-sm font-medium">
-        <MapPin className="size-4 text-primary" aria-hidden /> Site
-      </label>
-      <Select id="admin-site" value={adminSiteId} onChange={(e) => setAdminSiteId(e.target.value)} className="sm:max-w-xs">
+    <Field label="Site" htmlFor={id} hint={getSite(adminSiteId).address}>
+      <select id={id} value={adminSiteId} onChange={(e) => setAdminSiteId(e.target.value)} className={fieldControl}>
         {sites.map((s) => (
           <option key={s.id} value={s.id}>
             {s.name}
           </option>
         ))}
-      </Select>
-      <p className="text-xs text-muted-foreground">{getSite(adminSiteId).address}</p>
-    </div>
+      </select>
+    </Field>
   );
 }

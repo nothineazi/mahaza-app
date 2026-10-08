@@ -10,9 +10,9 @@ export const buttonVariants = cva(
     variants: {
       variant: {
         primary: "bg-primary text-primary-foreground shadow-soft hover:bg-primary/90 hover:shadow-lift",
-        gold: "bg-accent text-accent-foreground shadow-soft hover:bg-accent/90 hover:shadow-lift",
+        gold: "bg-gold text-gold-foreground shadow-soft hover:bg-gold/90 hover:shadow-lift",
         outline: "border border-foreground/25 bg-transparent text-foreground hover:border-primary hover:text-primary",
-        "outline-light": "border border-inverse-foreground/50 bg-transparent text-inverse-foreground hover:border-accent hover:text-accent",
+        "outline-light": "border border-inverse-foreground/50 bg-transparent text-inverse-foreground hover:border-gold hover:text-gold",
         soft: "bg-secondary text-secondary-foreground hover:bg-secondary/70",
         ghost: "text-foreground hover:bg-muted",
         danger: "border border-destructive text-destructive hover:bg-destructive/10",

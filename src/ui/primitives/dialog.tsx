@@ -21,7 +21,7 @@ export const DialogContent = React.forwardRef<
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
-        "fixed z-50 grid gap-4 overflow-y-auto border border-border bg-card p-6 text-card-foreground shadow-lift data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+        "fixed z-50 grid gap-4 overflow-y-auto border border-line bg-card p-6 text-card-foreground shadow-lift data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
         variant === "center" &&
           "left-1/2 top-1/2 max-h-[90dvh] w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-2xl data-[state=open]:zoom-in-95 data-[state=closed]:zoom-out-95",
         variant === "sheet" &&
@@ -51,7 +51,7 @@ export const DialogFooter = ({ className, ...props }: React.HTMLAttributes<HTMLD
 );
 
 export const DialogTitle = React.forwardRef<React.ComponentRef<typeof DialogPrimitive.Title>, React.ComponentPropsWithoutRef<typeof DialogPrimitive.Title>>(
-  ({ className, ...props }, ref) => <DialogPrimitive.Title ref={ref} className={cn("font-heading text-2xl font-medium leading-tight", className)} {...props} />,
+  ({ className, ...props }, ref) => <DialogPrimitive.Title ref={ref} className={cn("font-display text-2xl font-medium leading-tight", className)} {...props} />,
 );
 DialogTitle.displayName = "DialogTitle";
 

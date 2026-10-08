@@ -37,7 +37,7 @@ export function StaffManager() {
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between gap-3">
-        <h1 className="font-heading text-4xl font-medium">Staff</h1>
+        <h1 className="font-display text-4xl font-medium">Staff</h1>
         <Button onClick={startNew}>
           <Plus /> Ajouter un praticien
         </Button>
@@ -49,9 +49,9 @@ export function StaffManager() {
             <Card className="flex h-full flex-col gap-3 p-5">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-3">
-                  <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-secondary font-heading text-xl font-medium text-secondary-foreground">{p.name.charAt(0)}</span>
+                  <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-secondary font-display text-xl font-medium text-secondary-foreground">{p.name.charAt(0)}</span>
                   <div>
-                    <p className="flex flex-wrap items-center gap-2 font-heading text-2xl font-medium leading-tight">
+                    <p className="flex flex-wrap items-center gap-2 font-display text-2xl font-medium leading-tight">
                       {p.name}
                       {p.fictive && <FictiveBadge />}
                     </p>
@@ -82,7 +82,7 @@ export function StaffManager() {
       </ul>
       {staff.length === 0 && (
         <Card className="p-8 text-center">
-          <p className="font-heading text-2xl font-medium">Aucun praticien</p>
+          <p className="font-display text-2xl font-medium">Aucun praticien</p>
           <p className="mt-1 text-sm text-muted-foreground">Ajoutez-en un pour ouvrir des créneaux à la réservation.</p>
         </Card>
       )}

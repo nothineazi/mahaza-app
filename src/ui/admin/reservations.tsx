@@ -78,7 +78,7 @@ export function ReservationsList() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="font-heading text-4xl font-medium">Réservations</h1>
+          <h1 className="font-display text-4xl font-medium">Réservations</h1>
           <p className="mt-1 text-sm text-muted-foreground">{site.name}</p>
         </div>
         <Button variant="outline" onClick={exportCsv} disabled={rows.length === 0}>
@@ -108,7 +108,7 @@ export function ReservationsList() {
                 type="button"
                 aria-pressed={on}
                 onClick={() => setStatuses((cur) => (on ? cur.filter((x) => x !== s) : [...cur, s]))}
-                className={cn("min-h-10 rounded-full border px-4 text-sm transition-colors duration-200 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring", on ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card hover:border-primary")}
+                className={cn("min-h-10 rounded-full border px-4 text-sm transition-colors duration-200 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring", on ? "border-primary bg-primary text-primary-foreground" : "border-line bg-card hover:border-primary")}
               >
                 {STATUS_LABELS[s]} <span className="opacity-80">({count(s)})</span>
               </button>
@@ -167,7 +167,7 @@ export function ReservationsList() {
       {rows.length === 0 ? (
         <Card className="flex flex-col items-center gap-2 p-10 text-center">
           <SearchX className="size-8 text-muted-foreground" aria-hidden />
-          <p className="font-heading text-2xl font-medium">Aucune réservation ne correspond</p>
+          <p className="font-display text-2xl font-medium">Aucune réservation ne correspond</p>
           <p className="text-sm text-muted-foreground">Modifiez ou réinitialisez les filtres.</p>
         </Card>
       ) : (

@@ -49,9 +49,9 @@ export function SummaryBody({ draft, lines, onRemove }: Props) {
       <div>
         <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Vos soins</p>
         {services.length === 0 ? (
-          <p className="mt-2 rounded-xl border border-dashed border-border p-4 text-muted-foreground">Votre panier est vide. Ajoutez un ou plusieurs soins.</p>
+          <p className="mt-2 rounded-xl border border-dashed border-line p-4 text-muted-foreground">Votre panier est vide. Ajoutez un ou plusieurs soins.</p>
         ) : (
-          <ul className="mt-2 divide-y divide-border">
+          <ul className="mt-2 divide-y divide-line">
             {services.map((s, i) => {
               const line = lines?.[i];
               const practitioner = draft.choice[s.id];
@@ -101,7 +101,7 @@ export function SummaryBody({ draft, lines, onRemove }: Props) {
       {deposit != null && services.length > 0 && (
         <div className="flex items-baseline justify-between rounded-xl bg-secondary px-4 py-3 text-secondary-foreground">
           <span>Acompte (FICTIF)</span>
-          <span className="font-heading text-xl font-medium">{formatPrice(deposit)}</span>
+          <span className="font-display text-xl font-medium">{formatPrice(deposit)}</span>
         </div>
       )}
     </div>
@@ -113,7 +113,7 @@ export function SummaryPanel({ draft, lines, action, onRemove }: Props & { actio
   return (
     <aside aria-label="Récapitulatif de votre réservation" className="hidden lg:block">
       <Card className="sticky top-24 space-y-6 p-6">
-        <h2 className="font-heading text-2xl font-medium">Votre réservation</h2>
+        <h2 className="font-display text-2xl font-medium">Votre réservation</h2>
         <SummaryBody draft={draft} lines={lines} onRemove={onRemove} />
         {action && <ActionButton action={action} />}
       </Card>
@@ -144,7 +144,7 @@ export function SummaryBar({ draft, lines, action, onRemove }: Props & { action:
   const site = draft.siteId ? getSite(draft.siteId) : null;
   return (
     <>
-      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 pb-[env(safe-area-inset-bottom)] shadow-lift backdrop-blur-sm lg:hidden">
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-background/95 pb-[env(safe-area-inset-bottom)] shadow-lift backdrop-blur-sm lg:hidden">
         <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3">
           <button
             type="button"

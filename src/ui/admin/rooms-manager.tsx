@@ -37,7 +37,7 @@ export function RoomsManager() {
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between gap-3">
-        <h1 className="font-heading text-4xl font-medium">Salles</h1>
+        <h1 className="font-display text-4xl font-medium">Salles</h1>
         <Button onClick={startNew}>
           <Plus /> Ajouter une salle
         </Button>
@@ -49,7 +49,7 @@ export function RoomsManager() {
             <Card className="flex h-full flex-col gap-3 p-5">
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <p className="flex flex-wrap items-center gap-2 font-heading text-2xl font-medium">
+                  <p className="flex flex-wrap items-center gap-2 font-display text-2xl font-medium">
                     {room.name}
                     {room.fictive && <FictiveBadge />}
                   </p>
@@ -77,7 +77,7 @@ export function RoomsManager() {
       </ul>
       {rooms.length === 0 && (
         <Card className="p-8 text-center">
-          <p className="font-heading text-2xl font-medium">Aucune salle</p>
+          <p className="font-display text-2xl font-medium">Aucune salle</p>
           <p className="mt-1 text-sm text-muted-foreground">Ajoutez-en une pour ouvrir des créneaux à la réservation.</p>
         </Card>
       )}
