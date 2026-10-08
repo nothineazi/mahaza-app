@@ -11,6 +11,7 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Les versions 
 ### Ajouté
 - **Couche design factory** (`docs/reference/factory-core.md`, ADR-036) : deux registres, jetons OKLCH (neutres teintés H = 200), mode sombre par classe `.dark` (`next-themes`) avec bouton clair/sombre, échelle `text-kv-*`, graisses 450/520/600, composants `src/ui/kv` (Panel, StatusBadge, Field, PageHeader, StateBlock, DataTable, ActionBar, Segmented, control-classes), coque à barre latérale, `cn()` étendu.
 - `scripts/check-design.mjs` (périmètre back-office, exceptions déclarées) ; `scripts/check-contrast.mjs` réécrit en OKLCH (80 couples par thème).
+- Écrans du back-office (tableau de bord, planning, réservations, clients, salles, équipe) sur les composants `kv` : tableau de données, fiches modales, barre d'actions (matrice statut → action primaire, ADR-039), états vide / chargement / erreur.
 - Polices **auto-hébergées** (`next/font/local`) : Inter, Cormorant Garamond, JetBrains Mono, licences OFL versionnées (ADR-038).
 
 ### Modifié
@@ -18,10 +19,14 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Les versions 
 - Le fond du site public passe du crème au gris-teal neutre de la recette ; le thème sombre est plus profond.
 - Plus d'italique (carte cadeau, pied de page), plus de police mono sur le site public.
 
+### Performance
+- **First Load JS** : `/` 172,4 → **146,9 kB**, `/reserver` 188,7 → **169,6 kB**, `/_not-found` 145,4 → **136,5 kB** (gzip). Store de la démo hors de l'accueil (groupe de routes `(app)`), cartes cadeaux et étapes tardives du tunnel en chargement différé, hero réduit à ses images côté client. Budget CI 149 / 172 kB (ADR-040).
+
 ### Supprimé
 - `next/font/google` : le build ne contacte plus aucun service de polices.
 
 ### Corrigé
+- Contour de focus global et dégradé des squelettes (variables de couleur devenues invalides) ; Échap dans le menu d'actions ne ferme plus la fiche.
 - Pastille d'état « Active » (salles, équipe) : son fond vert pâle (`bg-success/12`) est enfin appliqué (opacité ignorée par Tailwind 3).
 
 ### Sécurité
