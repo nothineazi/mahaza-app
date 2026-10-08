@@ -10,11 +10,12 @@
 //   tailles hors échelle kv (text-xs, text-sm, text-[…px]) · rayons réservés au site public (rounded-2xl et plus) ·
 //   espacements bannis (p-6, py-16, gap-3) · graisses interdites (font-bold, font-extrabold, font-black) · ombres du registre premium.
 //
-// Exception légitime (largeur calculée, position du planning…) : commentaire `check-design-allow: <raison>` sur la ligne
-// ou la ligne précédente. Le contrôle exige une raison non vide et compte les exceptions.
+// Exception légitime (largeur calculée, position du planning…) : commentaire `check-design-allow(<motif>): <raison>` sur la ligne
+// ou la ligne précédente, où <motif> est l'identifiant du motif exempté (ex. `style-inline`) : une exception ne couvre que ce motif.
+// Le contrôle exige une raison non vide et compte les exceptions.
 //
 // Usage : node scripts/check-design.mjs [--strict]   (--strict : code de sortie 1 s'il reste une violation ; actif en CI)
-import { readdirSync, readFileSync, statSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -33,27 +34,21 @@ const PATTERNS = [
   { id: "ombre-premium", why: "shadow-soft / shadow-lift : ombres du site public", re: /(?<![\w-])shadow-(?:soft|lift)(?![\w-])/ },
 ];
 
-function* walk(dir) {
-  for (const name of readdirSync(dir)) {
-    const p = join(dir, name);
-    if (statSync(p).isDirectory()) {
-      if (name !== "node_modules") yield* walk(p);
-    } else if (/\.(ts|tsx)$/.test(name)) yield p;
-  }
-}
+const sources = (dir) => readdirSync(dir, { recursive: true, encoding: "utf8" }).filter((f) => /\.(ts|tsx)$/.test(f)).map((f) => join(dir, f));
 
-const ALLOW = /check-design-allow:\s*(\S.*)$/;
+const ALLOW = /check-design-allow\(([a-z-]+)\):\s*\S/;
+const allows = (line, id) => ALLOW.exec(line)?.[1] === id;
 const violations = [];
 let allowed = 0;
 let files = 0;
 for (const scope of SCOPE) {
-  for (const file of walk(join(root, scope))) {
+  for (const file of sources(join(root, scope))) {
     files++;
     const lines = readFileSync(file, "utf8").split("\n");
     lines.forEach((line, i) => {
       for (const p of PATTERNS) {
         if (!p.re.test(line)) continue;
-        const exempt = ALLOW.test(line) || (i > 0 && ALLOW.test(lines[i - 1]));
+        const exempt = allows(line, p.id) || (i > 0 && allows(lines[i - 1], p.id));
         if (exempt) allowed++;
         else violations.push({ id: p.id, file: relative(root, file), line: i + 1, text: line.trim().slice(0, 110) });
       }
@@ -61,15 +56,11 @@ for (const scope of SCOPE) {
   }
 }
 
-const byPattern = new Map(PATTERNS.map((p) => [p.id, 0]));
 const byFile = new Map();
-for (const v of violations) {
-  byPattern.set(v.id, byPattern.get(v.id) + 1);
-  byFile.set(v.file, (byFile.get(v.file) ?? 0) + 1);
-}
+for (const v of violations) byFile.set(v.file, (byFile.get(v.file) ?? 0) + 1);
 
 console.log(`check-design : ${files} fichiers analysés (${SCOPE.join(", ")}) · ${allowed} exception(s) déclarée(s) · ${violations.length} violation(s)`);
-for (const p of PATTERNS) console.log(`  ${String(byPattern.get(p.id)).padStart(4)}  ${p.id} — ${p.why}`);
+for (const p of PATTERNS) console.log(`  ${String(violations.filter((v) => v.id === p.id).length).padStart(4)}  ${p.id} — ${p.why}`);
 if (violations.length) {
   console.log("\nFichiers les plus touchés :");
   for (const [file, n] of [...byFile].sort((a, b) => b[1] - a[1]).slice(0, 8)) console.log(`  ${String(n).padStart(4)}  ${file}`);

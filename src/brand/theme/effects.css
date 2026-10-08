@@ -12,7 +12,7 @@
 
   /* Focus clavier homogène et bien visible. */
   :focus-visible {
-    outline: 2px solid rgb(var(--primary));
+    outline: 2px solid var(--primary);
     outline-offset: 2px;
     border-radius: 4px;
   }
@@ -28,7 +28,7 @@
   .lux-fade { animation: lux-fade 0.4s var(--ease-lux) both; }
   .lux-pop { animation: lux-pop 0.28s var(--ease-lux) both; }
   .lux-skeleton {
-    background: linear-gradient(90deg, rgb(var(--muted)) 25%, rgb(var(--secondary)) 50%, rgb(var(--muted)) 75%);
+    background: linear-gradient(90deg, var(--muted) 25%, var(--secondary) 50%, var(--muted) 75%);
     background-size: 200% 100%;
     animation: lux-shimmer 1.6s linear infinite;
   }

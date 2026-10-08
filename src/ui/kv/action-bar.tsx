@@ -47,9 +47,9 @@ function ActionButton({ action, className }: { action: BarAction; className: str
  * Barre d'actions collée en bas d'une fiche ou d'un formulaire.
  * UNE action primaire (adaptée au statut), toutes les autres actions restent visibles en secondaire ; seule l'action
  * destructive va dans un menu « … » (ouvert vers le haut). Primaire pleine largeur sur mobile.
- * `menuLabel` est obligatoire (nom accessible du menu), même sans action destructive : passer `""`.
+ * `menuLabel` : nom accessible du menu (« Autres actions » par défaut).
  */
-export function ActionBar({ primary, secondary = [], destructive, menuLabel, className }: { primary?: BarAction; secondary?: BarAction[]; destructive?: BarAction; menuLabel: string; className?: string }) {
+export function ActionBar({ primary, secondary = [], destructive, menuLabel = "Autres actions", className }: { primary?: BarAction; secondary?: BarAction[]; destructive?: BarAction; menuLabel?: string; className?: string }) {
   return (
     <div className={cn("flex flex-wrap items-center gap-2 border-t bg-popover p-3", className)}>
       {primary && <ActionButton action={primary} className={cn(controlPrimary, "w-full sm:w-auto")} />}

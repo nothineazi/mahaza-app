@@ -7,7 +7,8 @@ import type { Room } from "@/core/types";
 import { useAdminData } from "@/core/state/store";
 import { toggle } from "@/ui/admin/helpers";
 import { ActionBar } from "@/ui/kv/action-bar";
-import { controlGhost, controlPrimary, controlSecondary, fieldControl, textareaControl } from "@/ui/kv/control-classes";
+import { DeleteConfirm } from "@/ui/kv/delete-confirm";
+import { controlPrimary, controlSecondary, fieldControl, textareaControl } from "@/ui/kv/control-classes";
 import { Field } from "@/ui/kv/field";
 import { FictiveTag } from "@/ui/kv/fictive-tag";
 import { Modal, ModalBody, ModalContent, ModalHeader } from "@/ui/kv/modal";
@@ -163,26 +164,13 @@ function RoomForm({ initial, isNew, usedBy, onSave, onDelete, onClose }: FormPro
             {form.categories.length === 0 && <p role="alert" className="text-kv-meta text-destructive">Cochez au moins une catégorie.</p>}
           </fieldset>
         </form>
-        {confirmDelete && (
-          <div role="alert" className="space-y-2 rounded-lg border border-destructive bg-danger-bg p-3 text-kv-body text-destructive">
-            <p>Supprimer définitivement « {initial.name} » ? Cette action est irréversible (en mémoire, démo).</p>
-            <div className="flex flex-wrap gap-2">
-              <button type="button" onClick={() => onDelete(initial.id)} className={`${controlSecondary} border-destructive text-destructive`}>
-                Confirmer la suppression
-              </button>
-              <button type="button" onClick={() => setConfirmDelete(false)} className={controlGhost}>
-                Annuler
-              </button>
-            </div>
-          </div>
-        )}
+        {confirmDelete && <DeleteConfirm name={initial.name} onConfirm={() => onDelete(initial.id)} onCancel={() => setConfirmDelete(false)} />}
         {!isNew && usedBy > 0 && <p className="text-kv-meta text-muted-foreground">Suppression impossible : {usedBy} réservation(s) liée(s). Désactivez la salle à la place.</p>}
       </ModalBody>
       <ActionBar
         primary={{ label: "Enregistrer", submitForm: formId, disabled: !valid }}
         secondary={[{ label: "Annuler", onClick: onClose }]}
         destructive={!isNew && usedBy === 0 ? { label: "Supprimer", onClick: () => setConfirmDelete(true) } : undefined}
-        menuLabel="Autres actions"
       />
     </>
   );

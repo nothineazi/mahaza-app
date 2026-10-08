@@ -7,10 +7,11 @@ import { brand } from "@/brand/brand.config";
 import { useAppStore } from "@/core/state/store";
 import { FAILURE_LABELS, planLines } from "@/core/booking/scheduling";
 import { timeToMin } from "@/core/lib/dates";
+import { whenIdle } from "@/core/lib/idle";
 import { firstSiteId, multiSite } from "@/core/sites/sites";
 import { cn } from "@/core/lib/utils";
 import { Button } from "@/ui/primitives/button";
-import { Skeleton } from "@/ui/primitives/skeleton";
+import { LoadingRegion, Skeleton } from "@/ui/primitives/skeleton";
 import { StepServices } from "@/ui/booking/step-services";
 import { StepSite } from "@/ui/booking/step-site";
 import { Stepper } from "@/ui/booking/stepper";
@@ -31,12 +32,11 @@ const LOADERS = {
 
 /** Gabarit de chargement d'une étape : titre déjà affiché, blocs de la hauteur d'une liste de choix. */
 const StepLoading = () => (
-  <div role="status" aria-live="polite" aria-busy="true" className="space-y-3">
-    <span className="sr-only">Chargement de l&apos;étape</span>
+  <LoadingRegion label="Chargement de l'étape" className="space-y-3">
     <Skeleton className="h-24" />
     <Skeleton className="h-24" />
     <Skeleton className="h-24" />
-  </div>
+  </LoadingRegion>
 );
 
 const StepPractitioners = dynamic(LOADERS.practitioners, { loading: StepLoading });
@@ -45,7 +45,7 @@ const StepDeposit = dynamic(LOADERS.deposit, { loading: StepLoading });
 const StepConfirmation = dynamic(LOADERS.confirmation, { loading: StepLoading });
 
 // Safari ne fournit pas requestIdleCallback : repli sur un délai court.
-const idle = (fn: () => void) => (typeof window.requestIdleCallback === "function" ? window.requestIdleCallback(fn, { timeout: 3000 }) : window.setTimeout(fn, 1500));
+const PRELOAD: Partial<Record<StepKey, () => Promise<unknown>>> = LOADERS;
 
 const FLOW: StepKey[] = multiSite
   ? ["site", "services", "practitioners", "slot", "deposit", "confirmation"]
@@ -81,8 +81,8 @@ export function BookingWizard() {
 
   // Précharge l'étape suivante pendant que la personne remplit l'étape courante.
   useEffect(() => {
-    const next = FLOW[stepIndex + 1];
-    if (next && next in LOADERS) idle(() => void LOADERS[next as keyof typeof LOADERS]());
+    const load = PRELOAD[FLOW[stepIndex + 1]];
+    if (load) return whenIdle(() => void load());
   }, [stepIndex]);
 
   const patch = (p: Partial<Draft>) => setDraft((d) => ({ ...d, ...p }));
@@ -132,7 +132,10 @@ export function BookingWizard() {
   };
 
   // Un soin sans praticien qualifié dans ce site bloque l'étape (message dans l'étape).
-  const blockedService = draft.cart.some((id) => !staff.some((p) => p.active && (p.siteId ?? firstSiteId) === draft.siteId && p.serviceIds.includes(id)));
+  const blockedService = useMemo(
+    () => draft.cart.some((id) => !staff.some((p) => p.active && (p.siteId ?? firstSiteId) === draft.siteId && p.serviceIds.includes(id))),
+    [draft.cart, draft.siteId, staff],
+  );
 
   const action: PrimaryAction | null =
     step === "services"

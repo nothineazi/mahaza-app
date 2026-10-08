@@ -10,7 +10,9 @@ import { downloadText } from "@/core/lib/download";
 import { reservationEnd } from "@/core/booking/scheduling";
 import { STATUS_LABELS, STATUS_ORDER, isDepositReceived } from "@/core/booking/status";
 import { formatDateShort } from "@/core/lib/dates";
+import { norm } from "@/core/lib/text";
 import { cn, formatPrice } from "@/core/lib/utils";
+import { serviceNames, staffNames, toggle } from "@/ui/admin/helpers";
 import { ReservationDialog } from "@/ui/admin/reservation-dialog";
 import { controlChip, controlGhost, controlSecondary, fieldControl } from "@/ui/kv/control-classes";
 import { DataTable, type Column, type SortState } from "@/ui/kv/data-table";
@@ -21,9 +23,6 @@ import { LoadingRegion, Skeleton } from "@/ui/kv/skeleton";
 import { StateBlock } from "@/ui/kv/state-block";
 import { BookingStatusBadge } from "@/ui/kv/status-badge";
 
-const norm = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
-const serviceNames = (r: Reservation) => r.lines.map((l) => brand.services.find((s) => s.id === l.serviceId)?.name).join(" + ");
-const staffNames = (ids: string[], staff: { id: string; name: string }[]) => [...new Set(ids)].map((id) => staff.find((p) => p.id === id)?.name ?? "—").join(", ");
 
 export function ReservationsList() {
   const { ready, reservations, staff, site } = useAdminData();
@@ -46,10 +45,44 @@ export function ReservationsList() {
       .filter((r) => (!from || r.date >= from) && (!to || r.date <= to))
       .filter((r) => !q || norm(r.customerName).includes(q) || norm(r.reference).includes(q) || r.customerPhone.replace(/\D/g, "").includes(q.replace(/\D/g, "") || "\u0000"))
       .sort((a, b) => {
-        const k = `${a.date} ${a.lines[0].start}`.localeCompare(`${b.date} ${b.lines[0].start}`);
+        const k = a.date.localeCompare(b.date) || a.lines[0].start.localeCompare(b.lines[0].start);
         return sort.dir === "desc" ? -k : k;
       });
   }, [reservations, query, statuses, practitioner, service, from, to, sort.dir]);
+
+  // Une seule passe : compteurs par statut et total des acomptes encaissés (FICTIF).
+  const { counts, total } = useMemo(() => {
+    const counts = Object.fromEntries(STATUS_ORDER.map((s) => [s, 0])) as Record<BookingStatus, number>;
+    let total = 0;
+    for (const r of reservations) {
+      counts[r.status]++;
+      if (isDepositReceived(r.status)) total += r.depositAmount;
+    }
+    return { counts, total };
+  }, [reservations]);
+
+  const columns = useMemo<Column<Reservation>[]>(
+    () => [
+      { id: "customer", header: "Client", cell: (r) => <span className="font-semibold">{r.customerName}</span>, maxWidth: "max-w-[220px]" },
+      { id: "status", header: "Statut", cell: (r) => <BookingStatusBadge status={r.status} /> },
+      {
+        id: "when",
+        header: "Quand",
+        sortable: true,
+        cell: (r) => (
+          <>
+            <span className="inline-block first-letter:uppercase">{formatDateShort(r.date)}</span> · {r.lines[0].start} – {reservationEnd(r.lines)}
+          </>
+        ),
+      },
+      { id: "services", header: "Soins", cell: serviceNames, priority: 2, maxWidth: "max-w-[260px]" },
+      { id: "staff", header: "Praticien", cell: (r) => staffNames(r, staff), priority: 3, maxWidth: "max-w-[160px]" },
+      { id: "phone", header: "Téléphone", cell: (r) => r.customerPhone, priority: 3 },
+      { id: "reference", header: "Référence", cell: (r) => <span className="font-mono text-kv-meta text-muted-foreground">{r.reference}</span>, priority: 3 },
+      { id: "deposit", header: "Acompte", cell: (r) => formatPrice(r.depositAmount), align: "right", priority: 2 },
+    ],
+    [staff],
+  );
 
   if (!ready) {
     return (
@@ -67,8 +100,6 @@ export function ReservationsList() {
   }
 
   const filtered = Boolean(query || statuses.length || practitioner || service || from || to);
-  const count = (s: BookingStatus) => reservations.filter((r) => r.status === s).length;
-  const total = reservations.filter((r) => isDepositReceived(r.status)).reduce((sum, r) => sum + r.depositAmount, 0);
 
   const exportCsv = () =>
     downloadText(`reservations-${site.id}-${new Date().toISOString().slice(0, 10)}.csv`, reservationsToCsv(rows, { siteName: site.name, services: brand.services, staff, rooms: brand.rooms }), "text/csv;charset=utf-8");
@@ -81,26 +112,6 @@ export function ReservationsList() {
     setFrom("");
     setTo("");
   };
-
-  const columns: Column<Reservation>[] = [
-    { id: "customer", header: "Client", cell: (r) => <span className="font-semibold">{r.customerName}</span>, maxWidth: "max-w-[220px]" },
-    { id: "status", header: "Statut", cell: (r) => <BookingStatusBadge status={r.status} /> },
-    {
-      id: "when",
-      header: "Quand",
-      sortable: true,
-      cell: (r) => (
-        <>
-          <span className="inline-block first-letter:uppercase">{formatDateShort(r.date)}</span> · {r.lines[0].start} – {reservationEnd(r.lines)}
-        </>
-      ),
-    },
-    { id: "services", header: "Soins", cell: serviceNames, priority: 2, maxWidth: "max-w-[260px]" },
-    { id: "staff", header: "Praticien", cell: (r) => staffNames(r.lines.map((l) => l.practitionerId), staff), priority: 3, maxWidth: "max-w-[160px]" },
-    { id: "phone", header: "Téléphone", cell: (r) => r.customerPhone, priority: 3 },
-    { id: "reference", header: "Référence", cell: (r) => <span className="font-mono text-kv-meta text-muted-foreground">{r.reference}</span>, priority: 3 },
-    { id: "deposit", header: "Acompte", cell: (r) => formatPrice(r.depositAmount), align: "right", priority: 2 },
-  ];
 
   return (
     <div className="space-y-6">
@@ -116,8 +127,8 @@ export function ReservationsList() {
 
       <section aria-label="Synthèse" className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <Stat label="Réservations" value={String(reservations.length)} />
-        <Stat label="En attente d'acompte" value={String(count("pending_deposit"))} />
-        <Stat label="Confirmées" value={String(count("confirmed"))} />
+        <Stat label="En attente d'acompte" value={String(counts.pending_deposit)} />
+        <Stat label="Confirmées" value={String(counts.confirmed)} />
         <Stat label="Acomptes encaissés (FICTIF)" value={formatPrice(total)} />
       </section>
 
@@ -129,8 +140,8 @@ export function ReservationsList() {
         </div>
         <div role="group" aria-label="Filtrer par statut" className="flex flex-wrap gap-2">
           {STATUS_ORDER.map((s) => (
-            <button key={s} type="button" aria-pressed={statuses.includes(s)} onClick={() => setStatuses((cur) => (cur.includes(s) ? cur.filter((x) => x !== s) : [...cur, s]))} className={controlChip}>
-              {STATUS_LABELS[s]} <span className="tabular-nums opacity-80">({count(s)})</span>
+            <button key={s} type="button" aria-pressed={statuses.includes(s)} onClick={() => setStatuses((cur) => toggle(cur, s))} className={controlChip}>
+              {STATUS_LABELS[s]} <span className="tabular-nums opacity-80">({counts[s]})</span>
             </button>
           ))}
         </div>
@@ -206,7 +217,7 @@ export function ReservationsList() {
               </div>
               <p>{serviceNames(r)}</p>
               <p className="text-kv-meta text-muted-foreground">
-                <span className="inline-block first-letter:uppercase">{formatDateShort(r.date)}</span>, {r.lines[0].start} – {reservationEnd(r.lines)} · {staffNames(r.lines.map((l) => l.practitionerId), staff)}
+                <span className="inline-block first-letter:uppercase">{formatDateShort(r.date)}</span>, {r.lines[0].start} – {reservationEnd(r.lines)} · {staffNames(r, staff)}
               </p>
               <p className="flex flex-wrap items-center justify-between gap-x-2 text-kv-meta text-muted-foreground">
                 <span className="whitespace-nowrap"><span className="font-mono">{r.reference}</span> · {r.customerPhone}</span>

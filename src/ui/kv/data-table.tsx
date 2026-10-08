@@ -16,7 +16,6 @@ export type Column<T> = {
   sortable?: boolean;
   /** Largeur max (ex. `max-w-[220px]`) : le contenu est tronqué, avec `title` si c'est une chaîne. */
   maxWidth?: string;
-  nowrap?: boolean;
 };
 
 export type SortState = { key: string | null; dir: "asc" | "desc" };
@@ -71,9 +70,8 @@ export function DataTable<T>({
       <ul aria-label={label} className="space-y-2 sm:hidden">
         {rows.map((row) => {
           const key = rowKey(row);
-          const body = (
-            <div className={cn("rounded-lg border bg-card p-3", rowAccent?.(row) && cn("border-l-[3px]", rowAccent(row)))}>{mobileCard(row)}</div>
-          );
+          const accent = rowAccent?.(row);
+          const body = <div className={cn("rounded-lg border bg-card p-3", accent && cn("border-l-[3px]", accent))}>{mobileCard(row)}</div>;
           return (
             <li key={key}>
               {onRowClick ? (
@@ -99,23 +97,26 @@ export function DataTable<T>({
                   <input type="checkbox" aria-label={select.label} checked={select.allSelected} onChange={select.onToggleAll} className="size-4 accent-primary" />
                 </th>
               )}
-              {columns.map((c, i) => (
+              {columns.map((c, i) => {
+                const dir = sort?.key === c.id ? sort.dir : null;
+                return (
                 <th
                   key={c.id}
                   scope="col"
-                  aria-sort={c.sortable ? (sort?.key === c.id ? (sort.dir === "asc" ? "ascending" : "descending") : "none") : undefined}
+                  aria-sort={c.sortable ? (dir === "asc" ? "ascending" : dir === "desc" ? "descending" : "none") : undefined}
                   className={cn("px-3 text-kv-label uppercase text-muted-foreground", c.align === "right" ? "text-right" : "text-left", PRIORITY[c.priority ?? 1], i === 0 && !select && stickyFirst)}
                 >
                   {c.sortable && onSort ? (
                     <button type="button" onClick={() => onSort(c.id)} className={cn("inline-flex items-center gap-1 rounded-sm uppercase", focusRing)}>
                       {c.header}
-                      {sort?.key === c.id ? sort.dir === "asc" ? <ArrowUp className="size-3" aria-hidden /> : <ArrowDown className="size-3" aria-hidden /> : <ChevronsUpDown className="size-3 opacity-60" aria-hidden />}
+                      {dir === "asc" ? <ArrowUp className="size-3" aria-hidden /> : dir === "desc" ? <ArrowDown className="size-3" aria-hidden /> : <ChevronsUpDown className="size-3 opacity-60" aria-hidden />}
                     </button>
                   ) : (
                     c.header
                   )}
                 </th>
-              ))}
+                );
+              })}
               {actions && (
                 <th scope="col" className="px-3">
                   <span className="sr-only">Actions</span>
@@ -126,6 +127,7 @@ export function DataTable<T>({
           <tbody>
             {rows.map((row) => {
               const key = rowKey(row);
+              const accent = rowAccent?.(row);
               const activate = (e: React.KeyboardEvent) => {
                 if (e.target === e.currentTarget && (e.key === "Enter" || e.key === " ")) {
                   e.preventDefault();
@@ -138,7 +140,7 @@ export function DataTable<T>({
                   onClick={onRowClick ? () => onRowClick(row) : undefined}
                   onKeyDown={onRowClick ? activate : undefined}
                   tabIndex={onRowClick ? 0 : undefined}
-                  className={cn("group h-10 border-b last:border-0 hover:bg-muted/50", onRowClick && cn("cursor-pointer", focusRing), rowAccent?.(row) && cn("border-l-[3px]", rowAccent(row)))}
+                  className={cn("group h-10 border-b last:border-0 hover:bg-muted/50", onRowClick && cn("cursor-pointer", focusRing), accent && cn("border-l-[3px]", accent))}
                 >
                   {select && (
                     <td className={cn("px-3 align-middle", stickyFirst, "group-hover:bg-muted")} onClick={(e) => e.stopPropagation()}>
@@ -151,7 +153,7 @@ export function DataTable<T>({
                       <td
                         key={c.id}
                         title={c.maxWidth && typeof content === "string" ? content : undefined}
-                        className={cn("px-3 align-middle", c.align === "right" && "text-right tabular-nums", (c.nowrap || !c.maxWidth) && "whitespace-nowrap", c.maxWidth && cn("truncate", c.maxWidth), PRIORITY[c.priority ?? 1], i === 0 && !select && cn(stickyFirst, "group-hover:bg-muted"))}
+                        className={cn("px-3 align-middle", c.align === "right" && "text-right tabular-nums", "whitespace-nowrap", c.maxWidth && cn("truncate", c.maxWidth), PRIORITY[c.priority ?? 1], i === 0 && !select && cn(stickyFirst, "group-hover:bg-muted"))}
                       >
                         {content}
                       </td>

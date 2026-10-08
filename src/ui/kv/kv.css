@@ -1,7 +1,7 @@
 /*
  * Système « kv » du back-office (docs/reference/factory-core.md §2-§4) : échelle typographique, graisses, rayons.
- * Le site public garde son registre éditorial : ces règles ne s'appliquent que dans une zone `.kv-app` (coque du back-office,
- * aussi posée sur <body> tant que le back-office est affiché, pour les dialogues rendus hors de la coque).
+ * Le site public garde son registre éditorial : ces règles ne s'appliquent que dans une zone `.kv-app` : la coque du back-office
+ * et les surfaces qu'un portail Radix rend hors de la coque (fiches `ModalContent`, tiroir mobile), qui portent la classe elles-mêmes.
  */
 
 /*

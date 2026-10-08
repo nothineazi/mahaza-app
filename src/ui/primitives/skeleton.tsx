@@ -6,9 +6,9 @@ export function Skeleton({ className }: { className?: string }) {
 }
 
 /** Zone de chargement annoncée une seule fois aux lecteurs d'écran. */
-export function LoadingRegion({ label, children }: { label: string; children: React.ReactNode }) {
+export function LoadingRegion({ label, children, className }: { label: string; children: React.ReactNode; className?: string }) {
   return (
-    <div role="status" aria-live="polite" aria-busy="true">
+    <div role="status" aria-live="polite" aria-busy="true" className={className}>
       <span className="sr-only">{label}</span>
       {children}
     </div>

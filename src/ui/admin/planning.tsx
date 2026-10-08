@@ -174,14 +174,14 @@ function DayView({ date, reservations, staff, rooms, groupBy, onOpen }: { date: 
 
       {/* Bureau : grille par praticien ou par salle */}
       <div className="overflow-x-auto rounded-lg border bg-card max-md:hidden">
-        {/* check-design-allow: largeur minimale calculée (nombre de colonnes) */}
+        {/* check-design-allow(style-inline): largeur minimale calculée (nombre de colonnes) */}
         <div className="flex" style={{ minWidth: 56 + columns.length * 150 }}>
           <div className="w-14 shrink-0 border-r">
             <div className="h-12 border-b" />
-            {/* check-design-allow: hauteur calculée (heures d'ouverture) */}
+            {/* check-design-allow(style-inline): hauteur calculée (heures d'ouverture) */}
             <div className="relative" style={{ height }}>
               {hourMarks.map((h) => (
-                // check-design-allow: position calculée de l'heure
+                // check-design-allow(style-inline): position calculée de l'heure
                 <span key={h} className="absolute right-2 -translate-y-1/2 text-kv-meta tabular-nums text-muted-foreground" style={{ top: ((h - open) / 60) * HOUR_PX }}>
                   {Math.floor(h / 60)}h
                 </span>
@@ -194,10 +194,10 @@ function DayView({ date, reservations, staff, rooms, groupBy, onOpen }: { date: 
                 <span className="text-kv-section">{c.title}</span>
                 {c.sub && <span className="text-kv-meta text-muted-foreground">{c.sub}</span>}
               </div>
-              {/* check-design-allow: hauteur calculée (heures d'ouverture) */}
+              {/* check-design-allow(style-inline): hauteur calculée (heures d'ouverture) */}
               <div className="relative" style={{ height }}>
                 {hourMarks.map((h) => (
-                  // check-design-allow: position calculée du trait d'heure
+                  // check-design-allow(style-inline): position calculée du trait d'heure
                   <div key={h} className="absolute inset-x-0 border-t" style={{ top: ((h - open) / 60) * HOUR_PX }} />
                 ))}
                 {entries.filter(c.match).map(({ r, l }) => (
@@ -207,7 +207,7 @@ function DayView({ date, reservations, staff, rooms, groupBy, onOpen }: { date: 
                     onClick={() => onOpen(r.id)}
                     title={`${r.customerName} · ${STATUS_LABELS[r.status]}`}
                     className={cn("absolute inset-x-1 overflow-hidden rounded-md border border-l-[3px] px-2 py-1 text-left text-kv-meta", focusRing, STATUS_BLOCK[r.status])}
-                    // check-design-allow: position et hauteur calculées du bloc (heure de début, durée)
+                    // check-design-allow(style-inline): position et hauteur calculées du bloc (heure de début, durée)
                     style={{ top: ((timeToMin(l.start) - open) / 60) * HOUR_PX + 1, height: (l.durationMin / 60) * HOUR_PX - 2 }}
                   >
                     <span className="block font-semibold tabular-nums">{l.start} – {endTime(l.start, l.durationMin)}</span>

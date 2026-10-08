@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { ExternalLink, Menu, X } from "lucide-react";
+import { cn } from "@/core/lib/utils";
 import { BrandLogo } from "@/ui/brand-logo";
 import { AdminNav } from "@/ui/admin/nav";
 import { AdminSiteSelector } from "@/ui/admin/site-selector";
@@ -24,7 +25,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
         <AdminNav onNavigate={onNavigate} />
       </div>
       <div className="flex items-center justify-between gap-2 border-t border-sidebar-border pt-3">
-        <Link href="/" className={`${controlSecondary} min-w-0 flex-1 justify-start`}>
+        <Link href="/" className={cn(controlSecondary, "min-w-0 flex-1 justify-start")}>
           Voir le site <ExternalLink aria-hidden />
         </Link>
         <ThemeToggle />
@@ -58,10 +59,10 @@ export function MobileHeader() {
         <DialogPrimitive.Overlay className="fixed inset-0 z-40 bg-inverse/55 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 md:hidden" />
         <DialogPrimitive.Content
           aria-describedby={undefined}
-          className="fixed inset-y-0 left-0 z-50 w-64 max-w-[85vw] overflow-y-auto border-r border-sidebar-border bg-sidebar p-3 text-sidebar-foreground shadow-lg data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left md:hidden"
+          className="kv-app fixed inset-y-0 left-0 z-50 w-64 max-w-[85vw] overflow-y-auto border-r border-sidebar-border bg-sidebar p-3 text-sidebar-foreground shadow-lg data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left md:hidden"
         >
           <DialogPrimitive.Title className="sr-only">Menu du back-office</DialogPrimitive.Title>
-          <DialogPrimitive.Close className={`${controlIcon} absolute right-2 top-2`} aria-label="Fermer le menu">
+          <DialogPrimitive.Close className={cn(controlIcon, "absolute right-2 top-2")} aria-label="Fermer le menu">
             <X aria-hidden />
           </DialogPrimitive.Close>
           <SidebarContent onNavigate={() => setOpen(false)} />

@@ -63,7 +63,6 @@
 | Public | Texte sur secondaire/50 (sélection) | 4.5 | 9.92 ✅ | 13.74 ✅ |
 | Public | Texte atténué sur muted/60 | 4.5 | 5.35 ✅ | 7.33 ✅ |
 | Public | Texte atténué sur muted/40 | 4.5 | 5.43 ✅ | 7.69 ✅ |
-| Public | Primaire (liens, titres) sur secondaire | 4.5 | 6.58 ✅ | 8.44 ✅ |
 | Public | Bouton or (gold-foreground sur gold) | 4.5 | 6.68 ✅ | 8.74 ✅ |
 | Public | Bouton or au survol (gold/90) | 4.5 | 7.32 ✅ | 7.15 ✅ |
 | Public | Pastille « en attente » : texte sur gold/25 sur carte | 4.5 | 16.23 ✅ | 10.81 ✅ |
@@ -85,4 +84,4 @@
 | Public | Barre de progression (primary) sur piste (line) | 3 | 5.77 ✅ | 7.71 ✅ |
 | Public | Anneau de focus (or) sur surface inversée | 3 | 6.80 ✅ | 7.04 ✅ |
 
-Tous les couples respectent le seuil WCAG AA (clair : 80 couples · sombre : 80 couples)
+Tous les couples respectent le seuil WCAG AA (clair : 79 couples · sombre : 79 couples)

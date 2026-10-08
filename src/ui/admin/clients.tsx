@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { ArrowLeft, Award, Search, UserRound, UserRoundX } from "lucide-react";
 import { brand } from "@/brand/brand.config";
 import type { Client, Reservation } from "@/core/types";
@@ -9,7 +9,9 @@ import { loyaltyFor } from "@/core/clients/loyalty";
 import { reservationEnd } from "@/core/booking/scheduling";
 import { phoneKey } from "@/core/clients/phone";
 import { formatDateShort } from "@/core/lib/dates";
+import { norm } from "@/core/lib/text";
 import { cn } from "@/core/lib/utils";
+import { serviceNames } from "@/ui/admin/helpers";
 import { ReservationDialog } from "@/ui/admin/reservation-dialog";
 import { controlGhost, controlPrimary, fieldControl, focusRing, textareaControl } from "@/ui/kv/control-classes";
 import { DataTable, type Column } from "@/ui/kv/data-table";
@@ -21,9 +23,7 @@ import { LoadingRegion, Skeleton } from "@/ui/kv/skeleton";
 import { StateBlock } from "@/ui/kv/state-block";
 import { BookingStatusBadge, StatusBadge } from "@/ui/kv/status-badge";
 
-const norm = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 const loyalty = (c: Client, history: Reservation[]) => loyaltyFor(c, history.map((r) => r.status), brand.policies.loyalty);
-const serviceNames = (r: Reservation) => r.lines.map((x) => brand.services.find((s) => s.id === x.serviceId)?.name).join(" + ");
 
 export function Clients() {
   const { ready, clients, reservations, focusClientId, setFocusClientId, site } = useAdminData();
@@ -37,7 +37,11 @@ export function Clients() {
 
   const byClient = useMemo(() => {
     const map = new Map<string, Reservation[]>();
-    for (const r of reservations) map.set(r.clientId, [...(map.get(r.clientId) ?? []), r]);
+    for (const r of reservations) {
+      const list = map.get(r.clientId);
+      if (list) list.push(r);
+      else map.set(r.clientId, [r]);
+    }
     return map;
   }, [reservations]);
 
@@ -132,11 +136,8 @@ export function Clients() {
 }
 
 function ClientDetail({ client, history, onBack }: { client: Client; history: Reservation[]; onBack: () => void }) {
-  const { saveClientNotes, staff } = useAdminData();
-  const [notes, setNotes] = useState(client.notes);
-  const [saved, setSaved] = useState(false);
+  const { staff } = useAdminData();
   const [openId, setOpenId] = useState<string | null>(null);
-  const notesId = useId();
 
   const l = loyalty(client, history);
   const sorted = [...history].sort((a, b) => `${b.date} ${b.lines[0].start}`.localeCompare(`${a.date} ${a.lines[0].start}`));
@@ -146,12 +147,6 @@ function ClientDetail({ client, history, onBack }: { client: Client; history: Re
   for (const r of history) if (r.status !== "cancelled") for (const line of r.lines) freq.set(line.practitionerId, (freq.get(line.practitionerId) ?? 0) + 1);
   const favId = [...freq.entries()].sort((a, b) => b[1] - a[1])[0]?.[0];
   const fav = staff.find((p) => p.id === favId)?.name;
-
-  const save = () => {
-    saveClientNotes(client.id, notes.trim());
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2500);
-  };
 
   const columns: Column<Reservation>[] = [
     { id: "when", header: "Quand", cell: (r) => <><span className="inline-block first-letter:uppercase">{formatDateShort(r.date)}</span> · {r.lines[0].start} – {reservationEnd(r.lines)}</> },
@@ -194,7 +189,7 @@ function ClientDetail({ client, history, onBack }: { client: Client; history: Re
           {l.points} <span className="text-kv-body text-muted-foreground">points · palier {l.tier.label}</span>
         </p>
         <div className="mt-2 h-2 overflow-hidden rounded-full bg-muted" role="meter" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(l.progress * 100)} aria-label="Progression vers le palier suivant">
-          {/* check-design-allow: largeur calculée de la jauge */}
+          {/* check-design-allow(style-inline): largeur calculée de la jauge */}
           <div className="h-full rounded-full bg-primary" style={{ width: `${Math.round(l.progress * 100)}%` }} />
         </div>
         <p className="mt-2 text-kv-meta text-muted-foreground">
@@ -202,17 +197,7 @@ function ClientDetail({ client, history, onBack }: { client: Client; history: Re
         </p>
       </Panel>
 
-      <Panel>
-        <Field label="Notes" htmlFor={notesId} hint="Préférences, allergies, remarques (500 caractères au plus).">
-          <textarea id={notesId} className={textareaControl} value={notes} onChange={(e) => { setNotes(e.target.value); setSaved(false); }} onBlur={() => notes.trim() !== client.notes && save()} placeholder="Préférences, allergies, remarques…" maxLength={500} />
-        </Field>
-        <div className="mt-4 flex items-center gap-2">
-          <button type="button" onClick={save} className={controlPrimary}>
-            Enregistrer la note
-          </button>
-          <p role="status" className="text-kv-meta text-success">{saved ? "Note enregistrée (en mémoire, démo)." : ""}</p>
-        </div>
-      </Panel>
+      <ClientNotes client={client} />
 
       <Panel>
         <PanelHeader title="Historique" />
@@ -240,6 +225,37 @@ function ClientDetail({ client, history, onBack }: { client: Client; history: Re
 
       <ReservationDialog reservationId={openId} onClose={() => setOpenId(null)} />
     </div>
+  );
+}
+
+/** Notes d'un client : état local, pour que la frappe ne refasse pas le rendu de la fiche (historique compris). */
+function ClientNotes({ client }: { client: Client }) {
+  const { saveClientNotes } = useAdminData();
+  const [notes, setNotes] = useState(client.notes);
+  const [saved, setSaved] = useState(false);
+  const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const notesId = useId();
+  useEffect(() => () => clearTimeout(timer.current), []);
+
+  const save = () => {
+    saveClientNotes(client.id, notes.trim());
+    setSaved(true);
+    clearTimeout(timer.current);
+    timer.current = setTimeout(() => setSaved(false), 2500);
+  };
+
+  return (
+    <Panel>
+      <Field label="Notes" htmlFor={notesId} hint="Préférences, allergies, remarques (500 caractères au plus).">
+        <textarea id={notesId} className={textareaControl} value={notes} onChange={(e) => { setNotes(e.target.value); setSaved(false); }} onBlur={() => notes.trim() !== client.notes && save()} placeholder="Préférences, allergies, remarques…" maxLength={500} />
+      </Field>
+      <div className="mt-4 flex items-center gap-2">
+        <button type="button" onClick={save} className={controlPrimary}>
+          Enregistrer la note
+        </button>
+        <p role="status" className="text-kv-meta text-success">{saved ? "Note enregistrée (en mémoire, démo)." : ""}</p>
+      </div>
+    </Panel>
   );
 }
 

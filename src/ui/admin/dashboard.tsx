@@ -100,7 +100,7 @@ export function Dashboard() {
         <Kpi icon={Percent} label={`Taux de remplissage ${label}`} value={pct(occupancy)} note="Minutes réservées ÷ minutes d'ouverture × praticiens actifs (créneaux de 60 min indicatifs)">
           {occupancy != null && (
             <div className="mt-2 h-2 overflow-hidden rounded-full bg-muted" role="meter" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(occupancy * 100)} aria-label="Taux de remplissage">
-              {/* check-design-allow: largeur calculée de la jauge */}
+              {/* check-design-allow(style-inline): largeur calculée de la jauge */}
               <div className="h-full rounded-full bg-primary" style={{ width: `${Math.round(occupancy * 100)}%` }} />
             </div>
           )}
@@ -198,9 +198,9 @@ function WeekChart({ days, today }: { days: ReturnType<typeof weekBreakdown>; to
     <Panel>
       <PanelHeader title="Réservations de la semaine" action={<FictiveTag />} />
       <p className="-mt-2 text-kv-meta text-muted-foreground">Hors annulées. Survolez ou focalisez une barre pour le détail.</p>
-      {/* check-design-allow: hauteur calculée du graphique */}
+      {/* check-design-allow(style-inline): hauteur calculée du graphique */}
       <ul className="relative mt-6 flex items-end justify-between gap-2 border-b" style={{ height: H + 36 }} aria-label="Graphique : réservations par jour">
-        {/* check-design-allow: position calculée de la ligne de repère */}
+        {/* check-design-allow(style-inline): position calculée de la ligne de repère */}
         <li aria-hidden className="pointer-events-none absolute inset-x-0 border-t" style={{ bottom: 36 + H }}>
           <span className="absolute -top-5 left-0 text-kv-meta tabular-nums text-muted-foreground">{max}</span>
         </li>
@@ -214,7 +214,7 @@ function WeekChart({ days, today }: { days: ReturnType<typeof weekBreakdown>; to
                 {d.count} réservation{d.count > 1 ? "s" : ""} · CA estimé {formatPrice(d.revenue)} (FICTIF)
               </span>
               {labelled && <span className="mb-1 text-kv-meta font-semibold tabular-nums">{d.count}</span>}
-              {/* check-design-allow: hauteur calculée de la barre */}
+              {/* check-design-allow(style-inline): hauteur calculée de la barre */}
               <span className="block w-full max-w-6 rounded-t-sm bg-primary" style={{ height: Math.max(h, d.count > 0 ? 2 : 0) }} />
               <span className={cn("mt-2 h-7 text-kv-meta capitalize", isToday ? "font-semibold text-foreground" : "text-muted-foreground")} aria-hidden>
                 {formatDate(d.date, { weekday: "short" })}

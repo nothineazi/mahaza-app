@@ -29,8 +29,8 @@
   /* Accent de marque : action, lien, focus, état actif */
   --primary: oklch(0.434 0.061 var(--brand-h));
   --primary-foreground: oklch(1 0 0);
-  --primary-text: oklch(0.434 0.061 var(--brand-h));
-  --ring: oklch(0.434 0.061 var(--brand-h));
+  --primary-text: var(--primary);
+  --ring: var(--primary);
 
   /* Surfaces teintées discrètes (survol, élément actif) */
   --secondary: oklch(0.94 0.04 var(--brand-h));
@@ -72,7 +72,7 @@
   --sidebar-accent: oklch(0.94 0.04 var(--brand-h));
   --sidebar-accent-foreground: oklch(0.35 0.06 var(--brand-h));
 
-  /* Registre éditorial du site public : laiton (accent doré) et surfaces toujours sombres (pied de page, hero, carte cadeau, infobulle) */
+  /* Registre éditorial du site public : laiton (dorure) et surfaces toujours sombres (pied de page, hero, carte cadeau, infobulle) */
   --gold: oklch(0.731 0.1 80);
   --gold-foreground: oklch(0.25 0.04 80);
   --inverse: oklch(0.24 0.02 var(--brand-h));
@@ -93,8 +93,8 @@
 
   --primary: oklch(0.79 0.078 190.5);
   --primary-foreground: oklch(0.2 0.03 var(--brand-h));
-  --primary-text: oklch(0.79 0.078 190.5);
-  --ring: oklch(0.79 0.078 190.5);
+  --primary-text: var(--primary);
+  --ring: var(--primary);
 
   --secondary: oklch(0.25 0.04 var(--brand-h));
   --secondary-foreground: oklch(0.9 0.04 var(--brand-h));

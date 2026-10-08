@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
+import { whenIdle } from "@/core/lib/idle";
 import { ChevronUp, Info, Trash2 } from "lucide-react";
 import { brand } from "@/brand/brand.config";
 import type { ReservationLine } from "@/core/types";
@@ -147,8 +148,9 @@ export function SummaryBar({ draft, lines, action, onRemove }: Props & { action:
   // Le dialogue n'est monté (et son code téléchargé) qu'à la première ouverture ; on le précharge au repos du navigateur.
   const [everOpened, setEverOpened] = useState(false);
   useEffect(() => {
-    const id = typeof window.requestIdleCallback === "function" ? window.requestIdleCallback(() => void loadSheet(), { timeout: 4000 }) : window.setTimeout(() => void loadSheet(), 2000);
-    return () => (typeof window.cancelIdleCallback === "function" ? window.cancelIdleCallback(id) : window.clearTimeout(id));
+    // La barre n'existe que sous 1024 px : inutile de télécharger la feuille sur grand écran.
+    if (window.matchMedia("(min-width: 1024px)").matches) return;
+    return whenIdle(() => void loadSheet(), { timeout: 4000, fallbackMs: 2000 });
   }, []);
   const count = draft.cart.length;
   const site = draft.siteId ? getSite(draft.siteId) : null;

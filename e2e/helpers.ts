@@ -38,7 +38,7 @@ export const BRAND_LEAK = new RegExp([["maha", "za"].join(""), ["st[ _-]?lo", "u
 /** Navigation du back-office : barre latérale sur bureau, tiroir (à ouvrir) sous 768 px. */
 export async function adminNav(page: Page) {
   // Le tiroir précédent peut finir son animation de fermeture : on attend qu'il ait disparu avant d'en ouvrir un autre.
-  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await expect(page.getByRole("dialog", { name: "Menu du back-office" })).toHaveCount(0);
   const burger = page.getByRole("button", { name: "Ouvrir le menu du back-office" });
   if (await burger.isVisible()) await burger.click();
   const nav = page.getByRole("navigation", { name: "Navigation du back-office" });

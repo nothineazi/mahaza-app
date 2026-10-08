@@ -66,7 +66,7 @@ Les évolutions du socle circulent dans un seul sens : souche → tag → `git m
 
 - **Rendu** : toutes les pages sont rendues à la demande (le layout appelle `connection()` pour lire `APP_ENV` à chaque requête). Les pages sont des composants serveur qui montent des composants client.
 - **Environnement** (`src/core/lib/runtime.ts`) : `APP_ENV` ∈ {`development`, `staging`, `production`}, défaut `development`. `RuntimeProvider` transmet la valeur aux composants client (`useRuntime()`), qui construisent les liens WhatsApp sans destinataire hors production.
-- **Deux registres** (ADR-036). Le **back-office** suit le design system de la factory (`docs/reference/factory-core.md`) : composants `src/ui/kv/`, échelle `text-kv-*`, graisses 450/520/600, rayons 0,5 rem, coque à barre latérale. Ces règles ne valent que dans une zone `.kv-app` (coque + `<body>` tant que le back-office est affiché). Le **site public** garde son registre premium éditorial et ne partage que les jetons de couleur.
+- **Deux registres** (ADR-036). Le **back-office** suit le design system de la factory (`docs/reference/factory-core.md`) : composants `src/ui/kv/`, échelle `text-kv-*`, graisses 450/520/600, rayons 0,5 rem, coque à barre latérale. Ces règles ne valent que dans une zone `.kv-app` (coque + surfaces portées : fiches, tiroir mobile). Le **site public** garde son registre premium éditorial et ne partage que les jetons de couleur.
 - **Thème** : `src/brand/theme/tokens.css` (seul fichier de couleurs de la marque, OKLCH, teinte `--brand-h`), relié aux classes Tailwind par `@theme inline` dans `src/app/globals.css`. Clair / sombre par la classe `.dark` sur `<html>` (`next-themes`, défaut = thème du système, bouton dans la coque du back-office, `color-scheme` natif). Surfaces toujours sombres du site public : `inverse`, accent doré : `gold`, filet décoratif : `line`.
 - **Polices** (`src/brand/theme/fonts.ts`, fichiers et licences OFL dans `src/brand/fonts/`) : trois rôles `--font-sans` (Inter), `--font-display` (Cormorant Garamond), `--font-mono` (JetBrains Mono), tous auto-hébergés par `next/font/local` ; le build ne contacte aucun service (ADR-038).
 - **Temps** : stocké en UTC dans la cible ; affichage `Africa/Douala` (`src/core/lib/dates.ts`). **Montants** : FCFA entiers (`formatPrice`).
@@ -84,7 +84,7 @@ Les évolutions du socle circulent dans un seul sens : souche → tag → `git m
 | Niveau | Outil | Contenu |
 |---|---|---|
 | Unitaires | Vitest (`tests/core/`) | planification, conflits, cycle de vie, KPI, seed, exports (ICS, CSV), WhatsApp, `APP_ENV`, `cn()` étendu, polices auto-hébergées |
-| Contrastes | `scripts/check-contrast.mjs` | 80 couples × 2 thèmes (OKLCH, `--markdown` pour le tableau) |
+| Contrastes | `scripts/check-contrast.mjs` | 79 couples × 2 thèmes (OKLCH, `--markdown` pour le tableau) |
 | Design | `scripts/check-design.mjs --strict` | périmètre back-office : styles en ligne, tailles hors échelle, rayons, espacements, graisses, couleurs en dur |
 | Anti-fuite | `scripts/check-brand-leak.mjs` | marques des dépôts clients |
 | E2E | Playwright + axe (`e2e/`) | 6 scénarios × 2 largeurs |

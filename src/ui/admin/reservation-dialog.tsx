@@ -18,6 +18,7 @@ import { hoursFor } from "@/core/booking/availability";
 import { addDays, endTime, formatDateLong, minToTime, timeToMin } from "@/core/lib/dates";
 import { getSite, multiSite } from "@/core/sites/sites";
 import { cn, formatPrice } from "@/core/lib/utils";
+import { serviceNames } from "@/ui/admin/helpers";
 import { ActionBar, type BarAction } from "@/ui/kv/action-bar";
 import { controlSecondary, fieldControl } from "@/ui/kv/control-classes";
 import { Field } from "@/ui/kv/field";
@@ -25,6 +26,7 @@ import { FictiveTag } from "@/ui/kv/fictive-tag";
 import { Modal, ModalBody, ModalContent, ModalHeader } from "@/ui/kv/modal";
 import { BookingStatusBadge } from "@/ui/kv/status-badge";
 
+const serviceName = (id: string) => brand.services.find((s) => s.id === id)?.name;
 const hhmm = (ms: number) => new Intl.DateTimeFormat("fr-FR", { hour: "2-digit", minute: "2-digit", timeZone: "Africa/Douala" }).format(ms);
 
 /** Action primaire de la fiche selon le statut (matrice ADR-039) ; les autres transitions restent visibles en secondaire. */
@@ -65,19 +67,20 @@ function Detail({ reservation, onClose }: { reservation: Reservation; onClose: (
   const checks = TRANSITIONS[status].map((to) => ({ to, check: checkTransition(reservation, to, today) }));
   const toAction = ({ to, check }: (typeof checks)[number]): BarAction => ({ label: transitionLabel(status, to), onClick: () => apply(to), disabled: !check.ok, describedBy: check.ok ? undefined : `${whyId}-${to}` });
   const primaryKey = PRIMARY_TRANSITION[status];
-  const primary = checks.filter((c) => c.to === primaryKey).map(toAction)[0];
+  const primaryCheck = checks.find((c) => c.to === primaryKey);
+  const primary = primaryCheck && toAction(primaryCheck);
   const cancel = checks.find((c) => c.to === "cancelled");
   const secondary: BarAction[] = [
     ...checks.filter((c) => c.to !== primaryKey && c.to !== "cancelled").map(toAction),
     { label: "Déplacer", icon: ArrowRightLeft, onClick: () => setMoving((m) => !m) },
     ...(canRemind ? [{ label: "Rappel WhatsApp", icon: MessageCircle, href: reminderLink(reservation, rctx), onClick: () => markReminderSent(reservation.id), tone: "success" as const }] : []),
   ];
-  const unavailable = checks.filter((c) => !c.check.ok);
+  const unavailable = checks.flatMap(({ to, check }) => (check.ok ? [] : [{ to, reason: check.reason }]));
 
   return (
     <>
       <ModalHeader
-        title={reservation.lines.map((l) => brand.services.find((s) => s.id === l.serviceId)?.name).join(" + ")}
+        title={serviceNames(reservation)}
         description={
           <span className="flex flex-wrap items-center gap-2">
             <span>Réf. <span className="font-mono">{reservation.reference}</span></span>
@@ -127,9 +130,9 @@ function Detail({ reservation, onClose }: { reservation: Reservation; onClose: (
 
         {unavailable.length > 0 && (
           <ul className="space-y-1 text-kv-meta text-muted-foreground" aria-label="Actions indisponibles">
-            {unavailable.map(({ to, check }) => (
+            {unavailable.map(({ to, reason }) => (
               <li key={to} id={`${whyId}-${to}`}>
-                {transitionLabel(status, to)} : {check.ok ? "" : check.reason}
+                {transitionLabel(status, to)} : {reason}
               </li>
             ))}
           </ul>
@@ -155,7 +158,7 @@ function Detail({ reservation, onClose }: { reservation: Reservation; onClose: (
 
         {moving && <MoveForm reservation={reservation} onDone={(text) => { setMoving(false); setMessage({ tone: "ok", text }); }} />}
       </ModalBody>
-      <ActionBar primary={primary} secondary={secondary} destructive={cancel ? { ...toAction(cancel), icon: X } : undefined} menuLabel="Autres actions" />
+      <ActionBar primary={primary} secondary={secondary} destructive={cancel ? { ...toAction(cancel), icon: X } : undefined} />
     </>
   );
 }
@@ -180,7 +183,7 @@ function HoldInfo({ expiresAt }: { expiresAt: number }) {
   );
 }
 
-export function ConflictList({ conflicts }: { conflicts: Conflict[] }) {
+function ConflictList({ conflicts }: { conflicts: Conflict[] }) {
   return (
     <ul className="mt-2 space-y-1">
       {conflicts.map((c, i) => (
@@ -222,6 +225,8 @@ function MoveForm({ reservation, onDone }: { reservation: Reservation; onDone: (
   );
   const blocked = hasBlocking(conflicts) || !hours;
 
+  const setAssignField = (i: number, key: "practitionerId" | "roomId", value: string) => setAssign((a) => a.map((x, j) => (j === i ? { ...x, [key]: value } : x)));
+
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     const res = moveReservation(reservation.id, { date, start, assignments: assign });
@@ -247,16 +252,16 @@ function MoveForm({ reservation, onDone }: { reservation: Reservation; onDone: (
       </div>
       {reservation.lines.map((l, i) => (
         <fieldset key={l.serviceId} className="grid gap-4 rounded-lg border bg-card p-3 sm:grid-cols-2">
-          <legend className="px-1 text-kv-section">{brand.services.find((s) => s.id === l.serviceId)?.name}</legend>
+          <legend className="px-1 text-kv-section">{serviceName(l.serviceId)}</legend>
           <Field label="Praticien" htmlFor={`${uid}-p-${i}`}>
-            <select id={`${uid}-p-${i}`} className={fieldControl} value={assign[i].practitionerId} onChange={(e) => setAssign((a) => a.map((x, j) => (j === i ? { ...x, practitionerId: e.target.value } : x)))}>
+            <select id={`${uid}-p-${i}`} className={fieldControl} value={assign[i].practitionerId} onChange={(e) => setAssignField(i, "practitionerId", e.target.value)}>
               {siteStaff.map((p) => (
                 <option key={p.id} value={p.id}>{p.name}{p.active ? "" : " (inactif)"}</option>
               ))}
             </select>
           </Field>
           <Field label="Salle" htmlFor={`${uid}-r-${i}`}>
-            <select id={`${uid}-r-${i}`} className={fieldControl} value={assign[i].roomId} onChange={(e) => setAssign((a) => a.map((x, j) => (j === i ? { ...x, roomId: e.target.value } : x)))}>
+            <select id={`${uid}-r-${i}`} className={fieldControl} value={assign[i].roomId} onChange={(e) => setAssignField(i, "roomId", e.target.value)}>
               {siteRooms.map((r) => (
                 <option key={r.id} value={r.id}>{r.name}{r.active ? "" : " (inactive)"}</option>
               ))}

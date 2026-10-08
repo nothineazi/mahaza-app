@@ -31,19 +31,15 @@ function block(selector) {
 const lightRaw = block(":root");
 const darkRaw = { ...lightRaw, ...block(".dark") };
 
-/** Résout var(--x) et les alias, puis analyse oklch(L C H [/ A]). */
-function resolve(raw, name, seen = new Set()) {
-  if (seen.has(name)) throw new Error(`Alias circulaire : ${name}`);
-  let v = raw[name];
+/** Résout les alias `var(--x)` d'un jeton (sans analyser la couleur). */
+function resolve(raw, name, seen = []) {
+  if (seen.includes(name)) throw new Error(`Alias circulaire : ${name}`);
+  const v = raw[name];
   if (v === undefined) throw new Error(`Jeton manquant : --${name}`);
-  seen.add(name);
-  v = v.replace(/var\(--([a-z0-9-]+)\)/g, (_, n) => (n === "brand-h" ? raw["brand-h"] : resolveRaw(raw, n, seen)));
-  return v;
-}
-function resolveRaw(raw, name, seen) {
-  return resolve(raw, name, new Set(seen));
+  return v.replace(/var\(--([a-z0-9-]+)\)/g, (_, n) => resolve(raw, n, [...seen, name]));
 }
 
+/** Analyse oklch(L C H [/ A]) d'un jeton résolu. */
 function parseColor(raw, name) {
   const v = resolve(raw, name);
   const m = v.match(/^oklch\(\s*([\d.]+)\s+([\d.]+)\s+([\d.]+)\s*(?:\/\s*([\d.]+)(%?))?\s*\)$/);
@@ -159,7 +155,6 @@ function pairsFor(raw, themeName) {
     ["Public", "Texte sur secondaire/50 (sélection)", T["secondary-foreground"], tint("secondary", surf.bg, 0.5), T4],
     ["Public", "Texte atténué sur muted/60", T["muted-foreground"], tint("muted", surf.bg, 0.6), T4],
     ["Public", "Texte atténué sur muted/40", T["muted-foreground"], tint("muted", surf.bg, 0.4), T4],
-    ["Public", "Primaire (liens, titres) sur secondaire", T.primary, T.secondary, T4],
     ["Public", "Bouton or (gold-foreground sur gold)", T["gold-foreground"], T.gold, T4],
     ["Public", "Bouton or au survol (gold/90)", T["gold-foreground"], tint("gold", surf.bg, 0.9), T4],
     ["Public", "Pastille « en attente » : texte sur gold/25 sur carte", T.foreground, tint("gold", surf.card, 0.25), T4],
@@ -177,7 +172,7 @@ function pairsFor(raw, themeName) {
     ["Public", "Barre de progression (primary) sur piste (line)", T.primary, over("line", surf.card), dark ? 3 : T3],
     ["Public", "Anneau de focus (or) sur surface inversée", T.gold, T.inverse, T3],
   ];
-  return { pairs, gamut, tokens };
+  return { pairs, gamut };
 }
 
 // ---------- Exécution ----------

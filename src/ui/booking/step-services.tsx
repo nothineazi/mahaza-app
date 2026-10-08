@@ -3,12 +3,12 @@
 import { useId, useMemo, useState } from "react";
 import { Check, Clock, Plus, Search } from "lucide-react";
 import { brand } from "@/brand/brand.config";
+import { norm } from "@/core/lib/text";
 import { cn, formatDuration } from "@/core/lib/utils";
 import { Card } from "@/ui/primitives/card";
 import { Input } from "@/ui/primitives/field";
 import type { Draft } from "@/ui/booking/types";
 
-const norm = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 
 /** Panier multi-soins : recherche, filtre par catégorie, ajout / retrait d'un soin. */
 export function StepServices({ draft, onToggle, max }: { draft: Draft; onToggle: (serviceId: string) => void; max: number }) {
