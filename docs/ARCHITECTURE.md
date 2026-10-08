@@ -1,18 +1,19 @@
 # ARCHITECTURE — ovatech-spa-core
 
-État au **RUN-01** : application Next.js 16 sans backend. Tout l'état vit en mémoire dans le navigateur (store React). La cible (PostgreSQL, authentification, autorisation, jobs) est décrite dans `docs/STANDARDS.md` et `docs/PLAN.md` ; ce document décrit ce qui existe et les règles qui s'appliquent déjà.
+État au **RUN-01b** : application Next.js 16 sans backend. Tout l'état vit en mémoire dans le navigateur (store React). La cible (PostgreSQL, authentification, autorisation, jobs) est décrite dans `docs/STANDARDS.md` et `docs/PLAN.md` ; ce document décrit ce qui existe et les règles qui s'appliquent déjà.
 
 ## 1. Structure
 
 ```
 src/
   app/                       routes Next (App Router)
-    layout.tsx               racine : APP_ENV, bandeau, provider, jetons CSS
-    page.tsx                 accueil
-    reserver/page.tsx        tunnel de réservation
-    admin/…                  tableau de bord, planning, réservations, clients, salles, staff
+    layout.tsx               racine : APP_ENV, bandeau, thème (next-themes), polices, jetons CSS
+    page.tsx                 accueil (le store n'y est pas chargé)
+    (app)/layout.tsx         groupe de routes : porte le store de la démo (ADR-040)
+    (app)/reserver/page.tsx  tunnel de réservation (étapes chargées à la demande)
+    (app)/admin/…            tableau de bord, planning, réservations, clients, salles, staff (+ error.tsx, loading.tsx)
     api/health/route.ts      sonde de santé → 200 {"status":"ok"}
-    icon.svg, globals.css
+    icon.svg, globals.css    pont jetons → classes Tailwind (@theme), registres, base
   core/                      SOCLE (jamais modifié dans un dépôt client)
     booking/                 scheduling, conflicts, holds, lifecycle, status, cart, availability, kpis, seed, gift-card
     clients/                 loyalty, phone
@@ -23,24 +24,28 @@ src/
     types.ts                 types du domaine et BrandConfig
   brand/                     MARQUE (seul dossier modifié par un dépôt client)
     brand.config.ts          nom, contact, horaires, fonctionnalités, politiques par défaut, numéros FICTIFS
-    theme/                   tokens.css (clair / sombre), fonts.ts, effects.css
+    theme/                   tokens.css (OKLCH, clair / `.dark`), fonts.ts (next/font/local), effects.css
+    fonts/                   polices auto-hébergées (woff2) + OFL.txt de chaque police + README (provenance)
     copy/home.ts             contenu éditorial de l'accueil
     seed/                    catalog.ts (sites, soins, praticiens, salles, réservations), demo.ts (clients, historique)
   ui/                        composants partagés
-    primitives/              bouton, carte, dialogue, champ, pastille, titre, squelette, interrupteur
+    primitives/              SITE PUBLIC : bouton, carte, dialogue, champ, pastille, titre, squelette, interrupteur (jamais modifiés par le back-office)
     site/                    en-tête et pied de page publics
-    home/                    accueil, carrousel, cartes cadeaux
-    booking/                 tunnel multi-soins (site → soins → praticien → créneau → acompte → confirmation)
-    admin/                   coque, navigation, tableau de bord, planning, réservations, clients, salles, staff
+    home/                    accueil, hero (images en composant client), cartes cadeaux chargées à la demande
+    booking/                 tunnel multi-soins (site → soins → praticien → créneau → acompte → confirmation), étapes tardives chargées à la demande
+    kv/                      BACK-OFFICE : design system (Panel, StatusBadge, Field, PageHeader, StateBlock, DataTable, ActionBar, Segmented, Modal, Skeleton, ThemeToggle, control-classes, kv.css)
+    admin/                   coque (barre latérale, tiroir mobile), tableau de bord, planning, réservations, clients, salles, staff
+    theme-provider.tsx, lazy-on-visible.tsx
 public/                      robots.txt, brand/ (illustrations et icônes SVG)
 e2e/                         Playwright
-scripts/                     contrôles (contrastes, anti-fuite, budget), génération d'assets, démarrage autonome
+scripts/                     contrôles (contrastes OKLCH, anti-fuite, design, budget), génération d'assets, démarrage autonome
+docs/reference/             factory-core.md : design system de la factory (référence du back-office)
 ```
 
 ## 2. Règles `core` / `brand`
 
 1. **`src/core/**` ne contient aucun contenu de marque** : ni nom, ni texte, ni couleur, ni donnée. Il lit la marque **uniquement** via le contrat `@/brand/*` : `brand` (`@/brand/brand.config`) et, pour le store de démonstration, `demoClients` / `demoReservations` (`@/brand/seed/demo`).
-2. **`src/brand/**` est le seul dossier qu'un dépôt client remplace.** Les exports attendus (`brand`, `seedSites`, `seedCategories`, `seedServices`, `seedPractitioners`, `seedRooms`, `seedBookings`, `demoClients`, `demoReservations`, `homeCopy`, `displayFont`, `tokens.css`) forment le contrat entre le socle et la marque.
+2. **`src/brand/**` est le seul dossier qu'un dépôt client remplace.** Les exports attendus (`brand`, `seedSites`, `seedCategories`, `seedServices`, `seedPractitioners`, `seedRooms`, `seedBookings`, `demoClients`, `demoReservations`, `homeCopy`, `fontVariables`, `tokens.css`) forment le contrat entre le socle et la marque.
 3. Une personnalisation qui exige de toucher `src/core/` est une **évolution du socle** : elle se fait dans la souche, puis est mergée dans les apps (`git merge upstream/main`). Contrôle côté app : `git diff upstream/main -- src/core` doit être vide.
 4. Les composants de `src/ui/**` lisent aussi `brand` ; ils ne contiennent aucun nom de marque.
 5. **Anti-fuite** : `npm run check:brand` (et la CI) échoue si « Mahaza » ou « St Louis » apparaît hors `docs/` et `CLAUDE.md` (ADR-026).

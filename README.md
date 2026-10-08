@@ -4,7 +4,7 @@ Souche **privée** d'un logiciel de gestion d'institut de beauté et de barbersh
 
 - **Marque de démonstration : OVAGLOW** — fictive. Sites, soins, prix, personnes et numéros sont **FICTIFS** et marqués comme tels à l'écran.
 - La souche sert de base à deux dépôts clients créés depuis un tag (`core-vX.Y`). Elle n'est **jamais déployée** : la CI construit l'image et vérifie `/api/health`.
-- Aujourd'hui (RUN-01) : front en mémoire, sans base de données ni authentification. Le backend arrive à partir du RUN-02 (voir `docs/PLAN.md`).
+- Aujourd'hui (RUN-01b) : front en mémoire, sans base de données ni authentification. Le backend arrive à partir du RUN-02 (voir `docs/PLAN.md`).
 
 > Lire d'abord `CLAUDE.md`, puis `docs/STANDARDS.md`, `docs/PLAN.md` et `docs/DECISIONS.md`.
 
@@ -74,28 +74,33 @@ Aucun secret n'est nécessaire à ce stade. `.env*` est ignoré par Git ; `.env.
 |---|---|
 | `dev`, `build`, `start` | Next.js ; `start` copie les ressources statiques puis lance le serveur autonome |
 | `typecheck`, `lint`, `test` | TypeScript, ESLint (flat config), Vitest |
-| `verify` | `typecheck` + `lint` + `test` + `check:contrast` + `check:brand` |
-| `check:contrast` | Contrastes WCAG AA des thèmes clair et sombre (`src/brand/theme/tokens.css`) |
+| `verify` | `typecheck` + `lint` + `test` + `check:contrast` + `check:brand` + `check:design --strict` |
+| `check:contrast` | Contrastes WCAG AA des thèmes clair et sombre, calculés en OKLCH (`src/brand/theme/tokens.css`) ; `-- --markdown` pour le tableau |
+| `check:design` | Garde-fou du design system du back-office (`src/ui/kv`, `src/ui/admin`, `src/app/(app)/admin`) ; `-- --strict` échoue à la moindre violation (mode CI) ; exception : commentaire `check-design-allow: <raison>` |
 | `check:brand` | Anti-fuite : aucune référence aux marques des dépôts clients |
 | `assets:generate` | Régénère les illustrations SVG (`public/brand/`) et le favicon |
-| `measure:first-load` | First Load JS (gzip) par route |
+| `measure:first-load` | First Load JS (gzip) par route ; `-- --budget scripts/first-load-budget.json` pour le contrôle CI (149 / 172 kB) |
 | `e2e` | Playwright (375 et 1280 px) sur le build de production |
 
 ## Structure
 
 ```
 src/
-  app/     routes Next (accueil, /reserver, /admin/*, /api/health)
+  app/     routes Next : accueil, (app)/ = /reserver et /admin/* (seules routes qui chargent le store), /api/health
   core/    SOCLE : booking, clients, sites, whatsapp, state, lib, types — jamais modifié dans un dépôt client
-  brand/   MARQUE : brand.config.ts, theme/ (tokens, polices), copy/, seed/ — seul dossier modifié par un dépôt client
-  ui/      composants partagés (primitives, site, home, booking, admin)
+  brand/   MARQUE : brand.config.ts, theme/ (tokens OKLCH, polices), fonts/ (polices auto-hébergées + licences OFL), copy/, seed/ — seul dossier modifié par un dépôt client
+  ui/      composants partagés : primitives, site, home, booking (site public) ; kv/ (design system du back-office) ; admin/
 public/    robots.txt, public/brand/ (illustrations SVG)
 e2e/       tests Playwright
 scripts/   contrôles et utilitaires
 docs/      plan, standards, ADR, sécurité, rapports de run
 ```
 
-Détails et règles : `docs/ARCHITECTURE.md`.
+Détails et règles : `docs/ARCHITECTURE.md`. Design : `docs/reference/factory-core.md` et ADR-035 à 040 (`docs/DECISIONS.md`).
+
+### Thème clair / sombre
+
+Le thème suit le système par défaut ; le bouton du back-office (barre latérale, en-tête mobile) bascule clair / sombre et mémorise le choix dans le navigateur (classe `.dark` sur `<html>`, `next-themes`).
 
 ## Règles non négociables (extrait)
 

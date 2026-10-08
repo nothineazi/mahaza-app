@@ -2,7 +2,7 @@
 
 **Souche OVAGLOW → `mahaza-app` (institut) et `stlouis-app` (barbershop)**
 
-> Version 1.0 du 2026-10-08, décisions validées par Yass.
+> Version 1.1 du 2026-10-08 (RUN-01b inséré), décisions validées par Yass.
 > Cadrage d'origine : `nothineazi/mahaza-demo` → `docs/refonte-1-cadrage.md` (v1.1). **En cas d'écart, ce plan prime.**
 
 ---
@@ -27,6 +27,7 @@
 |---|---|---|
 | Vrai produit avec backend ; données FICTIVES en staging | Un seul code, crédible pour le client et le réseau | Démo simulée jetable |
 | **Next.js 16** (migration au RUN-01) | Next 15 sort de la maintenance le 21/10/2026 ; GO Yass | Rester en 15 |
+| **Node 24 LTS**, **Tailwind 4**, design system de la factory, polices auto-hébergées (RUN-01b) | Poser les fondations visuelles et l'outillage avant les écrans d'authentification et d'administration ; GO Yass | Faire l'inverse (tout refaire) ; Node 22 ; Tailwind 3 |
 | **3 dépôts** : souche privée + 2 apps clientes ; `mahaza-demo` figé puis archivé | Cession par institut, spécificités par client, souche réutilisable pour le réseau | Monorepo ; deux copies sans souche |
 | Souche **sans historique** de `mahaza-demo` (import propre) | Aucun média ni contenu Mahaza dans la souche | Fork avec historique |
 | Souche **jamais déployée** (CI seule) | Économie du KVM | Instance de démo OVAGLOW |
@@ -150,6 +151,23 @@ Un run se termine par une PR, un rapport `docs/runs/RUN-NN.md` et une checklist 
 
 **Risques** : régressions Next 16 (cache, `params` asynchrones, `proxy`). Parade : étapes séparées, chacune avec ses tests. En cas de blocage dur, documenter et s'arrêter **avant** de livrer une souche en Next 15.
 
+#### RUN-01b — Fondations design et outillage (M)
+
+**Objectif** : poser les fondations visuelles et l'outillage **avant** de construire les écrans du back-office (auth au RUN-02, utilisateurs et audit au RUN-03). Faire l'inverse obligerait à les refaire.
+
+**Périmètre** (un commit par étape)
+1. **Node 24 LTS** (`.nvmrc`, `engines`, Dockerfile, CI) ; ADR-019 : dates officielles du calendrier de Node.
+2. **Tailwind CSS 3 → 4**, configuration CSS-first (`@theme`), outil officiel de migration ; rendu public inchangé (captures avant / après à 375 et 1280 px) ; triage `npm audit` refait.
+3. **Couche design factory** (`docs/reference/factory-core.md`) : deux registres (back-office strict, site public éditorial qui ne partage que les couleurs) ; jetons OKLCH (neutres teintés, teinte du teal), tokens sémantiques et de statut, échelle `kv`, graisses, rayons, hauteurs ; mode sombre par classe `.dark` (`next-themes`, défaut = système) et bouton ; composants `src/ui/kv` ; `check-design --strict` ; contrastes recalculés par script pour les deux thèmes.
+4. **Polices auto-hébergées** (`next/font/local`, licences OFL versionnées, sous-ensemble latin) : rôles `--font-sans`, `--font-display`, `--font-mono` ; plus de `next/font/google`.
+5. **Migration des écrans admin** (planning, réservations, clients, salles, équipe, export CSV, tableau de bord) vers les composants et l'échelle `kv`, avec états vide, chargement et erreur ; suite e2e conservée, sans glisser-déposer.
+6. **Allègement** : analyse chiffrée de l'écart de `/_not-found` ; chargement différé du tunnel de réservation et des cartes cadeaux ; scission du store ; nouvelle mesure et nouveau budget (ADR-040).
+7. **Documentation** à jour.
+
+**Acceptation** : captures du site public identiques après Tailwind 4 ; 0 violation `check-design --strict` ; contrastes AA des deux thèmes ; e2e verts à 375 et 1280 px ; build sans service de polices ; First Load JS ≤ budget (149 / 172 kB) ; vérification visuelle par Yass des 4 combinaisons (375 et 1280 px, clair et sombre) sur l'accueil, la réservation et le planning.
+
+**Décisions** : ADR-019 (Node 24), 035 (Tailwind 4), 036 (couche design), 037 (statuts), 038 (polices), 039 (matrice d'actions), 040 (allègement).
+
 #### RUN-02 — L0.2 Base de données + L0.3 Authentification (L)
 
 **L0.2 — Base**
@@ -218,6 +236,8 @@ Un run se termine par une PR, un rapport `docs/runs/RUN-NN.md` et une checklist 
 - L'**empreinte mémoire réelle** est mesurée et consignée.
 
 **Risques** : KVM partagé. Les limites sont fixées à partir des mesures.
+
+*Déjà fait au RUN-01b, à ne pas refaire ici : allègement du First Load JS (chargement différé, scission du store, budget CI), polices auto-hébergées (le build ne contacte aucun service).*
 
 ### Phase 1 — Opérations (dans la souche)
 

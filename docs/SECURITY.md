@@ -1,6 +1,6 @@
 # SECURITY — ovatech-spa-core
 
-État au **RUN-01**. Référentiel cible : OWASP ASVS 5.0 niveau 2 (grille à produire ; numérotation à vérifier sur la version officielle ⚠️).
+État au **RUN-01b**. Référentiel cible : OWASP ASVS 5.0 niveau 2 (grille à produire ; numérotation à vérifier sur la version officielle ⚠️).
 
 ## 1. État initial
 
@@ -46,3 +46,13 @@ Commande : `npm audit` (jamais `npm audit fix --force`). Triage refait le **2026
 ## 4. Revue de sécurité du RUN-01
 
 Le RUN-01 n'introduit ni authentification, ni autorisation, ni acompte réel, ni lien client, ni donnée de santé : ce n'est pas un run « sensible » au sens de `CLAUDE.md` §3. Une relecture ciblée a tout de même été faite (voir `docs/runs/RUN-01.md`) : secrets, `APP_ENV` (valeur par défaut sûre), liens `wa.me`, injection CSV (neutralisation des formules, déjà testée), génération de l'`.ics`, absence de `dangerouslySetInnerHTML`.
+
+## 5. Revue de sécurité du RUN-01b
+
+Run non « sensible » au sens de `CLAUDE.md` §3 (pas d'authentification, d'autorisation, d'acompte réel, de lien client ni de donnée de santé). Revue ciblée faite quand même (voir `docs/runs/RUN-01b.md` §6) :
+
+- **Nouvelle dépendance `next-themes`** : injecte un `<script>` en ligne (anti-clignotement) et lit / écrit la clé `theme` de `localStorage` (valeur `light`, `dark` ou `system`, aucune donnée personnelle). **À couvrir par le nonce de la CSP au RUN-04** (`script-src` avec nonce) ; la souche n'a pas de CSP aujourd'hui.
+- **Aucune requête réseau externe au build ni à l'exécution** pour les polices (auto-hébergées) ; test unitaire qui interdit leur retour.
+- **Pas de `dangerouslySetInnerHTML`, `innerHTML`, `eval`** ajoutés ; liens externes en `rel="noopener noreferrer"` (WhatsApp) ; l'import dynamique ne reçoit aucune donnée utilisateur.
+- **Menus et fiches du back-office** : actions destructives derrière un menu (et confirmation pour la suppression d'une salle ou d'un praticien) ; contrôle d'accès à ajouter aux RUN-02 / RUN-03 (`/admin` reste ouvert, risque n° 1 ci-dessus).
+- **Dépendances** : `tw-animate-css` (MIT, CSS pur) remplace `tailwindcss-animate` ; `next-themes` 0.4.6 (MIT) ; `npm audit` : 5 alertes élevées, toutes la chaîne de lint (voir §2).
