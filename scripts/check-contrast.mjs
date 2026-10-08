@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 // Vérifie les contrastes WCAG 2.x AA (texte ≥ 4,5:1 ; composants d'interface ≥ 3:1) des couples de couleurs réellement
-// utilisés par l'interface, pour le thème clair ET le thème sombre définis dans brand/theme/tokens.css.
+// utilisés par l'interface, pour le thème clair ET le thème sombre définis dans src/brand/theme/tokens.css.
 // Usage : node scripts/check-contrast.mjs   (code de sortie 1 si un couple est sous le seuil)
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
-const css = readFileSync(join(root, "brand/theme/tokens.css"), "utf8");
+const css = readFileSync(join(root, "src/brand/theme/tokens.css"), "utf8");
 
 const TOKENS = [
   "background", "foreground", "card", "primary", "primary-foreground", "secondary", "secondary-foreground", "muted", "muted-foreground",
@@ -49,7 +49,7 @@ const WHITE = [255, 255, 255];
 const HERO_OVERLAY_MIN = 0.88;
 
 function pairsFor(C) {
-  // Voile du hero (components/mahaza/home/hero-carousel.tsx : inverse/92 → inverse/88) sur un visuel blanc : pire cas, côté le plus clair.
+  // Voile du hero (src/ui/home/hero-carousel.tsx : inverse/92 → inverse/88) sur un visuel blanc : pire cas, côté le plus clair.
   const hero = mix(C.inverse, WHITE, HERO_OVERLAY_MIN);
   // [libellé, premier plan, arrière-plan, seuil]
   return [

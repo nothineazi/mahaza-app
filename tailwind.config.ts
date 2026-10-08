@@ -4,7 +4,7 @@ import animate from "tailwindcss-animate";
 const token = (name: string) => `rgb(var(--${name}) / <alpha-value>)`;
 
 const config: Config = {
-  content: ["./app/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}"],
+  content: ["./src/**/*.{ts,tsx}"],
   theme: {
     extend: {
       colors: {
@@ -31,7 +31,7 @@ const config: Config = {
         heading: ["var(--font-heading)"],
         sans: ["var(--font-body)"],
       },
-      // Ombres du thème premium (variables définies dans lib/mahaza/mahaza.css).
+      // Ombres du thème premium (variables définies dans src/brand/theme/effects.css).
       boxShadow: {
         soft: "var(--shadow-soft)",
         lift: "var(--shadow-lift)",

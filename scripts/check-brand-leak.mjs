@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Anti-fuite de marque : aucune référence aux marques clientes (Mahaza, St Louis) dans la souche.
+// Anti-fuite de marque : aucune référence aux marques des dépôts clients dans la souche (voir STANDARDS §10).
 // Équivalent de `git grep -i` sur ces deux noms, sur les fichiers suivis et non ignorés (chemins compris).
 // Exclus : `docs/` (le plan, les standards, les ADR et les rapports de run nomment les dépôts clients) et `CLAUDE.md`.
 // Les motifs sont assemblés à l'exécution pour que ce fichier ne se signale pas lui-même.

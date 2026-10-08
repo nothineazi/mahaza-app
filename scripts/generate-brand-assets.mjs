@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Génère les illustrations SVG abstraites d'OVAGLOW (marque FICTIVE) : aucune photo, aucun visage, aucun média tiers.
-// Usage : node scripts/generate-brand-assets.mjs   (écrit dans public/brand/ et app/icon.svg ; sortie déterministe)
+// Usage : node scripts/generate-brand-assets.mjs   (écrit dans public/brand/ et src/app/icon.svg ; sortie déterministe)
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -13,7 +13,7 @@ const out = (rel, svg) => {
   console.log("écrit", rel);
 };
 
-// Palette (voir brand/theme/tokens.css)
+// Palette (voir src/brand/theme/tokens.css)
 const P = {
   ink: "#14201F", deep: "#1F5B5E", teal: "#2E7C80", mist: "#E6EEEC", sand: "#EFECE6", ivory: "#F8F6F2", brass: "#C9A15B", brassLight: "#E3C98F",
 };
@@ -136,6 +136,6 @@ const mark = (size, radius, pad) => {
   );
 };
 const icon = (size, radius, pad) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}" width="${size}" height="${size}"><title>OVAGLOW</title>${mark(size, radius, pad)}</svg>`;
-out("app/icon.svg", icon(64, 14, 4));
+out("src/app/icon.svg", icon(64, 14, 4));
 out("public/brand/icon.svg", icon(512, 112, 32));
 out("public/brand/icon-maskable.svg", icon(512, 0, 96));

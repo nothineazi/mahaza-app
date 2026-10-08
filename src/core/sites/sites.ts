@@ -1,0 +1,19 @@
+import { brand } from "@/brand/brand.config";
+import type { Service, Site } from "@/core/types";
+
+/** Site par défaut des marques mono-site : aucune étape « site » n'est alors affichée. */
+const defaultSite: Site = { id: "main", name: brand.name, city: brand.city, address: brand.address };
+
+export const sites: Site[] = brand.sites && brand.sites.length > 0 ? brand.sites : [defaultSite];
+export const multiSite = sites.length > 1;
+
+export const firstSiteId = sites[0].id;
+
+/** Un élément sans siteId appartient au premier (donc unique) site. */
+export const belongsToSite = (item: { siteId?: string }, siteId: string) => (item.siteId ?? firstSiteId) === siteId;
+
+export const getSite = (siteId: string | null | undefined): Site => sites.find((s) => s.id === siteId) ?? sites[0];
+
+/** Durée utilisée pour les créneaux : celle du service si connue, sinon le défaut (FICTIF) de la démo. */
+export const serviceDuration = (service: Pick<Service, "durationMin">): number =>
+  service.durationMin ?? brand.defaultDurationMin ?? 60;
