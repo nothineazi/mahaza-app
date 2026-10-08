@@ -3,10 +3,10 @@ import { connection } from "next/server";
 import type { ReactNode } from "react";
 import { brand } from "@/brand/brand.config";
 import { parseAppEnv } from "@/core/lib/runtime";
-import { AppStoreProvider } from "@/core/state/store";
-import { displayFont } from "@/brand/theme/fonts";
+import { fontVariables } from "@/brand/theme/fonts";
 import { EnvBanner } from "@/ui/env-banner";
 import { RuntimeProvider } from "@/ui/runtime-provider";
+import { ThemeProvider } from "@/ui/theme-provider";
 import "@/brand/theme/tokens.css";
 import "@/app/globals.css";
 
@@ -31,12 +31,14 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
   const appEnv = parseAppEnv(process.env.APP_ENV);
 
   return (
-    <html lang="fr" className={displayFont.variable}>
+    <html lang="fr" className={fontVariables} suppressHydrationWarning>
       <body className="min-h-dvh">
-        <RuntimeProvider appEnv={appEnv}>
-          <EnvBanner appEnv={appEnv} />
-          <AppStoreProvider>{children}</AppStoreProvider>
-        </RuntimeProvider>
+        <ThemeProvider>
+          <RuntimeProvider appEnv={appEnv}>
+            <EnvBanner appEnv={appEnv} />
+            {children}
+          </RuntimeProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

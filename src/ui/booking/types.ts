@@ -1,5 +1,8 @@
 import type { Wanted } from "@/core/booking/scheduling";
 
+/** Identifiant du formulaire de l'étape « acompte » (le bouton principal du panier le soumet). */
+export const DEPOSIT_FORM_ID = "deposit-form";
+
 export type StepKey = "site" | "services" | "practitioners" | "slot" | "deposit" | "confirmation";
 
 export const STEP_LABELS: Record<StepKey, string> = {

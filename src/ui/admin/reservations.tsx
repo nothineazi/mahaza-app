@@ -1,24 +1,28 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useId, useMemo, useState } from "react";
 import { Download, Search, SearchX } from "lucide-react";
 import { brand } from "@/brand/brand.config";
-import type { BookingStatus } from "@/core/types";
+import type { BookingStatus, Reservation } from "@/core/types";
 import { useAdminData } from "@/core/state/store";
 import { reservationsToCsv } from "@/core/lib/csv";
 import { downloadText } from "@/core/lib/download";
 import { reservationEnd } from "@/core/booking/scheduling";
 import { STATUS_LABELS, STATUS_ORDER, isDepositReceived } from "@/core/booking/status";
 import { formatDateShort } from "@/core/lib/dates";
+import { norm } from "@/core/lib/text";
 import { cn, formatPrice } from "@/core/lib/utils";
-import { Button } from "@/ui/primitives/button";
-import { Card } from "@/ui/primitives/card";
-import { FieldLabel, Input, Select } from "@/ui/primitives/field";
-import { Skeleton, LoadingRegion } from "@/ui/primitives/skeleton";
-import { StatusPill } from "@/ui/primitives/pill";
+import { serviceNames, staffNames, toggle } from "@/ui/admin/helpers";
 import { ReservationDialog } from "@/ui/admin/reservation-dialog";
+import { controlChip, controlGhost, controlSecondary, fieldControl } from "@/ui/kv/control-classes";
+import { DataTable, type Column, type SortState } from "@/ui/kv/data-table";
+import { Field } from "@/ui/kv/field";
+import { PageHeader } from "@/ui/kv/page-header";
+import { Panel } from "@/ui/kv/panel";
+import { LoadingRegion, Skeleton } from "@/ui/kv/skeleton";
+import { StateBlock } from "@/ui/kv/state-block";
+import { BookingStatusBadge } from "@/ui/kv/status-badge";
 
-const norm = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 
 export function ReservationsList() {
   const { ready, reservations, staff, site } = useAdminData();
@@ -28,8 +32,9 @@ export function ReservationsList() {
   const [service, setService] = useState("");
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
-  const [newestFirst, setNewestFirst] = useState(false);
+  const [sort, setSort] = useState<SortState>({ key: "when", dir: "asc" });
   const [openId, setOpenId] = useState<string | null>(null);
+  const ids = { q: useId(), p: useId(), s: useId(), from: useId(), to: useId() };
 
   const rows = useMemo(() => {
     const q = norm(query.trim());
@@ -40,27 +45,61 @@ export function ReservationsList() {
       .filter((r) => (!from || r.date >= from) && (!to || r.date <= to))
       .filter((r) => !q || norm(r.customerName).includes(q) || norm(r.reference).includes(q) || r.customerPhone.replace(/\D/g, "").includes(q.replace(/\D/g, "") || "\u0000"))
       .sort((a, b) => {
-        const k = `${a.date} ${a.lines[0].start}`.localeCompare(`${b.date} ${b.lines[0].start}`);
-        return newestFirst ? -k : k;
+        const k = a.date.localeCompare(b.date) || a.lines[0].start.localeCompare(b.lines[0].start);
+        return sort.dir === "desc" ? -k : k;
       });
-  }, [reservations, query, statuses, practitioner, service, from, to, newestFirst]);
+  }, [reservations, query, statuses, practitioner, service, from, to, sort.dir]);
+
+  // Une seule passe : compteurs par statut et total des acomptes encaissés (FICTIF).
+  const { counts, total } = useMemo(() => {
+    const counts = Object.fromEntries(STATUS_ORDER.map((s) => [s, 0])) as Record<BookingStatus, number>;
+    let total = 0;
+    for (const r of reservations) {
+      counts[r.status]++;
+      if (isDepositReceived(r.status)) total += r.depositAmount;
+    }
+    return { counts, total };
+  }, [reservations]);
+
+  const columns = useMemo<Column<Reservation>[]>(
+    () => [
+      { id: "customer", header: "Client", cell: (r) => <span className="font-semibold">{r.customerName}</span>, maxWidth: "max-w-[220px]" },
+      { id: "status", header: "Statut", cell: (r) => <BookingStatusBadge status={r.status} /> },
+      {
+        id: "when",
+        header: "Quand",
+        sortable: true,
+        cell: (r) => (
+          <>
+            <span className="inline-block first-letter:uppercase">{formatDateShort(r.date)}</span> · {r.lines[0].start} – {reservationEnd(r.lines)}
+          </>
+        ),
+      },
+      { id: "services", header: "Soins", cell: serviceNames, priority: 2, maxWidth: "max-w-[260px]" },
+      { id: "staff", header: "Praticien", cell: (r) => staffNames(r, staff), priority: 3, maxWidth: "max-w-[160px]" },
+      { id: "phone", header: "Téléphone", cell: (r) => r.customerPhone, priority: 3 },
+      { id: "reference", header: "Référence", cell: (r) => <span className="font-mono text-kv-meta text-muted-foreground">{r.reference}</span>, priority: 3 },
+      { id: "deposit", header: "Acompte", cell: (r) => formatPrice(r.depositAmount), align: "right", priority: 2 },
+    ],
+    [staff],
+  );
 
   if (!ready) {
     return (
-      <LoadingRegion label="Chargement des réservations">
-        <Skeleton className="mb-6 h-10 w-56" />
-        <Skeleton className="mb-4 h-28" />
-        {Array.from({ length: 5 }, (_, i) => (
-          <Skeleton key={i} className="mb-2 h-24" />
-        ))}
+      <LoadingRegion label="Chargement des réservations" className="space-y-6">
+        <Skeleton className="h-[52px] w-64" />
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+          {Array.from({ length: 4 }, (_, i) => (
+            <Skeleton key={i} className="h-[72px]" />
+          ))}
+        </div>
+        <Skeleton className="h-[260px]" />
+        <Skeleton className="h-[376px]" />
       </LoadingRegion>
     );
   }
 
   const filtered = Boolean(query || statuses.length || practitioner || service || from || to);
-  const count = (s: BookingStatus) => reservations.filter((r) => r.status === s).length;
-  const received = reservations.filter((r) => isDepositReceived(r.status));
-  const total = received.reduce((sum, r) => sum + r.depositAmount, 0);
 
   const exportCsv = () =>
     downloadText(`reservations-${site.id}-${new Date().toISOString().slice(0, 10)}.csv`, reservationsToCsv(rows, { siteName: site.name, services: brand.services, staff, rooms: brand.rooms }), "text/csv;charset=utf-8");
@@ -76,58 +115,47 @@ export function ReservationsList() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="font-heading text-4xl font-medium">Réservations</h1>
-          <p className="mt-1 text-sm text-muted-foreground">{site.name}</p>
-        </div>
-        <Button variant="outline" onClick={exportCsv} disabled={rows.length === 0}>
-          <Download /> Exporter en CSV ({rows.length} ligne{rows.length > 1 ? "s" : ""})
-        </Button>
-      </div>
+      <PageHeader
+        title="Réservations"
+        subtitle={site.name}
+        action={
+          <button type="button" onClick={exportCsv} disabled={rows.length === 0} className={controlSecondary}>
+            <Download aria-hidden /> Exporter en CSV ({rows.length} ligne{rows.length > 1 ? "s" : ""})
+          </button>
+        }
+      />
 
-      <section aria-label="Synthèse" className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <section aria-label="Synthèse" className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <Stat label="Réservations" value={String(reservations.length)} />
-        <Stat label="En attente d'acompte" value={String(count("pending_deposit"))} />
-        <Stat label="Confirmées" value={String(count("confirmed"))} />
+        <Stat label="En attente d'acompte" value={String(counts.pending_deposit)} />
+        <Stat label="Confirmées" value={String(counts.confirmed)} />
         <Stat label="Acomptes encaissés (FICTIF)" value={formatPrice(total)} />
       </section>
 
-      <Card className="space-y-4 p-4 sm:p-5">
+      <Panel aria-label="Filtres" className="space-y-4">
         <div className="relative">
-          <label htmlFor="res-q" className="sr-only">Rechercher un client, un téléphone ou une référence</label>
-          <Search className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
-          <Input id="res-q" type="search" className="pl-11" placeholder="Rechercher un client, un téléphone ou une référence" value={query} onChange={(e) => setQuery(e.target.value)} />
+          <label htmlFor={ids.q} className="sr-only">Rechercher un client, un téléphone ou une référence</label>
+          <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
+          <input id={ids.q} type="search" className={cn(fieldControl, "pl-9")} placeholder="Rechercher un client, un téléphone ou une référence" value={query} onChange={(e) => setQuery(e.target.value)} />
         </div>
         <div role="group" aria-label="Filtrer par statut" className="flex flex-wrap gap-2">
-          {STATUS_ORDER.map((s) => {
-            const on = statuses.includes(s);
-            return (
-              <button
-                key={s}
-                type="button"
-                aria-pressed={on}
-                onClick={() => setStatuses((cur) => (on ? cur.filter((x) => x !== s) : [...cur, s]))}
-                className={cn("min-h-10 rounded-full border px-4 text-sm transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring", on ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card hover:border-primary")}
-              >
-                {STATUS_LABELS[s]} <span className="opacity-80">({count(s)})</span>
-              </button>
-            );
-          })}
+          {STATUS_ORDER.map((s) => (
+            <button key={s} type="button" aria-pressed={statuses.includes(s)} onClick={() => setStatuses((cur) => toggle(cur, s))} className={controlChip}>
+              {STATUS_LABELS[s]} <span className="tabular-nums opacity-80">({counts[s]})</span>
+            </button>
+          ))}
         </div>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <div>
-            <FieldLabel htmlFor="res-p">Praticien</FieldLabel>
-            <Select id="res-p" value={practitioner} onChange={(e) => setPractitioner(e.target.value)}>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <Field label="Praticien" htmlFor={ids.p}>
+            <select id={ids.p} className={fieldControl} value={practitioner} onChange={(e) => setPractitioner(e.target.value)}>
               <option value="">Tous</option>
               {staff.map((p) => (
                 <option key={p.id} value={p.id}>{p.name}</option>
               ))}
-            </Select>
-          </div>
-          <div>
-            <FieldLabel htmlFor="res-s">Soin</FieldLabel>
-            <Select id="res-s" value={service} onChange={(e) => setService(e.target.value)}>
+            </select>
+          </Field>
+          <Field label="Soin" htmlFor={ids.s}>
+            <select id={ids.s} className={fieldControl} value={service} onChange={(e) => setService(e.target.value)}>
               <option value="">Tous</option>
               {brand.categories.map((c) => (
                 <optgroup key={c} label={c}>
@@ -136,69 +164,68 @@ export function ReservationsList() {
                   ))}
                 </optgroup>
               ))}
-            </Select>
-          </div>
-          <div>
-            <FieldLabel htmlFor="res-from">Du</FieldLabel>
-            <Input id="res-from" type="date" value={from} onChange={(e) => setFrom(e.target.value)} />
-          </div>
-          <div>
-            <FieldLabel htmlFor="res-to">Au</FieldLabel>
-            <Input id="res-to" type="date" value={to} onChange={(e) => setTo(e.target.value)} />
-          </div>
+            </select>
+          </Field>
+          <Field label="Du" htmlFor={ids.from}>
+            <input id={ids.from} type="date" className={fieldControl} value={from} onChange={(e) => setFrom(e.target.value)} />
+          </Field>
+          <Field label="Au" htmlFor={ids.to}>
+            <input id={ids.to} type="date" className={fieldControl} value={to} onChange={(e) => setTo(e.target.value)} />
+          </Field>
         </div>
-        <div className="flex flex-wrap items-center justify-between gap-3 text-sm">
-          <p aria-live="polite" className="text-muted-foreground">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <p aria-live="polite" className="text-kv-meta text-muted-foreground">
             {rows.length} résultat{rows.length > 1 ? "s" : ""}{filtered ? " (filtres actifs)" : ""}
           </p>
-          <div className="flex gap-2">
-            <Button variant="ghost" size="sm" aria-pressed={newestFirst} onClick={() => setNewestFirst((v) => !v)}>
-              {newestFirst ? "Plus récentes d'abord" : "Plus anciennes d'abord"}
-            </Button>
-            {filtered && (
-              <Button variant="soft" size="sm" onClick={reset}>
-                Réinitialiser les filtres
-              </Button>
-            )}
-          </div>
+          {filtered && (
+            <button type="button" onClick={reset} className={controlGhost}>
+              Réinitialiser les filtres
+            </button>
+          )}
         </div>
-      </Card>
+      </Panel>
 
       {rows.length === 0 ? (
-        <Card className="flex flex-col items-center gap-2 p-10 text-center">
-          <SearchX className="size-8 text-muted-foreground" aria-hidden />
-          <p className="font-heading text-2xl font-medium">Aucune réservation ne correspond</p>
-          <p className="text-sm text-muted-foreground">Modifiez ou réinitialisez les filtres.</p>
-        </Card>
+        <Panel>
+          <StateBlock
+            icon={SearchX}
+            title="Aucune réservation ne correspond"
+            text="Aucune réservation ne répond à ces filtres."
+            action={
+              filtered && (
+                <button type="button" onClick={reset} className={controlSecondary}>
+                  Réinitialiser les filtres
+                </button>
+              )
+            }
+          />
+        </Panel>
       ) : (
-        <ul className="space-y-2">
-          {rows.map((r) => (
-            <li key={r.id}>
-              <button
-                type="button"
-                onClick={() => setOpenId(r.id)}
-                className="block w-full rounded-2xl text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-              >
-                <Card interactive className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
-                  <div className="min-w-0 space-y-1">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="font-semibold">{r.customerName}</span>
-                      <span className="text-xs text-muted-foreground">{r.reference}</span>
-                      <StatusPill status={r.status} />
-                    </div>
-                    <p className="text-sm">
-                      {r.lines.map((l) => brand.services.find((s) => s.id === l.serviceId)?.name).join(" + ")}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      <span className="inline-block first-letter:uppercase">{formatDateShort(r.date)}</span>, {r.lines[0].start} – {reservationEnd(r.lines)} · {staffNames(r.lines.map((l) => l.practitionerId), staff)} · {r.customerPhone}
-                    </p>
-                  </div>
-                  <p className="shrink-0 text-sm text-muted-foreground">Acompte {formatPrice(r.depositAmount)}</p>
-                </Card>
-              </button>
-            </li>
-          ))}
-        </ul>
+        <DataTable
+          label="Liste des réservations"
+          columns={columns}
+          rows={rows}
+          rowKey={(r) => r.id}
+          onRowClick={(r) => setOpenId(r.id)}
+          sort={sort}
+          onSort={(key) => setSort((s) => ({ key, dir: s.dir === "asc" ? "desc" : "asc" }))}
+          mobileCard={(r) => (
+            <div className="space-y-1 text-kv-body">
+              <div className="flex items-start justify-between gap-2">
+                <span className="min-w-0 truncate font-semibold">{r.customerName}</span>
+                <BookingStatusBadge status={r.status} className="shrink-0" />
+              </div>
+              <p>{serviceNames(r)}</p>
+              <p className="text-kv-meta text-muted-foreground">
+                <span className="inline-block first-letter:uppercase">{formatDateShort(r.date)}</span>, {r.lines[0].start} – {reservationEnd(r.lines)} · {staffNames(r, staff)}
+              </p>
+              <p className="flex flex-wrap items-center justify-between gap-x-2 text-kv-meta text-muted-foreground">
+                <span className="whitespace-nowrap"><span className="font-mono">{r.reference}</span> · {r.customerPhone}</span>
+                <span className="whitespace-nowrap tabular-nums">Acompte {formatPrice(r.depositAmount)}</span>
+              </p>
+            </div>
+          )}
+        />
       )}
 
       <ReservationDialog reservationId={openId} onClose={() => setOpenId(null)} />
@@ -206,13 +233,11 @@ export function ReservationsList() {
   );
 }
 
-const staffNames = (ids: string[], staff: { id: string; name: string }[]) => [...new Set(ids)].map((id) => staff.find((p) => p.id === id)?.name ?? "—").join(", ");
-
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <Card className="p-4">
-      <p className="text-xs text-muted-foreground">{label}</p>
-      <p className="mt-1 font-sans text-xl font-semibold sm:text-2xl">{value}</p>
-    </Card>
+    <Panel>
+      <p className="text-kv-meta text-muted-foreground">{label}</p>
+      <p className="mt-1 text-kv-title tabular-nums">{value}</p>
+    </Panel>
   );
 }

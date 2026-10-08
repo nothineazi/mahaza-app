@@ -4,7 +4,7 @@ import { showDevBanner, type AppEnv } from "@/core/lib/runtime";
 export function EnvBanner({ appEnv }: { appEnv: AppEnv }) {
   if (!showDevBanner(appEnv)) return null;
   return (
-    <div role="status" className="bg-accent px-4 py-1.5 text-center text-xs font-medium text-accent-foreground">
+    <div role="status" className="bg-gold px-4 py-1.5 text-center text-xs font-medium text-gold-foreground">
       Version de développement – données fictives
     </div>
   );

@@ -12,7 +12,7 @@ export function Stepper({ flow, index, onGo }: { flow: StepKey[]; index: number;
       <p className="mb-3 text-sm text-muted-foreground sm:hidden">
         Étape {index + 1} sur {flow.length} · <span className="font-medium text-foreground">{STEP_LABELS[flow[index]]}</span>
       </p>
-      <div className="relative mb-4 h-1 overflow-hidden rounded-full bg-border" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={pct} aria-label="Avancement de la réservation">
+      <div className="relative mb-4 h-1 overflow-hidden rounded-full bg-line" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={pct} aria-label="Avancement de la réservation">
         <span className="absolute inset-y-0 left-0 rounded-full bg-primary transition-[width] duration-700 ease-out motion-reduce:transition-none" style={{ width: `${pct}%` }} />
       </div>
       <ol className="hidden items-start justify-between gap-2 sm:flex">
@@ -26,7 +26,7 @@ export function Stepper({ flow, index, onGo }: { flow: StepKey[]; index: number;
                   "flex size-8 items-center justify-center rounded-full border text-xs font-semibold transition-colors duration-300",
                   reached && "border-primary bg-primary text-primary-foreground",
                   current && "border-primary bg-card text-primary ring-4 ring-primary/15",
-                  !reached && !current && "border-border bg-card text-muted-foreground",
+                  !reached && !current && "border-line bg-card text-muted-foreground",
                 )}
               >
                 {reached ? <Check className="size-4" aria-hidden /> : i + 1}

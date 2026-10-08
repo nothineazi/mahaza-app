@@ -1,5 +1,5 @@
 {
-  "_note": "Budget de First Load JS (kB gzip) des routes publiques, mesuré par scripts/measure-first-load.mjs : mesure du RUN-01 sous Next 16 + ~2 % de marge (non-régression). Voir docs/DECISIONS.md, ADR-024 (À VALIDER).",
-  "/": 175,
-  "/reserver": 192
+  "_note": "Budget de First Load JS (kB gzip) des routes publiques, mesuré par scripts/measure-first-load.mjs : mesure du RUN-01b (après allègement, ADR-040) + ~1,5 % de marge (non-régression). Base d'origine : 142 / 168 (Next 15.5.27). Voir docs/DECISIONS.md, ADR-024 et ADR-040.",
+  "/": 149,
+  "/reserver": 172
 }

@@ -1,10 +1,101 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "../brand/theme/effects.css";
+@import "../ui/kv/kv.css";
+
+/* Le thème sombre est piloté par la classe `.dark` (next-themes, attribute="class"), pas par prefers-color-scheme. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+ * Pont jetons → classes Tailwind. Les valeurs de couleur vivent dans src/brand/theme/tokens.css (OKLCH).
+ * `inline` : la classe lit directement la variable du jeton, ce qui garde le thème piloté par `.dark`.
+ */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-text: var(--primary-text);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-line: var(--line);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-success-bg: var(--success-bg);
+  --color-warning: var(--warning);
+  --color-warning-bg: var(--warning-bg);
+  --color-danger-bg: var(--danger-bg);
+  --color-info-bg: var(--info-bg);
+
+  --color-status-pending-fg: var(--status-pending-fg);
+  --color-status-pending-bg: var(--status-pending-bg);
+  --color-status-confirmed-fg: var(--status-confirmed-fg);
+  --color-status-confirmed-bg: var(--status-confirmed-bg);
+  --color-status-completed-fg: var(--status-completed-fg);
+  --color-status-completed-bg: var(--status-completed-bg);
+  --color-status-cancelled-fg: var(--status-cancelled-fg);
+  --color-status-cancelled-bg: var(--status-cancelled-bg);
+  --color-status-noshow-fg: var(--status-noshow-fg);
+  --color-status-noshow-bg: var(--status-noshow-bg);
+
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+
+  --color-gold: var(--gold);
+  --color-gold-foreground: var(--gold-foreground);
+  --color-inverse: var(--inverse);
+  --color-inverse-foreground: var(--inverse-foreground);
+}
+
+@theme {
+  /* Rôles de police : --font-face-* est posé sur <html> par next/font (voir src/brand/theme/fonts.ts). Jamais d'auto-référence. */
+  --font-sans: var(--font-face-sans, ui-sans-serif), system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-display: var(--font-face-display, Georgia), "Times New Roman", serif;
+  --font-mono: var(--font-face-mono, ui-monospace), SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* Rayons du site public (registre éditorial) ; le back-office les redéfinit dans `.kv-app` (kv.css). */
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+
+  /* Ombres du thème premium (site public ; le back-office réserve l'ombre aux surfaces flottantes). */
+  --shadow-soft: 0 1px 2px rgb(46 42 43 / 0.04), 0 10px 28px -14px rgb(46 42 43 / 0.14);
+  --shadow-lift: 0 2px 4px rgb(46 42 43 / 0.06), 0 22px 44px -18px rgb(46 42 43 / 0.26);
+}
+
+:root {
+  --radius: 0.9rem;
+}
 
 @layer base {
-  * {
-    @apply border-border;
+  /* Filet par défaut : décoratif sur le site public, --border (≥ 3:1) dans le back-office (voir kv.css). */
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--default-border-color, var(--line));
+  }
+
+  /* Tailwind 4 ne pose plus le curseur « main » sur les boutons : on le rétablit (guide de migration officiel). */
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
   }
 
   body {

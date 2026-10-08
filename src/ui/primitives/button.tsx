@@ -5,14 +5,14 @@ import { cn } from "@/core/lib/utils";
 
 /** Bouton premium : pilule, transitions douces, cible ≥ 44 px. */
 export const buttonVariants = cva(
-  "inline-flex select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-medium tracking-wide transition-[background-color,border-color,color,box-shadow,transform] duration-300 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background active:scale-[0.98] motion-reduce:active:scale-100 disabled:pointer-events-none disabled:opacity-50 [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-medium tracking-wide transition-[background-color,border-color,color,box-shadow,transform] duration-300 ease-out focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background active:scale-[0.98] motion-reduce:active:scale-100 disabled:pointer-events-none disabled:opacity-50 [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
         primary: "bg-primary text-primary-foreground shadow-soft hover:bg-primary/90 hover:shadow-lift",
-        gold: "bg-accent text-accent-foreground shadow-soft hover:bg-accent/90 hover:shadow-lift",
+        gold: "bg-gold text-gold-foreground shadow-soft hover:bg-gold/90 hover:shadow-lift",
         outline: "border border-foreground/25 bg-transparent text-foreground hover:border-primary hover:text-primary",
-        "outline-light": "border border-inverse-foreground/50 bg-transparent text-inverse-foreground hover:border-accent hover:text-accent",
+        "outline-light": "border border-inverse-foreground/50 bg-transparent text-inverse-foreground hover:border-gold hover:text-gold",
         soft: "bg-secondary text-secondary-foreground hover:bg-secondary/70",
         ghost: "text-foreground hover:bg-muted",
         danger: "border border-destructive text-destructive hover:bg-destructive/10",

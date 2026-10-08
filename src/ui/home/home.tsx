@@ -7,7 +7,7 @@ import { sites } from "@/core/sites/sites";
 import { Button } from "@/ui/primitives/button";
 import { Card } from "@/ui/primitives/card";
 import { SectionTitle } from "@/ui/primitives/section-title";
-import { GiftCardStudio } from "@/ui/home/gift-card-studio";
+import { GiftCardSection } from "@/ui/home/gift-card-section";
 import { HeroCarousel } from "@/ui/home/hero-carousel";
 
 const FEATURED_ICONS: LucideIcon[] = [Flower2, Droplets, Waves, Hand];
@@ -18,7 +18,7 @@ export function Home() {
   if (!home) return null;
 
   return (
-    <main id="contenu" tabIndex={-1} className="outline-none">
+    <main id="contenu" tabIndex={-1} className="outline-hidden">
       <HeroCarousel />
 
       {/* La magie du bien-être */}
@@ -32,7 +32,7 @@ export function Home() {
           className="pointer-events-none absolute right-4 top-6 -z-10 w-28 opacity-50 sm:w-40"
         />
         <div className="relative">
-          <span aria-hidden className="absolute -left-3 -top-3 hidden size-full rounded-3xl border border-accent md:block" />
+          <span aria-hidden className="absolute -left-3 -top-3 hidden size-full rounded-3xl border border-gold md:block" />
           <Image
             src={home.about.image.src}
             alt={home.about.image.alt}
@@ -60,10 +60,10 @@ export function Home() {
               return (
                 <li key={f.title}>
                   <Card interactive className="flex h-full flex-col gap-4 p-6">
-                    <span className="flex size-12 items-center justify-center rounded-full bg-accent text-accent-foreground">
+                    <span className="flex size-12 items-center justify-center rounded-full bg-gold text-gold-foreground">
                       <Icon className="size-5" aria-hidden />
                     </span>
-                    <h3 className="font-heading text-2xl font-medium leading-tight">{f.title}</h3>
+                    <h3 className="font-display text-2xl font-medium leading-tight">{f.title}</h3>
                     <p className="text-sm leading-relaxed text-muted-foreground">{f.description}</p>
                   </Card>
                 </li>
@@ -86,15 +86,15 @@ export function Home() {
                   width={step.image.width}
                   height={step.image.height}
                   sizes="128px"
-                  className="size-32 rounded-full object-cover ring-1 ring-accent ring-offset-4 ring-offset-background"
+                  className="size-32 rounded-full object-cover ring-1 ring-gold ring-offset-4 ring-offset-background"
                 />
               ) : (
                 // Étape 1 : pas d'image sur le site actuel -> icône.
-                <span className="flex size-32 items-center justify-center rounded-full bg-secondary text-secondary-foreground ring-1 ring-accent ring-offset-4 ring-offset-background">
+                <span className="flex size-32 items-center justify-center rounded-full bg-secondary text-secondary-foreground ring-1 ring-gold ring-offset-4 ring-offset-background">
                   <ClipboardList className="size-12" aria-hidden />
                 </span>
               )}
-              <p className="font-heading text-2xl font-medium">
+              <p className="font-display text-2xl font-medium">
                 <span className="text-primary">{i + 1}.</span> {step.title}
               </p>
             </li>
@@ -107,12 +107,12 @@ export function Home() {
         <SectionTitle kicker="Le catalogue" title="Nos services" lead="Prix en FCFA, FICTIFS : donnés à titre d'exemple." />
         <div className="mt-10 space-y-3">
           {brand.categories.map((category) => (
-            <details key={category} className="group rounded-2xl border border-border bg-card shadow-soft transition-shadow open:shadow-lift">
-              <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-3 rounded-2xl px-5 py-3 font-heading text-xl font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring [&::-webkit-details-marker]:hidden">
+            <details key={category} className="group rounded-2xl border border-line bg-card shadow-soft transition-shadow open:shadow-lift">
+              <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-3 rounded-2xl px-5 py-3 font-display text-xl font-medium focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring [&::-webkit-details-marker]:hidden">
                 <span>{category}</span>
                 <span aria-hidden className="text-2xl leading-none text-primary transition-transform duration-300 group-open:rotate-45 motion-reduce:transition-none">+</span>
               </summary>
-              <ul className="divide-y divide-border border-t border-border">
+              <ul className="divide-y divide-line border-t border-line">
                 {brand.services
                   .filter((s) => s.category === category)
                   .map((s) => (
@@ -138,7 +138,7 @@ export function Home() {
         </div>
       </section>
 
-      <GiftCardStudio />
+      <GiftCardSection />
 
       {/* Sites */}
       <section id="sites" className="mx-auto max-w-6xl scroll-mt-20 px-4 py-24 sm:px-6">
@@ -147,7 +147,7 @@ export function Home() {
           {sites.map((s) => (
             <li key={s.id}>
               <Card interactive className="h-full p-6">
-                <p className="flex items-center gap-2 font-heading text-2xl font-medium">
+                <p className="flex items-center gap-2 font-display text-2xl font-medium">
                   <MapPin className="size-4 text-primary" aria-hidden /> {s.name}
                 </p>
                 <p className="mt-2 text-sm text-muted-foreground">{s.address}</p>

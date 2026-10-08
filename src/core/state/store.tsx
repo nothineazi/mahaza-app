@@ -19,16 +19,6 @@ const policies = brand.policies;
 export type Result<T = void> = { ok: true; value: T } | { ok: false; reason: string; conflicts?: Conflict[] };
 const fail = (reason: string, conflicts?: Conflict[]): { ok: false; reason: string; conflicts?: Conflict[] } => ({ ok: false, reason, conflicts });
 
-export interface GiftCard {
-  id: string;
-  code: string;
-  amount: number;
-  from: string;
-  to: string;
-  message: string;
-  createdAt: number;
-}
-
 export interface NewReservation {
   siteId: string;
   customerName: string;
@@ -45,7 +35,6 @@ interface Store {
   clients: Client[];
   rooms: Room[];
   staff: Practitioner[];
-  giftCards: GiftCard[];
   adminSiteId: string;
   setAdminSiteId: (id: string) => void;
   /** Fiche client à ouvrir en arrivant sur /admin/clients. */
@@ -62,7 +51,6 @@ interface Store {
   rescheduleReservation: (id: string, date: string, startMin: number) => Result;
   markReminderSent: (id: string) => void;
   saveClientNotes: (clientId: string, notes: string) => void;
-  addGiftCard: (card: Omit<GiftCard, "id" | "createdAt">) => GiftCard;
   saveRoom: (room: Room) => void;
   removeRoom: (id: string) => void;
   saveStaff: (member: Practitioner) => void;
@@ -85,7 +73,6 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
   const [clients, setClients] = useState<Client[]>(demoClients);
   const [rooms, setRooms] = useState<Room[]>(brand.rooms);
   const [staff, setStaff] = useState<Practitioner[]>(brand.practitioners);
-  const [giftCards, setGiftCards] = useState<GiftCard[]>([]);
   const [adminSiteId, setAdminSiteId] = useState(firstSiteId);
   const [focusClientId, setFocusClientId] = useState<string | null>(null);
   const counter = useRef(0);
@@ -246,7 +233,6 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
       clients,
       rooms,
       staff,
-      giftCards,
       adminSiteId,
       setAdminSiteId,
       focusClientId,
@@ -259,18 +245,13 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
       rescheduleReservation,
       markReminderSent: (id) => setReservations((prev) => prev.map((r) => (r.id === id ? { ...r, reminderSentAt: Date.now() } : r))),
       saveClientNotes: (clientId, notes) => setClients((prev) => prev.map((c) => (c.id === clientId ? { ...c, notes } : c))),
-      addGiftCard: (card) => {
-        const full: GiftCard = { ...card, id: `g${Date.now().toString(36)}${++counter.current}`, createdAt: Date.now() };
-        setGiftCards((prev) => [...prev, full]);
-        return full;
-      },
       saveRoom: (room) => setRooms((prev) => (prev.some((r) => r.id === room.id) ? prev.map((r) => (r.id === room.id ? room : r)) : [...prev, room])),
       removeRoom: (id) => setRooms((prev) => prev.filter((r) => r.id !== id)),
       saveStaff: (member) => setStaff((prev) => (prev.some((p) => p.id === member.id) ? prev.map((p) => (p.id === member.id ? member : p)) : [...prev, member])),
       removeStaff: (id) => setStaff((prev) => prev.filter((p) => p.id !== id)),
       newId,
     }),
-    [today, reservations, clients, rooms, staff, giftCards, adminSiteId, focusClientId, nextReference, planContext, createReservation, setStatus, moveReservation, rescheduleReservation, newId],
+    [today, reservations, clients, rooms, staff, adminSiteId, focusClientId, nextReference, planContext, createReservation, setStatus, moveReservation, rescheduleReservation, newId],
   );
 
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;

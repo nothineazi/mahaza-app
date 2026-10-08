@@ -4,14 +4,14 @@
 # Les dépôts clients dérivés construisent la même image et la publient sur GHCR.
 
 # --- 1. Dépendances ----------------------------------------------------------
-FROM node:22-alpine AS deps
+FROM node:24-alpine AS deps
 WORKDIR /app
 ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 COPY package.json package-lock.json ./
 RUN npm ci
 
 # --- 2. Build ----------------------------------------------------------------
-FROM node:22-alpine AS builder
+FROM node:24-alpine AS builder
 WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1
 COPY --from=deps /app/node_modules ./node_modules
@@ -19,7 +19,7 @@ COPY . .
 RUN npm run build
 
 # --- 3. Exécution ------------------------------------------------------------
-FROM node:22-alpine AS runner
+FROM node:24-alpine AS runner
 WORKDIR /app
 
 # APP_ENV (development | staging | production) est lu à l'exécution : ne pas le figer dans l'image.

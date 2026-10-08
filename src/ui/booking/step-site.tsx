@@ -18,14 +18,14 @@ export function StepSite({ draft, onSelect }: { draft: Draft; onSelect: (siteId:
               type="button"
               onClick={() => onSelect(site.id)}
               aria-pressed={selected}
-              className="group block w-full rounded-2xl text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+              className="group block w-full rounded-2xl text-left focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >
               <Card interactive className={cn("flex items-start gap-4 p-5", selected && "border-primary ring-1 ring-primary")}>
-                <span className="mt-0.5 flex size-11 shrink-0 items-center justify-center rounded-full bg-secondary text-secondary-foreground transition-colors group-hover:bg-accent">
+                <span className="mt-0.5 flex size-11 shrink-0 items-center justify-center rounded-full bg-secondary text-secondary-foreground transition-colors group-hover:bg-gold">
                   <MapPin className="size-5" aria-hidden />
                 </span>
                 <span>
-                  <span className="block font-heading text-2xl font-medium leading-tight">{site.name}</span>
+                  <span className="block font-display text-2xl font-medium leading-tight">{site.name}</span>
                   <span className="mt-1 block text-sm text-muted-foreground">{site.address}</span>
                 </span>
               </Card>

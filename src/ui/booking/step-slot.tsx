@@ -53,7 +53,7 @@ export function StepSlot({ draft, ctx, lines, onChange, ignoreId }: Props) {
   return (
     <div className="space-y-10">
       <section aria-labelledby="slot-day">
-        <h2 id="slot-day" className="font-heading text-2xl font-medium">1. Le jour</h2>
+        <h2 id="slot-day" className="font-display text-2xl font-medium">1. Le jour</h2>
         <div className="-mx-4 mt-3 flex gap-2 overflow-x-auto px-4 pb-2 sm:mx-0 sm:px-0">
           {days.map((d) => {
             const closed = hoursFor(brand.opening, d) === null;
@@ -68,12 +68,12 @@ export function StepSlot({ draft, ctx, lines, onChange, ignoreId }: Props) {
                 aria-pressed={selected}
                 onClick={() => onChange({ date: d, time: null })}
                 className={cn(
-                  "flex min-h-[88px] w-[76px] shrink-0 flex-col items-center justify-center rounded-2xl border px-2 py-2.5 text-center transition-[background-color,border-color,color] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60",
-                  selected ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card enabled:hover:border-primary",
+                  "flex min-h-[88px] w-[76px] shrink-0 flex-col items-center justify-center rounded-2xl border px-2 py-2.5 text-center transition-[background-color,border-color,color] duration-200 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60",
+                  selected ? "border-primary bg-primary text-primary-foreground" : "border-line bg-card enabled:hover:border-primary",
                 )}
               >
                 <span className="text-xs capitalize">{formatDate(d, { weekday: "short" })}</span>
-                <span className="font-heading text-3xl font-medium leading-none">{formatDate(d, { day: "numeric" })}</span>
+                <span className="font-display text-3xl font-medium leading-none">{formatDate(d, { day: "numeric" })}</span>
                 <span className="mt-0.5 text-[11px]">{closed ? "Fermé" : full ? "Complet" : formatDate(d, { month: "short" })}</span>
               </button>
             );
@@ -82,13 +82,13 @@ export function StepSlot({ draft, ctx, lines, onChange, ignoreId }: Props) {
       </section>
 
       <section aria-labelledby="slot-time">
-        <h2 id="slot-time" className="font-heading text-2xl font-medium">2. L&apos;heure de début</h2>
+        <h2 id="slot-time" className="font-display text-2xl font-medium">2. L&apos;heure de début</h2>
         {!draft.date ? (
           <p className="mt-3 text-sm text-muted-foreground">Sélectionnez d&apos;abord un jour.</p>
         ) : starts.length === 0 ? (
           <Card className="mt-3 flex flex-col items-center gap-2 p-8 text-center">
             <CalendarX2 className="size-8 text-muted-foreground" aria-hidden />
-            <p className="font-heading text-2xl font-medium">Aucun créneau ce jour-là</p>
+            <p className="font-display text-2xl font-medium">Aucun créneau ce jour-là</p>
             <p className="text-sm text-muted-foreground">Essayez un autre jour, ou allégez votre panier : plusieurs soins demandent un créneau plus long.</p>
           </Card>
         ) : (
@@ -100,8 +100,8 @@ export function StepSlot({ draft, ctx, lines, onChange, ignoreId }: Props) {
                 aria-pressed={draft.time === t}
                 onClick={() => onChange({ time: t })}
                 className={cn(
-                  "min-h-12 rounded-full border text-sm font-medium transition-[background-color,border-color,color] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                  draft.time === t ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card hover:border-primary",
+                  "min-h-12 rounded-full border text-sm font-medium transition-[background-color,border-color,color] duration-200 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring",
+                  draft.time === t ? "border-primary bg-primary text-primary-foreground" : "border-line bg-card hover:border-primary",
                 )}
               >
                 {t}
@@ -113,14 +113,14 @@ export function StepSlot({ draft, ctx, lines, onChange, ignoreId }: Props) {
 
       {lines && lines.length > 0 && (
         <section aria-labelledby="slot-plan" className="lux-fade">
-          <h2 id="slot-plan" className="font-heading text-2xl font-medium">Votre enchaînement</h2>
+          <h2 id="slot-plan" className="font-display text-2xl font-medium">Votre enchaînement</h2>
           <ol className="mt-3 space-y-2">
             {lines.map((l) => {
               const service = brand.services.find((s) => s.id === l.serviceId);
               const practitioner = staff.find((p) => p.id === l.practitionerId);
               const room = rooms.find((r) => r.id === l.roomId);
               return (
-                <li key={l.serviceId} className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 rounded-2xl border border-border bg-card px-5 py-3">
+                <li key={l.serviceId} className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 rounded-2xl border border-line bg-card px-5 py-3">
                   <span>
                     <span className="block font-medium">{service?.name}</span>
                     <span className="block text-sm text-muted-foreground">

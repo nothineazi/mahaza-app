@@ -9,9 +9,10 @@
 
 | Couche | Choix | Notes |
 |---|---|---|
-| Runtime | Node.js LTS active | Version figée dans `.nvmrc`, `engines` et le Dockerfile (ADR) |
+| Runtime | **Node.js 24 LTS** (« Krypton », support jusqu'au 2028-04-30) | Version figée dans `.nvmrc`, `engines` et le Dockerfile (ADR-019) |
 | Framework | **Next.js 16** (App Router), React 19.x, TypeScript `strict` | Lire `node_modules/next/dist/docs/` avant d'écrire du code Next : conventions différentes de Next 15 (ex. `proxy` à la place de `middleware` ⚠️ à vérifier dans la doc embarquée) |
-| UI | Tailwind (version du dépôt), composants existants de la démo | shadcn/ui = base, jamais modifiée en place : on étend par `className` |
+| UI | **Tailwind CSS 4** (configuration CSS-first, `@theme`), `next-themes` (clair / sombre par classe), composants kv du back-office (`src/ui/kv`) et primitives du site public | Les composants de base (`src/ui/primitives`, shadcn) ne sont jamais modifiés en place : on étend par `className` ou on compose (ADR-035, ADR-036) |
+| Polices | **Auto-hébergées** par `next/font/local` : Inter (corps), Cormorant Garamond (affichage), JetBrains Mono (code) | Licences ouvertes seulement (OFL ou équivalent), fichier de licence versionné à côté de chaque police, sous-ensemble latin, graisses limitées à l'usage réel. Aucun service de polices (ADR-038) |
 | Base | **PostgreSQL** (majeure stable courante, figée) | Une base **par app**, auto-hébergée ; extensions `btree_gist` (+ `pgcrypto` si utile) |
 | ORM | **Drizzle ORM** + drizzle-kit | Migrations SQL versionnées et relues ; SQL brut pour `EXCLUDE`, RLS, `GRANT` |
 | Auth | **Better Auth**, uniquement pour l'authentification | Adaptateur Drizzle ; plugins nom d'utilisateur + 2FA TOTP. Autorisation **maison** |
@@ -24,7 +25,7 @@
 | Registre | GHCR | Dépôts clients uniquement |
 | Déploiement | Dokploy | Staging : KVM partagé, accès `http://IP:PORT`. Prod : VPS client + Dokploy |
 
-**Interdits sans ADR** : Supabase, Neon, Redis, Prisma, Auth.js/NextAuth, next-pwa/Serwist, framer-motion dans l'admin, tout SaaS tiers. **Pas d'e-mail en v1.**
+**Interdits sans ADR** : Supabase, Neon, Redis, Prisma, Auth.js/NextAuth, next-pwa/Serwist, framer-motion dans l'admin, tout SaaS tiers, tout service de polices (`next/font/google`, Google Fonts, Typekit…). **Pas d'e-mail en v1.**
 **Versions** : toute montée majeure = ADR + GO de Yass. Exception actée le 2026-10-08 : Next.js 16 et les dépendances que cette migration exige.
 
 ---
@@ -33,7 +34,7 @@
 
 ```
 src/
-  app/            routes Next : (public), (admin), api/
+  app/            routes Next : accueil à la racine ; (app)/ = /reserver et /admin (seules routes qui chargent le store de la démo) ; api/
   core/           SOCLE — jamais modifié dans un dépôt client
     db/           schéma Drizzle, client, transaction avec contexte RLS
     auth/ authz/ audit/
@@ -44,7 +45,7 @@ src/
     brand.config.ts   nom, fonctionnalités activées, politiques par défaut
     theme/            tokens CSS clair/sombre
     assets/ copy/ seed/
-  ui/             composants partagés (public premium, admin)
+  ui/             composants partagés : primitives et pages du site public, kv/ (design system du back-office), admin/
 drizzle/          migrations SQL
 scripts/          seed, bootstrap admin, sauvegarde/restauration, contrôles
 docs/
@@ -138,7 +139,7 @@ docs/
 ## 7. Contexte Cameroun (contraintes de conception)
 
 - **Mobile-first** : Android d'entrée de gamme **et** iOS Safari.
-- **Budget de poids** : le First Load JS des routes publiques ne dépasse pas la base mesurée au RUN-01. Images AVIF/WebP via `next/image`, chargement différé, aucune vidéo en lecture automatique.
+- **Budget de poids** : le First Load JS des routes publiques respecte `scripts/first-load-budget.json`, contrôlé en CI (ADR-040 : 149 kB pour `/`, 172 kB pour `/reserver`, gzip ; base d'origine Next 15 : 142 / 168 kB). Tout ce qui n'est pas utile au premier écran est chargé à la demande (`next/dynamic`, `IntersectionObserver`) ; le store de la démo ne se charge que dans `(app)/`. Images AVIF/WebP via `next/image`, chargement différé, aucune vidéo en lecture automatique.
 - **Réseau instable** :
   - états de chargement explicites ;
   - boutons désactivés pendant l'envoi ;
@@ -157,6 +158,10 @@ docs/
 
 ## 8. Design et interface
 
+**Référence** : `docs/reference/factory-core.md` (design system de la factory) fait foi pour les jetons, l'échelle `kv`, les composants et le garde-fou ; les écarts propres à cette souche sont dans l'ADR-036 (deux registres, `--gold`, `--line`, coque). Le thème sombre est piloté par la **classe `.dark`** sur `<html>` (`next-themes`, `attribute="class"`, défaut = thème du système), jamais par `prefers-color-scheme` seul ; `color-scheme` natif dans les deux thèmes.
+
+**Deux registres** : le back-office suit strictement le système factory (zone `.kv-app`) ; le site public garde son registre premium éditorial, propre à chaque marque, et ne partage que les jetons de couleur.
+
 **Site public** : registre premium éditorial hérité de la démo, propre à chaque marque.
 
 **Back-office** (règles factory) :
@@ -165,7 +170,7 @@ docs/
   - la couleur porte le sens, jamais la décoration ;
   - la profondeur se fait par la bordure, les ombres sont réservées aux surfaces flottantes.
 - **Densité et tailles** :
-  - corps de texte 13 px sur desktop, 14 px sur mobile ;
+  - corps de texte 13 px sur desktop, 14 px sur mobile (échelle `text-kv-*`, interdit : `text-sm`, `text-xs`, `text-[…px]`) ;
   - contrôles 32 px sur desktop, 44 px sur mobile ;
   - champs en 16 px sur mobile (évite le zoom iOS) ;
   - `tabular-nums` sur les chiffres.
@@ -219,6 +224,7 @@ docs/
 - **CI bloquante** :
   - typecheck, lint ;
   - tests unitaires, intégration (service Postgres), e2e smoke ;
+  - `check:contrast` (OKLCH, 2 thèmes), `check:design --strict` (back-office), budget de First Load JS ;
   - gitleaks ;
   - build de l'image + Trivy (vulnérabilités critiques corrigeables) ;
   - `npm audit` en rapport, avec liste d'exceptions triées.

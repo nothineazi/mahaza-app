@@ -1,80 +1,129 @@
 /*
- * Jetons de couleur d'OVAGLOW (marque FICTIVE de la souche), thèmes clair et sombre.
+ * Jetons de couleur d'OVAGLOW (marque FICTIVE de la souche), thèmes clair et sombre. Seul fichier de couleurs de la marque.
  *
- * Format : canaux « R G B » pour rgb(var(--x) / <alpha>) (voir tailwind.config.ts). Le commentaire donne l'hexadécimal.
- * Source de vérité unique : `node scripts/check-contrast.mjs` lit ce fichier et vérifie les contrastes WCAG AA des deux thèmes.
+ * Recette « neutres teintés » de la factory (docs/reference/factory-core.md §2.2) : les rapports L / C sont structurels, seule la
+ * teinte --brand-h (teal, 200) et l'accent (--primary) sont propres à la marque. Les chromas sont bornés à la gamme sRGB
+ * pour cette teinte (le script le vérifie).
  *
- * Activation :
- * - clair par défaut ;
- * - sombre si le système le demande (prefers-color-scheme), sauf si <html data-theme="light"> ;
- * - sombre forcé par <html data-theme="dark">.
- * Les blocs sombres (media et attribut) doivent rester identiques : le script le vérifie.
+ * Thème : classe `.dark` sur <html>, posée par next-themes (défaut = thème du système). `color-scheme` suit le thème
+ * pour que les contrôles natifs (case à cocher, date, barre de défilement) restent cohérents.
+ *
+ * Source de vérité des contrastes : `npm run check:contrast` lit ce fichier (OKLCH → sRGB → luminance relative, WCAG 2.x AA) et
+ * vérifie les deux thèmes. Toute modification d'une valeur ici doit repasser ce contrôle.
  */
 
 :root {
   color-scheme: light;
-  --background: 248 246 242; /* #F8F6F2 */
-  --foreground: 27 38 38; /* #1B2626 */
-  --card: 255 255 255; /* #FFFFFF */
-  --primary: 31 91 94; /* #1F5B5E */
-  --primary-foreground: 255 255 255; /* #FFFFFF */
-  --secondary: 230 238 236; /* #E6EEEC */
-  --secondary-foreground: 23 59 61; /* #173B3D */
-  --muted: 239 236 230; /* #EFECE6 */
-  --muted-foreground: 85 98 97; /* #556261 */
-  --accent: 201 161 91; /* #C9A15B */
-  --accent-foreground: 36 26 8; /* #241A08 */
-  --border: 221 216 206; /* #DDD8CE */
-  --success: 26 107 63; /* #1A6B3F */
-  --success-foreground: 255 255 255; /* #FFFFFF */
-  --destructive: 169 43 43; /* #A92B2B */
-  --inverse: 20 32 31; /* #14201F */
-  --inverse-foreground: 245 242 236; /* #F5F2EC */
-  --radius: 0.9rem;
-  --font-heading: var(--font-display), Georgia, "Times New Roman", serif;
-  --font-body: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --brand-h: 200;
+
+  /* Surfaces et texte */
+  --background: oklch(0.985 0.002 var(--brand-h));
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --muted: oklch(0.96 0.02 var(--brand-h));
+  --muted-foreground: oklch(0.5 0.065 var(--brand-h));
+
+  /* Accent de marque : action, lien, focus, état actif */
+  --primary: oklch(0.434 0.061 var(--brand-h));
+  --primary-foreground: oklch(1 0 0);
+  --primary-text: var(--primary);
+  --ring: var(--primary);
+
+  /* Surfaces teintées discrètes (survol, élément actif) */
+  --secondary: oklch(0.94 0.04 var(--brand-h));
+  --secondary-foreground: oklch(0.35 0.06 var(--brand-h));
+  --accent: oklch(0.94 0.04 var(--brand-h));
+  --accent-foreground: oklch(0.35 0.06 var(--brand-h));
+
+  /* Bordures : `border` / `input` ≥ 3:1 (WCAG 1.4.11) ; `line` = filet décoratif du site public */
+  --border: oklch(0.653 0.03 var(--brand-h));
+  --input: oklch(0.653 0.03 var(--brand-h));
+  --line: oklch(0.9 0.012 var(--brand-h));
+
+  /* Sémantique */
+  --destructive: oklch(0.52 0.19 27);
+  --success: oklch(0.47 0.1 155);
+  --success-foreground: oklch(1 0 0);
+  --success-bg: oklch(0.95 0.04 155);
+  --warning: oklch(0.47 0.1 70);
+  --warning-bg: oklch(0.95 0.05 85);
+  --danger-bg: oklch(0.95 0.022 25);
+  --info-bg: oklch(0.94 0.03 var(--brand-h));
+
+  /* Statuts de réservation (alias des tokens sémantiques ; seul `noshow-fg` a sa propre valeur) */
+  --status-pending-fg: var(--warning);
+  --status-pending-bg: var(--warning-bg);
+  --status-confirmed-fg: var(--success);
+  --status-confirmed-bg: var(--success-bg);
+  --status-completed-fg: var(--primary-text);
+  --status-completed-bg: var(--info-bg);
+  --status-cancelled-fg: var(--muted-foreground);
+  --status-cancelled-bg: var(--muted);
+  --status-noshow-fg: oklch(0.48 0.19 27);
+  --status-noshow-bg: var(--danger-bg);
+
+  /* Coque du back-office (suit le thème) */
+  --sidebar: oklch(0.97 0.02 var(--brand-h));
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-border: oklch(0.9 0.03 var(--brand-h));
+  --sidebar-accent: oklch(0.94 0.04 var(--brand-h));
+  --sidebar-accent-foreground: oklch(0.35 0.06 var(--brand-h));
+
+  /* Registre éditorial du site public : laiton (dorure) et surfaces toujours sombres (pied de page, hero, carte cadeau, infobulle) */
+  --gold: oklch(0.731 0.1 80);
+  --gold-foreground: oklch(0.25 0.04 80);
+  --inverse: oklch(0.24 0.02 var(--brand-h));
+  --inverse-foreground: oklch(0.96 0.008 85);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    color-scheme: dark;
-    --background: 14 21 21; /* #0E1515 */
-    --foreground: 236 232 225; /* #ECE8E1 */
-    --card: 22 33 32; /* #162120 */
-    --primary: 124 203 198; /* #7CCBC6 */
-    --primary-foreground: 11 31 32; /* #0B1F20 */
-    --secondary: 30 49 48; /* #1E3130 */
-    --secondary-foreground: 207 230 227; /* #CFE6E3 */
-    --muted: 26 38 37; /* #1A2625 */
-    --muted-foreground: 176 188 186; /* #B0BCBA */
-    --accent: 214 179 116; /* #D6B374 */
-    --accent-foreground: 31 22 6; /* #1F1606 */
-    --border: 43 60 59; /* #2B3C3B */
-    --success: 95 203 144; /* #5FCB90 */
-    --success-foreground: 8 31 20; /* #081F14 */
-    --destructive: 240 138 130; /* #F08A82 */
-    --inverse: 26 41 40; /* #1A2928 */
-    --inverse-foreground: 243 240 234; /* #F3F0EA */
-  }
-}
-
-:root[data-theme="dark"] {
+.dark {
   color-scheme: dark;
-  --background: 14 21 21; /* #0E1515 */
-  --foreground: 236 232 225; /* #ECE8E1 */
-  --card: 22 33 32; /* #162120 */
-  --primary: 124 203 198; /* #7CCBC6 */
-  --primary-foreground: 11 31 32; /* #0B1F20 */
-  --secondary: 30 49 48; /* #1E3130 */
-  --secondary-foreground: 207 230 227; /* #CFE6E3 */
-  --muted: 26 38 37; /* #1A2625 */
-  --muted-foreground: 176 188 186; /* #B0BCBA */
-  --accent: 214 179 116; /* #D6B374 */
-  --accent-foreground: 31 22 6; /* #1F1606 */
-  --border: 43 60 59; /* #2B3C3B */
-  --success: 95 203 144; /* #5FCB90 */
-  --success-foreground: 8 31 20; /* #081F14 */
-  --destructive: 240 138 130; /* #F08A82 */
-  --inverse: 26 41 40; /* #1A2928 */
-  --inverse-foreground: 243 240 234; /* #F3F0EA */
+
+  --background: oklch(0.13 0.02 var(--brand-h));
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.18 0.03 var(--brand-h));
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.18 0.03 var(--brand-h));
+  --popover-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.25 0.04 var(--brand-h));
+  --muted-foreground: oklch(0.72 0.05 var(--brand-h));
+
+  --primary: oklch(0.79 0.078 190.5);
+  --primary-foreground: oklch(0.2 0.03 var(--brand-h));
+  --primary-text: var(--primary);
+  --ring: var(--primary);
+
+  --secondary: oklch(0.25 0.04 var(--brand-h));
+  --secondary-foreground: oklch(0.9 0.04 var(--brand-h));
+  --accent: oklch(0.25 0.04 var(--brand-h));
+  --accent-foreground: oklch(0.9 0.04 var(--brand-h));
+
+  --border: oklch(1 0 0 / 18%);
+  --input: oklch(1 0 0 / 38%);
+  --line: oklch(1 0 0 / 10%);
+
+  --destructive: oklch(0.72 0.15 25);
+  --success: oklch(0.78 0.14 155);
+  --success-foreground: oklch(0.2 0.04 155);
+  --success-bg: oklch(0.27 0.05 155);
+  --warning: oklch(0.82 0.13 85);
+  --warning-bg: oklch(0.29 0.05 80);
+  --danger-bg: oklch(0.28 0.06 25);
+  --info-bg: oklch(0.28 0.04 var(--brand-h));
+
+  --status-noshow-fg: oklch(0.78 0.12 25);
+
+  --sidebar: oklch(0.18 0.03 var(--brand-h));
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-accent: oklch(0.25 0.04 var(--brand-h));
+  --sidebar-accent-foreground: oklch(0.9 0.04 var(--brand-h));
+
+  --gold: oklch(0.784 0.091 81.5);
+  --gold-foreground: oklch(0.22 0.04 80);
+  --inverse: oklch(0.29 0.025 var(--brand-h));
+  --inverse-foreground: oklch(0.96 0.008 85);
 }

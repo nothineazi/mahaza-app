@@ -2,6 +2,36 @@
 
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Les versions de la souche sont des tags `core-vX.Y` (le premier : fin du RUN-10).
 
+## [Non publié] — RUN-01b : fondations design et outillage
+
+### Modifié
+- **Node.js 22 → 24 LTS** (`.nvmrc`, `engines`, Dockerfile, `@types/node` 24) ; ADR-019.
+- **Tailwind CSS 3.4 → 4.3.3**, configuration CSS-first (`@theme`), outil officiel de migration ; `tailwindcss-animate` remplacé par `tw-animate-css` ; ADR-035. Rendu public inchangé.
+
+### Ajouté
+- **Couche design factory** (`docs/reference/factory-core.md`, ADR-036) : deux registres, jetons OKLCH (neutres teintés H = 200), mode sombre par classe `.dark` (`next-themes`) avec bouton clair/sombre, échelle `text-kv-*`, graisses 450/520/600, composants `src/ui/kv` (Panel, StatusBadge, Field, PageHeader, StateBlock, DataTable, ActionBar, Segmented, control-classes), coque à barre latérale, `cn()` étendu.
+- `scripts/check-design.mjs` (périmètre back-office, exceptions déclarées) ; `scripts/check-contrast.mjs` réécrit en OKLCH (80 couples par thème).
+- Écrans du back-office (tableau de bord, planning, réservations, clients, salles, équipe) sur les composants `kv` : tableau de données, fiches modales, barre d'actions (matrice statut → action primaire, ADR-039), états vide / chargement / erreur.
+- Polices **auto-hébergées** (`next/font/local`) : Inter, Cormorant Garamond, JetBrains Mono, licences OFL versionnées (ADR-038).
+
+### Modifié
+- Les couleurs de la marque ne sont plus en canaux RGB ; l'accent doré du site public s'appelle `gold` (le nom `accent` a le sens factory) ; filet décoratif `line` pour le site public.
+- Le fond du site public passe du crème au gris-teal neutre de la recette ; le thème sombre est plus profond.
+- Plus d'italique (carte cadeau, pied de page), plus de police mono sur le site public.
+
+### Performance
+- **First Load JS** : `/` 172,4 → **146,9 kB**, `/reserver` 188,7 → **170,2 kB**, `/_not-found` 145,4 → **136,5 kB** (gzip). Store de la démo hors de l'accueil (groupe de routes `(app)`), cartes cadeaux et étapes tardives du tunnel en chargement différé, hero réduit à ses images côté client. Budget CI 149 / 172 kB (ADR-040).
+
+### Supprimé
+- `next/font/google` : le build ne contacte plus aucun service de polices.
+
+### Corrigé
+- Contour de focus global et dégradé des squelettes (variables de couleur devenues invalides) ; Échap dans le menu d'actions ne ferme plus la fiche.
+- Pastille d'état « Active » (salles, équipe) : son fond vert pâle (`bg-success/12`) est enfin appliqué (opacité ignorée par Tailwind 3).
+
+### Sécurité
+- `npm audit` : 10 → 5 alertes (chaîne Tailwind 3 supprimée) ; reste une chaîne d'outil de lint, triée dans `docs/SECURITY.md`.
+
 ## [Non publié] — RUN-01 : création de la souche OVAGLOW et migration Next.js 16
 
 ### Ajouté

@@ -35,6 +35,8 @@ jobs:
         run: npm run check:contrast
       - name: Anti-fuite de marque
         run: npm run check:brand
+      - name: Garde-fou design du back-office (strict)
+        run: npm run check:design -- --strict
       - run: npm run build
       - name: Budget de First Load JS
         run: npm run measure:first-load -- --budget scripts/first-load-budget.json

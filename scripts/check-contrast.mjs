@@ -1,122 +1,211 @@
 #!/usr/bin/env node
 // Vérifie les contrastes WCAG 2.x AA (texte ≥ 4,5:1 ; composants d'interface ≥ 3:1) des couples de couleurs réellement
 // utilisés par l'interface, pour le thème clair ET le thème sombre définis dans src/brand/theme/tokens.css.
-// Usage : node scripts/check-contrast.mjs   (code de sortie 1 si un couple est sous le seuil)
+//
+// Méthode (docs/reference/factory-core.md §9) : OKLCH → sRGB linéaire → luminance relative (WCAG) ; les couleurs semi-transparentes
+// sont composées sur la surface réelle avant le calcul ; un jeton hors de la gamme sRGB fait échouer le contrôle (rendu non prévisible).
+//
+// Usage : node scripts/check-contrast.mjs [--markdown]   (code de sortie 1 si un couple est sous le seuil)
+//   --markdown : sortie en tableau Markdown (clair | sombre), utilisée pour l'ADR du RUN-01b.
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const css = readFileSync(join(root, "src/brand/theme/tokens.css"), "utf8");
+const markdown = process.argv.includes("--markdown");
 
-const TOKENS = [
-  "background", "foreground", "card", "primary", "primary-foreground", "secondary", "secondary-foreground", "muted", "muted-foreground",
-  "accent", "accent-foreground", "border", "success", "success-foreground", "destructive", "inverse", "inverse-foreground",
-];
+// ---------- Lecture des jetons ----------
 
-/** Extrait les jetons « --nom: R G B; » d'un bloc dont l'ouverture correspond au sélecteur. */
+/** Extrait les déclarations « --nom: valeur; » du bloc dont le sélecteur ouvre à `selector` (premier bloc après le commentaire d'en-tête). */
 function block(selector) {
-  const start = css.indexOf(selector);
+  const start = css.search(new RegExp(`^${selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s*\\{`, "m"));
   if (start < 0) throw new Error(`Bloc introuvable : ${selector}`);
   const open = css.indexOf("{", start);
-  const close = css.indexOf("}", open);
-  const body = css.slice(open + 1, close);
+  const close = css.indexOf("\n}", open);
   const out = {};
-  for (const m of body.matchAll(/--([a-z-]+):\s*(\d+) (\d+) (\d+);/g)) out[m[1]] = [Number(m[2]), Number(m[3]), Number(m[4])];
+  for (const m of css.slice(open + 1, close).matchAll(/--([a-z0-9-]+):\s*([^;]+);/g)) out[m[1]] = m[2].trim();
   return out;
 }
 
-const light = block(":root {");
-const darkMedia = block(':root:not([data-theme="light"]) {');
-const darkAttr = block(':root[data-theme="dark"] {');
+const lightRaw = block(":root");
+const darkRaw = { ...lightRaw, ...block(".dark") };
 
-let bad = 0;
-for (const name of TOKENS) {
-  for (const [label, set] of [["clair", light], ["sombre (media)", darkMedia], ["sombre (attribut)", darkAttr]]) {
-    if (!set[name]) { console.log(`FAIL jeton manquant : --${name} (${label})`); bad++; }
-  }
-  if (JSON.stringify(darkMedia[name]) !== JSON.stringify(darkAttr[name])) { console.log(`FAIL blocs sombres divergents : --${name}`); bad++; }
+/** Résout les alias `var(--x)` d'un jeton (sans analyser la couleur). */
+function resolve(raw, name, seen = []) {
+  if (seen.includes(name)) throw new Error(`Alias circulaire : ${name}`);
+  const v = raw[name];
+  if (v === undefined) throw new Error(`Jeton manquant : --${name}`);
+  return v.replace(/var\(--([a-z0-9-]+)\)/g, (_, n) => resolve(raw, n, [...seen, name]));
+}
+
+/** Analyse oklch(L C H [/ A]) d'un jeton résolu. */
+function parseColor(raw, name) {
+  const v = resolve(raw, name);
+  const m = v.match(/^oklch\(\s*([\d.]+)\s+([\d.]+)\s+([\d.]+)\s*(?:\/\s*([\d.]+)(%?))?\s*\)$/);
+  if (!m) throw new Error(`Valeur non reconnue pour --${name} : ${v}`);
+  const alpha = m[4] === undefined ? 1 : m[5] ? Number(m[4]) / 100 : Number(m[4]);
+  return { ...oklchToSrgb(Number(m[1]), Number(m[2]), Number(m[3])), alpha, name };
+}
+
+// ---------- Conversion de couleur ----------
+
+function oklchToSrgb(L, C, Hdeg) {
+  const h = (Hdeg * Math.PI) / 180;
+  const a = C * Math.cos(h);
+  const b = C * Math.sin(h);
+  const l = (L + 0.3963377774 * a + 0.2158037573 * b) ** 3;
+  const m = (L - 0.1055613458 * a - 0.0638541728 * b) ** 3;
+  const s = (L - 0.0894841775 * a - 1.291485548 * b) ** 3;
+  const lin = [
+    4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s,
+    -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s,
+    -0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s,
+  ];
+  const outOfGamut = lin.some((v) => v < -0.0005 || v > 1.0005);
+  const enc = (v) => {
+    const c = Math.min(1, Math.max(0, v));
+    return 255 * (c <= 0.0031308 ? 12.92 * c : 1.055 * c ** (1 / 2.4) - 0.055);
+  };
+  return { rgb: lin.map(enc), outOfGamut };
 }
 
 const hex = (c) => "#" + c.map((v) => Math.round(v).toString(16).padStart(2, "0")).join("").toUpperCase();
 const mix = (fg, bg, a) => fg.map((v, i) => v * a + bg[i] * (1 - a));
 const lum = (c) => {
-  const [r, g, b] = c.map((v) => { const s = v / 255; return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4; });
+  const [r, g, b] = c.map((v) => {
+    const s = v / 255;
+    return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
+  });
   return 0.2126 * r + 0.7152 * g + 0.0722 * b;
 };
-const ratio = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p); return (x + 0.05) / (y + 0.05); };
+const ratio = (a, b) => {
+  const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p);
+  return (x + 0.05) / (y + 0.05);
+};
+
+// ---------- Couples vérifiés ----------
+
 const WHITE = [255, 255, 255];
 const HERO_OVERLAY_MIN = 0.88;
 
-function pairsFor(C) {
-  // Voile du hero (src/ui/home/hero-carousel.tsx : inverse/92 → inverse/88) sur un visuel blanc : pire cas, côté le plus clair.
-  const hero = mix(C.inverse, WHITE, HERO_OVERLAY_MIN);
-  // [libellé, premier plan, arrière-plan, seuil]
-  return [
-    ["Texte courant sur fond", C.foreground, C.background, 4.5],
-    ["Texte sur carte", C.foreground, C.card, 4.5],
-    ["Texte sur secondaire", C.foreground, C.secondary, 4.5],
-    ["Texte secondaire-foreground sur secondaire", C["secondary-foreground"], C.secondary, 4.5],
-    ["Texte secondaire-foreground sur secondaire/50 (sélection)", C["secondary-foreground"], mix(C.secondary, C.background, 0.5), 4.5],
-    ["Texte atténué sur fond", C["muted-foreground"], C.background, 4.5],
-    ["Texte atténué sur carte", C["muted-foreground"], C.card, 4.5],
-    ["Texte atténué sur muted", C["muted-foreground"], C.muted, 4.5],
-    ["Texte atténué sur secondaire", C["muted-foreground"], C.secondary, 4.5],
-    ["Texte atténué sur fond admin (muted/40)", C["muted-foreground"], mix(C.muted, C.background, 0.4), 4.5],
-    ["Texte atténué sur muted/60", C["muted-foreground"], mix(C.muted, C.background, 0.6), 4.5],
-    ["Primaire (liens, titres) sur fond", C.primary, C.background, 4.5],
-    ["Primaire sur carte", C.primary, C.card, 4.5],
-    ["Primaire sur secondaire", C.primary, C.secondary, 4.5],
-    ["Primaire sur muted/40 (admin)", C.primary, mix(C.muted, C.background, 0.4), 4.5],
-    ["Bouton primaire (primary-foreground sur primaire)", C["primary-foreground"], C.primary, 4.5],
-    ["Bouton primaire au survol (primaire/90)", C["primary-foreground"], mix(C.primary, C.background, 0.9), 4.5],
-    ["Bouton or (texte sur accent)", C["accent-foreground"], C.accent, 4.5],
-    ["Bouton or au survol (accent/90)", C["accent-foreground"], mix(C.accent, C.background, 0.9), 4.5],
-    ["Pastille « en attente » (texte sur accent/25 sur carte)", C.foreground, mix(C.accent, C.card, 0.25), 4.5],
-    ["Texte atténué sur bloc planning en attente", C["muted-foreground"], mix(C.accent, C.card, 0.25), 4.5],
-    ["Succès sur carte", C.success, C.card, 4.5],
-    ["Succès sur succès/12 (pastille)", C.success, mix(C.success, C.card, 0.12), 4.5],
-    ["Succès sur succès/10 (notice)", C.success, mix(C.success, C.background, 0.1), 4.5],
-    ["Bouton WhatsApp (success-foreground sur succès)", C["success-foreground"], C.success, 4.5],
-    ["Bouton WhatsApp au survol (succès/90)", C["success-foreground"], mix(C.success, C.background, 0.9), 4.5],
-    ["Texte sur bloc planning confirmé (succès/15)", C.foreground, mix(C.success, C.card, 0.15), 4.5],
-    ["Texte atténué sur bloc confirmé", C["muted-foreground"], mix(C.success, C.card, 0.15), 4.5],
-    ["Destructif sur carte", C.destructive, C.card, 4.5],
-    ["Destructif sur destructif/10", C.destructive, mix(C.destructive, C.card, 0.1), 4.5],
-    ["Destructif sur destructif/5", C.destructive, mix(C.destructive, C.background, 0.05), 4.5],
-    ["Texte sur bloc no-show (destructif/10)", C.foreground, mix(C.destructive, C.card, 0.1), 4.5],
-    ["Compte à rebours : texte sur secondaire", C.foreground, C.secondary, 4.5],
-    // Surfaces inversées : pied de page, hero, carte cadeau, infobulle, lien d'évitement
-    ["Surface inversée : texte", C["inverse-foreground"], C.inverse, 4.5],
-    ["Surface inversée : texte/90", mix(C["inverse-foreground"], C.inverse, 0.9), C.inverse, 4.5],
-    ["Surface inversée : texte/85", mix(C["inverse-foreground"], C.inverse, 0.85), C.inverse, 4.5],
-    ["Surface inversée : texte/80", mix(C["inverse-foreground"], C.inverse, 0.8), C.inverse, 4.5],
-    ["Surface inversée : texte/75", mix(C["inverse-foreground"], C.inverse, 0.75), C.inverse, 4.5],
-    ["Surface inversée : texte/70", mix(C["inverse-foreground"], C.inverse, 0.7), C.inverse, 4.5],
-    ["Surface inversée : accent (liens, kicker)", C.accent, C.inverse, 4.5],
-    ["Hero : texte/90 sur voile inversé/88, visuel blanc (pire cas)", mix(C["inverse-foreground"], hero, 0.9), hero, 4.5],
-    ["Hero : accent sur voile inversé/88, visuel blanc (pire cas)", C.accent, hero, 4.5],
-    // Composants d'interface (WCAG 1.4.11, ≥ 3:1)
-    ["Bordure des champs (foreground/55) sur carte", mix(C.foreground, C.card, 0.55), C.card, 3],
-    ["Piste d'interrupteur éteinte (muted-foreground/70) sur carte", mix(C["muted-foreground"], C.card, 0.7), C.card, 3],
-    ["Anneau de focus (primaire) sur fond", C.primary, C.background, 3],
-    ["Anneau de focus (primaire) sur carte", C.primary, C.card, 3],
-    ["Anneau de focus (accent) sur surface inversée", C.accent, C.inverse, 3],
-    ["Barre de progression (primaire) sur piste (border)", C.primary, C.border, 3],
+function pairsFor(raw, themeName) {
+  const tokens = {};
+  const names = Object.keys(raw).filter((n) => n !== "brand-h");
+  for (const n of names) tokens[n] = parseColor(raw, n);
+  const gamut = names.filter((n) => tokens[n].outOfGamut);
+
+  const T = new Proxy({}, { get: (_, n) => tokens[n].rgb });
+  /** Jeton (éventuellement translucide) composé sur une surface, avec une opacité de classe supplémentaire (`/70`). */
+  const over = (name, surface, a = 1) => mix(tokens[name].rgb, surface, tokens[name].alpha * a);
+  const tint = (name, surface, a) => mix(T[name], surface, a);
+  const T4 = 4.5;
+  const T3 = 3;
+  const dark = themeName === "sombre";
+  const hero = mix(T.inverse, WHITE, HERO_OVERLAY_MIN);
+  const surf = { bg: T.background, card: T.card, muted: T.muted, side: T.sidebar };
+
+  // [groupe, libellé, premier plan, arrière-plan, seuil]
+  const pairs = [
+    ["Socle", "Texte courant sur fond", T.foreground, surf.bg, T4],
+    ["Socle", "Texte sur carte", T["card-foreground"], surf.card, T4],
+    ["Socle", "Texte sur menu / dialogue (popover)", T["popover-foreground"], T.popover, T4],
+    ["Socle", "Texte sur muted", T.foreground, surf.muted, T4],
+    ["Socle", "Texte atténué sur fond", T["muted-foreground"], surf.bg, T4],
+    ["Socle", "Texte atténué sur carte", T["muted-foreground"], surf.card, T4],
+    ["Socle", "Texte atténué sur muted", T["muted-foreground"], surf.muted, T4],
+    ["Socle", "Texte atténué sur secondaire", T["muted-foreground"], T.secondary, T4],
+    ["Socle", "Texte secondaire-foreground sur secondaire", T["secondary-foreground"], T.secondary, T4],
+    ["Socle", "Texte accent-foreground sur accent (survol)", T["accent-foreground"], T.accent, T4],
+    ["Socle", "Bouton primaire (primary-foreground sur primary)", T["primary-foreground"], T.primary, T4],
+    ["Socle", "Bouton primaire au survol (primary/90)", T["primary-foreground"], tint("primary", surf.bg, 0.9), T4],
+    ["Socle", "Accent en texte (primary-text) sur carte", T["primary-text"], surf.card, T4],
+    ["Socle", "Accent en texte sur fond", T["primary-text"], surf.bg, T4],
+    ["Socle", "Accent en texte sur info-bg (pastille)", T["primary-text"], T["info-bg"], T4],
+    ["Socle", "Accent en texte sur secondaire", T["primary-text"], T.secondary, T4],
+    ["Socle", "Destructif en texte sur carte", T.destructive, surf.card, T4],
+    ["Socle", "Destructif en texte sur danger-bg", T.destructive, T["danger-bg"], T4],
+    ["Socle", "Succès en texte sur carte", T.success, surf.card, T4],
+    ["Socle", "Succès en texte sur fond", T.success, surf.bg, T4],
+    ["Socle", "Avertissement en texte sur carte", T.warning, surf.card, T4],
+    ["Socle", "Bordure de carte sur fond (non-texte)", over("border", surf.bg), surf.bg, dark ? 1.3 : T3],
+    ["Socle", "Bordure de carte sur carte (non-texte)", over("border", surf.card), surf.card, dark ? 1.3 : T3],
+    ["Socle", "Bordure de champ (input) sur carte (WCAG 1.4.11)", over("input", surf.card), surf.card, T3],
+    ["Socle", "Bordure de champ (input) sur fond (WCAG 1.4.11)", over("input", surf.bg), surf.bg, T3],
+    ["Socle", "Anneau de focus (ring) sur fond", T.ring, surf.bg, T3],
+    ["Socle", "Anneau de focus (ring) sur carte", T.ring, surf.card, T3],
+    ["Socle", "Anneau de focus (ring) sur coque (sidebar)", T.ring, surf.side, T3],
+    ["Socle", "Icône d'accent (primary) sur carte (non-texte)", T.primary, surf.card, T3],
+    // Coque du back-office
+    ["Coque", "Texte de la coque (sidebar-foreground sur sidebar)", T["sidebar-foreground"], surf.side, T4],
+    ["Coque", "Texte atténué (élément de navigation inactif) sur sidebar", T["muted-foreground"], surf.side, T4],
+    ["Coque", "Élément actif (sidebar-accent-foreground sur sidebar-accent)", T["sidebar-accent-foreground"], T["sidebar-accent"], T4],
+    ["Coque", "Élément de navigation au survol (texte sur sidebar-accent/60)", T["sidebar-foreground"], tint("sidebar-accent", surf.side, 0.6), T4],
+    ["Coque", "Accent en texte sur sidebar", T["primary-text"], surf.side, T4],
+    ["Coque", "Filet de la coque (sidebar-border) sur sidebar (décoratif)", over("sidebar-border", surf.side), surf.side, 1.05],
+    // Statuts de réservation (badge : fg sur bg ; bloc de planning : texte sur bg)
+    ...["pending", "confirmed", "completed", "cancelled", "noshow"].flatMap((s) => [
+      ["Statuts", `Badge « ${s} » (fg sur bg)`, T[`status-${s}-fg`], T[`status-${s}-bg`], T4],
+      ["Statuts", `Bloc de planning « ${s} » : texte courant sur bg`, T.foreground, T[`status-${s}-bg`], T4],
+      ["Statuts", `Bloc de planning « ${s} » : texte atténué sur bg`, T["muted-foreground"], T[`status-${s}-bg`], T4],
+      ["Statuts", `Liseré de statut « ${s} » sur carte (non-texte)`, T[`status-${s}-fg`], surf.card, T3],
+    ]),
+    // Registre éditorial du site public
+    ["Public", "Texte sur secondaire (compte à rebours, sélection)", T.foreground, T.secondary, T4],
+    ["Public", "Texte sur secondaire/50 (sélection)", T["secondary-foreground"], tint("secondary", surf.bg, 0.5), T4],
+    ["Public", "Texte atténué sur muted/60", T["muted-foreground"], tint("muted", surf.bg, 0.6), T4],
+    ["Public", "Texte atténué sur muted/40", T["muted-foreground"], tint("muted", surf.bg, 0.4), T4],
+    ["Public", "Bouton or (gold-foreground sur gold)", T["gold-foreground"], T.gold, T4],
+    ["Public", "Bouton or au survol (gold/90)", T["gold-foreground"], tint("gold", surf.bg, 0.9), T4],
+    ["Public", "Pastille « en attente » : texte sur gold/25 sur carte", T.foreground, tint("gold", surf.card, 0.25), T4],
+    ["Public", "Bouton WhatsApp (success-foreground sur success)", T["success-foreground"], T.success, T4],
+    ["Public", "Bouton WhatsApp au survol (success/90)", T["success-foreground"], tint("success", surf.bg, 0.9), T4],
+    ["Public", "Succès sur success/10 (notice)", T.success, tint("success", surf.bg, 0.1), T4],
+    ["Public", "Destructif sur destructif/10", T.destructive, tint("destructive", surf.card, 0.1), T4],
+    ["Public", "Destructif sur destructif/5", T.destructive, tint("destructive", surf.bg, 0.05), T4],
+    ["Public", "Surface inversée : texte", T["inverse-foreground"], T.inverse, T4],
+    ...[90, 85, 80, 75, 70].map((p) => ["Public", `Surface inversée : texte/${p}`, tint("inverse-foreground", T.inverse, p / 100), T.inverse, T4]),
+    ["Public", "Surface inversée : or (liens, kicker)", T.gold, T.inverse, T4],
+    ["Public", "Hero : texte/90 sur voile inversé/88, visuel blanc (pire cas)", mix(T["inverse-foreground"], hero, 0.9), hero, T4],
+    ["Public", "Hero : or sur voile inversé/88, visuel blanc (pire cas)", T.gold, hero, T4],
+    ["Public", "Piste d'interrupteur éteinte (muted-foreground/70) sur carte", tint("muted-foreground", surf.card, 0.7), surf.card, T3],
+    ["Public", "Barre de progression (primary) sur piste (line)", T.primary, over("line", surf.card), dark ? 3 : T3],
+    ["Public", "Anneau de focus (or) sur surface inversée", T.gold, T.inverse, T3],
   ];
+  return { pairs, gamut };
 }
 
-const summary = [];
-for (const [name, C] of [["clair", light], ["sombre", darkAttr]]) {
-  console.log(`\n== Thème ${name} ==`);
-  const pairs = pairsFor(C);
-  for (const [label, fg, bgc, thr] of pairs) {
-    const r = ratio(fg, bgc);
+// ---------- Exécution ----------
+
+let bad = 0;
+const results = {};
+for (const [name, raw] of [["clair", lightRaw], ["sombre", darkRaw]]) {
+  const { pairs, gamut } = pairsFor(raw, name);
+  if (gamut.length) {
+    for (const n of gamut) console.log(`FAIL hors gamme sRGB (${name}) : --${n}`);
+    bad += gamut.length;
+  }
+  results[name] = pairs.map(([group, label, fg, bg, thr]) => {
+    const r = ratio(fg, bg);
     const ok = r >= thr;
     if (!ok) bad++;
-    console.log(`${ok ? "OK  " : "FAIL"} ${r.toFixed(2).padStart(5)}:1 (≥ ${thr})  ${label}  [${hex(fg)} / ${hex(bgc)}]`);
-  }
-  summary.push(`${name} : ${pairs.length} couples`);
+    return { group, label, r, thr, ok, fg: hex(fg), bg: hex(bg) };
+  });
 }
-console.log(bad ? `\n${bad} échec(s)` : `\nTous les couples respectent le seuil WCAG AA (${summary.join(" · ")})`);
+
+if (markdown) {
+  console.log("| Groupe | Couple | Seuil | Clair | Sombre |");
+  console.log("|---|---|---:|---:|---:|");
+  results.clair.forEach((c, i) => {
+    const d = results.sombre[i];
+    console.log(`| ${c.group} | ${c.label} | ${c.thr} | ${c.r.toFixed(2)} ${c.ok ? "✅" : "❌"} | ${d.r.toFixed(2)} ${d.ok ? "✅" : "❌"} |`);
+  });
+} else {
+  for (const name of ["clair", "sombre"]) {
+    console.log(`\n== Thème ${name} ==`);
+    for (const c of results[name]) console.log(`${c.ok ? "OK  " : "FAIL"} ${c.r.toFixed(2).padStart(5)}:1 (≥ ${c.thr})  ${c.label}  [${c.fg} / ${c.bg}]`);
+  }
+}
+const count = results.clair.length;
+console.log(bad ? `\n${bad} échec(s)` : `\nTous les couples respectent le seuil WCAG AA (clair : ${count} couples · sombre : ${results.sombre.length} couples)`);
 process.exit(bad ? 1 : 0);

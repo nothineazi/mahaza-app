@@ -25,11 +25,11 @@ export function DepositCountdown({ reservation }: { reservation: Reservation }) 
         <p className="flex items-center gap-2 text-sm font-medium">
           <Clock className="size-4" aria-hidden /> Acompte à envoyer avant l&apos;expiration
         </p>
-        <p role="timer" aria-live="off" aria-label="Temps restant avant expiration de l'acompte" className={cn("font-heading text-4xl font-medium tabular-nums", urgent && "text-destructive")}>
+        <p role="timer" aria-live="off" aria-label="Temps restant avant expiration de l'acompte" className={cn("font-display text-4xl font-medium tabular-nums", urgent && "text-destructive")}>
           {formatCountdown(left)}
         </p>
       </div>
-      <div className="h-1.5 overflow-hidden rounded-full bg-border" aria-hidden>
+      <div className="h-1.5 overflow-hidden rounded-full bg-line" aria-hidden>
         <div className={cn("h-full rounded-full transition-[width] duration-1000 ease-linear motion-reduce:transition-none", urgent ? "bg-destructive" : "bg-primary")} style={{ width: `${pct}%` }} />
       </div>
       <p className="text-xs text-muted-foreground">

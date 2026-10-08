@@ -1,0 +1,84 @@
+/*
+ * Système « kv » du back-office (docs/reference/factory-core.md §2-§4) : échelle typographique, graisses, rayons.
+ * Le site public garde son registre éditorial : ces règles ne s'appliquent que dans une zone `.kv-app` : la coque du back-office
+ * et les surfaces qu'un portail Radix rend hors de la coque (fiches `ModalContent`, tiroir mobile), qui portent la classe elles-mêmes.
+ */
+
+/*
+ * Échelle typographique : un jeton = un rôle. SANS `inline` : les valeurs doivent rester des variables CSS pour être
+ * redéfinies sous media query (mobile) ; avec `@theme inline` elles seraient figées à la compilation.
+ */
+@theme {
+  --text-kv-display: 1.875rem;
+  --text-kv-display--line-height: 2.125rem;
+  --text-kv-display--font-weight: 600;
+  --text-kv-display--letter-spacing: -0.02em;
+
+  --text-kv-title: 1.125rem;
+  --text-kv-title--line-height: 1.5rem;
+  --text-kv-title--font-weight: 520;
+  --text-kv-title--letter-spacing: -0.01em;
+
+  --text-kv-section: 0.875rem;
+  --text-kv-section--line-height: 1.25rem;
+  --text-kv-section--font-weight: 520;
+
+  --text-kv-body: 0.8125rem;
+  --text-kv-body--line-height: 1.25rem;
+  --text-kv-body--font-weight: 450;
+
+  --text-kv-meta: 0.75rem;
+  --text-kv-meta--line-height: 1rem;
+  --text-kv-meta--font-weight: 450;
+
+  --text-kv-label: 0.6875rem;
+  --text-kv-label--line-height: 0.875rem;
+  --text-kv-label--font-weight: 520;
+  --text-kv-label--letter-spacing: 0.04em;
+}
+
+/* Mobile < 640 px : corps 14 px (lecture en plein soleil), meta 13 px, chiffre clé 26 px. */
+@media (max-width: 639px) {
+  :root {
+    --text-kv-display: 1.625rem;
+    --text-kv-display--line-height: 1.875rem;
+    --text-kv-body: 0.875rem;
+    --text-kv-body--line-height: 1.375rem;
+    --text-kv-meta: 0.8125rem;
+    --text-kv-meta--line-height: 1.125rem;
+  }
+}
+
+/* Registre du back-office. */
+.kv-app {
+  /* Graisses de la police variable (le site public garde 500 / 600 / 700). */
+  --font-weight-medium: 450;
+  --font-weight-semibold: 520;
+  --font-weight-bold: 600;
+  --font-weight-extrabold: 650;
+  --font-weight-black: 700;
+
+  /* Rayons : --radius = 0,5 rem ; sm 0,6×, md 0,8×, lg 1×, xl 1,4×. */
+  --radius: 0.5rem;
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+
+  /* Bordures : le filet du back-office est le jeton --border (≥ 3:1), pas le filet décoratif du site public. */
+  --default-border-color: var(--border);
+}
+
+/* Fondu d'opacité pur à l'affichage d'une page (150 ms, une fois), coupé par prefers-reduced-motion. */
+@keyframes kv-content-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.kv-content-fade {
+  animation: kv-content-fade 150ms ease-out both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .kv-content-fade {
+    animation: none;
+  }
+}

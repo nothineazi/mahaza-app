@@ -3,12 +3,12 @@
 import { useId, useMemo, useState } from "react";
 import { Check, Clock, Plus, Search } from "lucide-react";
 import { brand } from "@/brand/brand.config";
+import { norm } from "@/core/lib/text";
 import { cn, formatDuration } from "@/core/lib/utils";
 import { Card } from "@/ui/primitives/card";
 import { Input } from "@/ui/primitives/field";
 import type { Draft } from "@/ui/booking/types";
 
-const norm = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 
 /** Panier multi-soins : recherche, filtre par catégorie, ajout / retrait d'un soin. */
 export function StepServices({ draft, onToggle, max }: { draft: Draft; onToggle: (serviceId: string) => void; max: number }) {
@@ -41,8 +41,8 @@ export function StepServices({ draft, onToggle, max }: { draft: Draft; onToggle:
               aria-pressed={category === c}
               onClick={() => setCategory(c)}
               className={cn(
-                "min-h-11 shrink-0 rounded-full border px-4 text-sm transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                category === c ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card hover:border-primary",
+                "min-h-11 shrink-0 rounded-full border px-4 text-sm transition-colors duration-200 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring",
+                category === c ? "border-primary bg-primary text-primary-foreground" : "border-line bg-card hover:border-primary",
               )}
             >
               {c ?? "Tous les soins"}
@@ -56,13 +56,13 @@ export function StepServices({ draft, onToggle, max }: { draft: Draft; onToggle:
 
       {groups.length === 0 ? (
         <Card className="p-8 text-center">
-          <p className="font-heading text-2xl font-medium">Aucun soin trouvé</p>
+          <p className="font-display text-2xl font-medium">Aucun soin trouvé</p>
           <p className="mt-1 text-sm text-muted-foreground">Essayez un autre mot-clé ou une autre catégorie.</p>
         </Card>
       ) : (
         groups.map((g) => (
           <section key={g.category} aria-labelledby={`${uid}-${g.category}`}>
-            <h2 id={`${uid}-${g.category}`} className="font-heading text-2xl font-medium">{g.category}</h2>
+            <h2 id={`${uid}-${g.category}`} className="font-display text-2xl font-medium">{g.category}</h2>
             <ul className="mt-3 space-y-2">
               {g.services.map((s) => {
                 const inCart = draft.cart.includes(s.id);
@@ -75,8 +75,8 @@ export function StepServices({ draft, onToggle, max }: { draft: Draft; onToggle:
                       disabled={blocked}
                       onClick={() => onToggle(s.id)}
                       className={cn(
-                        "group flex min-h-14 w-full items-center justify-between gap-4 rounded-2xl border bg-card px-5 py-3 text-left transition-[border-color,box-shadow,background-color] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50",
-                        inCart ? "border-primary bg-secondary/50 shadow-soft" : "border-border enabled:hover:border-primary/60 enabled:hover:shadow-soft",
+                        "group flex min-h-14 w-full items-center justify-between gap-4 rounded-2xl border bg-card px-5 py-3 text-left transition-[border-color,box-shadow,background-color] duration-200 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50",
+                        inCart ? "border-primary bg-secondary/50 shadow-soft" : "border-line enabled:hover:border-primary/60 enabled:hover:shadow-soft",
                       )}
                     >
                       <span className="min-w-0">
@@ -91,7 +91,7 @@ export function StepServices({ draft, onToggle, max }: { draft: Draft; onToggle:
                       <span
                         className={cn(
                           "flex min-h-9 shrink-0 items-center gap-1.5 rounded-full border px-3.5 text-sm font-medium transition-colors duration-200",
-                          inCart ? "border-primary bg-primary text-primary-foreground" : "border-border group-enabled:group-hover:border-primary group-enabled:group-hover:text-primary",
+                          inCart ? "border-primary bg-primary text-primary-foreground" : "border-line group-hover:group-enabled:border-primary group-hover:group-enabled:text-primary",
                         )}
                       >
                         {inCart ? <Check className="size-4" aria-hidden /> : <Plus className="size-4" aria-hidden />}

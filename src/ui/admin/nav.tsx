@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { CalendarDays, DoorOpen, LayoutDashboard, ListChecks, UserRound, Users } from "lucide-react";
 import { cn } from "@/core/lib/utils";
+import { focusRing } from "@/ui/kv/control-classes";
 
 const ITEMS = [
   { href: "/admin", label: "Tableau de bord", icon: LayoutDashboard },
@@ -14,24 +15,27 @@ const ITEMS = [
   { href: "/admin/staff", label: "Staff", icon: UserRound },
 ];
 
-export function AdminNav() {
+/** Navigation du back-office (barre latérale et tiroir mobile) : éléments de 44 px sur mobile, 32 px sur bureau. */
+export function AdminNav({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
   return (
-    <nav aria-label="Navigation du back-office" className="border-b border-border bg-card">
-      <ul className="mx-auto flex max-w-7xl gap-1 overflow-x-auto px-2 sm:px-4">
+    <nav aria-label="Navigation du back-office">
+      <ul className="space-y-0.5">
         {ITEMS.map(({ href, label, icon: Icon }) => {
           const active = href === "/admin" ? pathname === "/admin" : pathname.startsWith(href);
           return (
-            <li key={href} className="shrink-0">
+            <li key={href}>
               <Link
                 href={href}
+                onClick={onNavigate}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "flex min-h-12 items-center gap-2 whitespace-nowrap border-b-2 px-3 text-sm font-medium transition-colors duration-200",
-                  active ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground",
+                  "flex h-11 items-center gap-2 rounded-md px-2 text-kv-body transition-colors md:h-8",
+                  focusRing,
+                  active ? "bg-sidebar-accent font-semibold text-sidebar-accent-foreground" : "text-muted-foreground hover:bg-sidebar-accent/60 hover:text-sidebar-foreground",
                 )}
               >
-                <Icon className="size-4" aria-hidden />
+                <Icon className={cn("size-4 shrink-0", active && "text-primary")} aria-hidden />
                 {label}
               </Link>
             </li>

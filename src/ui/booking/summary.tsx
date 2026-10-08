@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
+import { whenIdle } from "@/core/lib/idle";
 import { ChevronUp, Info, Trash2 } from "lucide-react";
 import { brand } from "@/brand/brand.config";
 import type { ReservationLine } from "@/core/types";
@@ -10,7 +12,6 @@ import { getSite, multiSite } from "@/core/sites/sites";
 import { depositForService } from "@/core/booking/availability";
 import { formatPrice } from "@/core/lib/utils";
 import { Button } from "@/ui/primitives/button";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/ui/primitives/dialog";
 import { Card } from "@/ui/primitives/card";
 import type { Draft } from "@/ui/booking/types";
 
@@ -23,11 +24,15 @@ export interface PrimaryAction {
   hint?: string;
 }
 
-interface Props {
+export interface SummaryProps {
   draft: Draft;
   lines: ReservationLine[] | null;
   onRemove?: (serviceId: string) => void;
 }
+type Props = SummaryProps;
+
+const loadSheet = () => import("@/ui/booking/summary-sheet").then((m) => m.SummarySheet);
+const SummarySheet = dynamic(loadSheet);
 
 
 /** Contenu du récapitulatif : site, soins du panier, créneau, acompte. Aucun prix de soin (inconnus). */
@@ -49,9 +54,9 @@ export function SummaryBody({ draft, lines, onRemove }: Props) {
       <div>
         <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Vos soins</p>
         {services.length === 0 ? (
-          <p className="mt-2 rounded-xl border border-dashed border-border p-4 text-muted-foreground">Votre panier est vide. Ajoutez un ou plusieurs soins.</p>
+          <p className="mt-2 rounded-xl border border-dashed border-line p-4 text-muted-foreground">Votre panier est vide. Ajoutez un ou plusieurs soins.</p>
         ) : (
-          <ul className="mt-2 divide-y divide-border">
+          <ul className="mt-2 divide-y divide-line">
             {services.map((s, i) => {
               const line = lines?.[i];
               const practitioner = draft.choice[s.id];
@@ -67,7 +72,7 @@ export function SummaryBody({ draft, lines, onRemove }: Props) {
                     <button
                       type="button"
                       onClick={() => onRemove(s.id)}
-                      className="-mr-2 flex size-11 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      className="-mr-2 flex size-11 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-destructive focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring"
                     >
                       <Trash2 className="size-4" aria-hidden />
                       <span className="sr-only">Retirer {s.name}</span>
@@ -101,7 +106,7 @@ export function SummaryBody({ draft, lines, onRemove }: Props) {
       {deposit != null && services.length > 0 && (
         <div className="flex items-baseline justify-between rounded-xl bg-secondary px-4 py-3 text-secondary-foreground">
           <span>Acompte (FICTIF)</span>
-          <span className="font-heading text-xl font-medium">{formatPrice(deposit)}</span>
+          <span className="font-display text-xl font-medium">{formatPrice(deposit)}</span>
         </div>
       )}
     </div>
@@ -113,7 +118,7 @@ export function SummaryPanel({ draft, lines, action, onRemove }: Props & { actio
   return (
     <aside aria-label="Récapitulatif de votre réservation" className="hidden lg:block">
       <Card className="sticky top-24 space-y-6 p-6">
-        <h2 className="font-heading text-2xl font-medium">Votre réservation</h2>
+        <h2 className="font-display text-2xl font-medium">Votre réservation</h2>
         <SummaryBody draft={draft} lines={lines} onRemove={onRemove} />
         {action && <ActionButton action={action} />}
       </Card>
@@ -140,17 +145,27 @@ function ActionButton({ action, className }: { action: PrimaryAction; className?
 /** Barre fixe (< lg) : résumé compact, feuille du panier détaillé et action principale. */
 export function SummaryBar({ draft, lines, action, onRemove }: Props & { action: PrimaryAction | null }) {
   const [open, setOpen] = useState(false);
+  // Le dialogue n'est monté (et son code téléchargé) qu'à la première ouverture ; on le précharge au repos du navigateur.
+  const [everOpened, setEverOpened] = useState(false);
+  useEffect(() => {
+    // La barre n'existe que sous 1024 px : inutile de télécharger la feuille sur grand écran.
+    if (window.matchMedia("(min-width: 1024px)").matches) return;
+    return whenIdle(() => void loadSheet(), { timeout: 4000, fallbackMs: 2000 });
+  }, []);
   const count = draft.cart.length;
   const site = draft.siteId ? getSite(draft.siteId) : null;
   return (
     <>
-      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 pb-[env(safe-area-inset-bottom)] shadow-lift backdrop-blur lg:hidden">
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-background/95 pb-[env(safe-area-inset-bottom)] shadow-lift backdrop-blur-sm lg:hidden">
         <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3">
           <button
             type="button"
-            onClick={() => setOpen(true)}
+            onClick={() => {
+              setOpen(true);
+              setEverOpened(true);
+            }}
             aria-haspopup="dialog"
-            className="flex min-h-11 min-w-0 flex-1 items-center gap-2 rounded-xl text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="flex min-h-11 min-w-0 flex-1 items-center gap-2 rounded-xl text-left focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring"
           >
             <span className="min-w-0">
               <span className="block truncate text-sm font-medium">
@@ -173,18 +188,7 @@ export function SummaryBar({ draft, lines, action, onRemove }: Props & { action:
           )}
         </div>
       </div>
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent variant="sheet">
-          <DialogHeader>
-            <DialogTitle>Votre réservation</DialogTitle>
-            <DialogDescription>Récapitulatif de vos choix.</DialogDescription>
-          </DialogHeader>
-          <SummaryBody draft={draft} lines={lines} onRemove={onRemove} />
-          <Button variant="outline" onClick={() => setOpen(false)}>
-            Fermer
-          </Button>
-        </DialogContent>
-      </Dialog>
+      {everOpened && <SummarySheet open={open} onOpenChange={setOpen} draft={draft} lines={lines} onRemove={onRemove} />}
     </>
   );
 }
