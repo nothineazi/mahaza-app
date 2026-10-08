@@ -2,6 +2,18 @@
 
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Les versions de la souche sont des tags `core-vX.Y` (le premier : fin du RUN-10).
 
+## [Non publié] — RUN-01b : fondations design et outillage
+
+### Modifié
+- **Node.js 22 → 24 LTS** (`.nvmrc`, `engines`, Dockerfile, `@types/node` 24) ; ADR-019.
+- **Tailwind CSS 3.4 → 4.3.3**, configuration CSS-first (`@theme`), outil officiel de migration ; `tailwindcss-animate` remplacé par `tw-animate-css` ; ADR-035. Rendu public inchangé.
+
+### Corrigé
+- Pastille d'état « Active » (salles, équipe) : son fond vert pâle (`bg-success/12`) est enfin appliqué (opacité ignorée par Tailwind 3).
+
+### Sécurité
+- `npm audit` : 10 → 5 alertes (chaîne Tailwind 3 supprimée) ; reste une chaîne d'outil de lint, triée dans `docs/SECURITY.md`.
+
 ## [Non publié] — RUN-01 : création de la souche OVAGLOW et migration Next.js 16
 
 ### Ajouté

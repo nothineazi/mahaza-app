@@ -11,7 +11,7 @@
 |---|---|---|
 | Runtime | Node.js LTS active | Version figée dans `.nvmrc`, `engines` et le Dockerfile (ADR) |
 | Framework | **Next.js 16** (App Router), React 19.x, TypeScript `strict` | Lire `node_modules/next/dist/docs/` avant d'écrire du code Next : conventions différentes de Next 15 (ex. `proxy` à la place de `middleware` ⚠️ à vérifier dans la doc embarquée) |
-| UI | Tailwind (version du dépôt), composants existants de la démo | shadcn/ui = base, jamais modifiée en place : on étend par `className` |
+| UI | Tailwind 4 (CSS-first), composants existants de la démo | shadcn/ui = base, jamais modifiée en place : on étend par `className` |
 | Base | **PostgreSQL** (majeure stable courante, figée) | Une base **par app**, auto-hébergée ; extensions `btree_gist` (+ `pgcrypto` si utile) |
 | ORM | **Drizzle ORM** + drizzle-kit | Migrations SQL versionnées et relues ; SQL brut pour `EXCLUDE`, RLS, `GRANT` |
 | Auth | **Better Auth**, uniquement pour l'authentification | Adaptateur Drizzle ; plugins nom d'utilisateur + 2FA TOTP. Autorisation **maison** |

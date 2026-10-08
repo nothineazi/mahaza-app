@@ -18,7 +18,7 @@ export function Home() {
   if (!home) return null;
 
   return (
-    <main id="contenu" tabIndex={-1} className="outline-none">
+    <main id="contenu" tabIndex={-1} className="outline-hidden">
       <HeroCarousel />
 
       {/* La magie du bien-être */}
@@ -108,7 +108,7 @@ export function Home() {
         <div className="mt-10 space-y-3">
           {brand.categories.map((category) => (
             <details key={category} className="group rounded-2xl border border-border bg-card shadow-soft transition-shadow open:shadow-lift">
-              <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-3 rounded-2xl px-5 py-3 font-heading text-xl font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring [&::-webkit-details-marker]:hidden">
+              <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-3 rounded-2xl px-5 py-3 font-heading text-xl font-medium focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring [&::-webkit-details-marker]:hidden">
                 <span>{category}</span>
                 <span aria-hidden className="text-2xl leading-none text-primary transition-transform duration-300 group-open:rotate-45 motion-reduce:transition-none">+</span>
               </summary>

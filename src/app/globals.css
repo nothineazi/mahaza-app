@@ -1,10 +1,56 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "../brand/theme/effects.css";
+
+/* Source des classes : tout src/ (détecté automatiquement par Tailwind 4). */
+
+/*
+ * Pont jetons → classes Tailwind. Les valeurs de couleur vivent dans src/brand/theme/tokens.css (canaux « R G B »).
+ * `inline` : la classe lit directement rgb(var(--x)), ce qui garde le thème sombre piloté par les variables.
+ */
+@theme inline {
+  --color-background: rgb(var(--background));
+  --color-foreground: rgb(var(--foreground));
+  --color-card: rgb(var(--card));
+  --color-primary: rgb(var(--primary));
+  --color-primary-foreground: rgb(var(--primary-foreground));
+  --color-secondary: rgb(var(--secondary));
+  --color-secondary-foreground: rgb(var(--secondary-foreground));
+  --color-muted: rgb(var(--muted));
+  --color-muted-foreground: rgb(var(--muted-foreground));
+  --color-accent: rgb(var(--accent));
+  --color-accent-foreground: rgb(var(--accent-foreground));
+  --color-border: rgb(var(--border));
+  --color-ring: rgb(var(--primary));
+  --color-destructive: rgb(var(--destructive));
+  --color-success: rgb(var(--success));
+  --color-success-foreground: rgb(var(--success-foreground));
+  --color-inverse: rgb(var(--inverse));
+  --color-inverse-foreground: rgb(var(--inverse-foreground));
+
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+}
+
+@theme {
+  --font-heading: var(--font-display), Georgia, "Times New Roman", serif;
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  /* Ombres du thème premium. */
+  --shadow-soft: 0 1px 2px rgb(46 42 43 / 0.04), 0 10px 28px -14px rgb(46 42 43 / 0.14);
+  --shadow-lift: 0 2px 4px rgb(46 42 43 / 0.06), 0 22px 44px -18px rgb(46 42 43 / 0.26);
+}
 
 @layer base {
   * {
     @apply border-border;
+  }
+
+  /* Tailwind 4 ne pose plus le curseur « main » sur les boutons : on le rétablit (guide de migration officiel). */
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
   }
 
   body {

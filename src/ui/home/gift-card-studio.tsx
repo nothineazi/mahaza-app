@@ -22,7 +22,7 @@ export function GiftCardPreview({ amount, to, from, message, code }: { amount: n
     <div
       role="img"
       aria-label={`Aperçu de la carte cadeau${amount ? ` de ${formatPrice(amount)}` : ""}${to ? ` pour ${to}` : ""}. Carte fictive de démonstration.`}
-      className="relative isolate aspect-[8/5] w-full overflow-hidden rounded-3xl bg-inverse p-5 text-inverse-foreground shadow-lift ring-1 ring-accent/60 sm:p-7"
+      className="relative isolate aspect-8/5 w-full overflow-hidden rounded-3xl bg-inverse p-5 text-inverse-foreground shadow-lift ring-1 ring-accent/60 sm:p-7"
     >
       <span aria-hidden className="absolute inset-2 -z-10 rounded-[1.25rem] border border-accent/40" />
       {decor && (
@@ -31,7 +31,7 @@ export function GiftCardPreview({ amount, to, from, message, code }: { amount: n
       <div aria-hidden className="flex h-full flex-col justify-between">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <p className="font-heading text-2xl font-medium leading-none sm:text-3xl">{brand.name}</p>
+            <p className="font-heading text-2xl font-medium leading-none sm:text-3xl sm:leading-9">{brand.name}</p>
             <p className="mt-1 text-[10px] uppercase tracking-[0.3em] text-accent sm:text-xs">Carte cadeau</p>
           </div>
           <span className="rotate-6 rounded-sm border border-accent px-2 py-0.5 text-[10px] font-semibold tracking-widest text-accent">FICTIF</span>
@@ -45,7 +45,7 @@ export function GiftCardPreview({ amount, to, from, message, code }: { amount: n
               {from && <>De la part de <strong className="font-semibold">{from}</strong></>}
             </p>
           )}
-          {message && <p className="line-clamp-2 font-heading text-base italic leading-snug text-inverse-foreground/90 sm:text-lg">« {message} »</p>}
+          {message && <p className="line-clamp-2 font-heading text-base italic leading-snug text-inverse-foreground/90 sm:text-lg sm:leading-7">« {message} »</p>}
         </div>
         <p className="font-mono text-xs tracking-[0.25em] text-inverse-foreground/85 sm:text-sm">{code ?? "GC-····-····"}</p>
       </div>
@@ -129,7 +129,7 @@ export function GiftCardStudio() {
                       aria-pressed={choice === a}
                       onClick={() => setChoice(a)}
                       className={cn(
-                        "min-h-12 rounded-full border text-sm font-semibold transition-[background-color,border-color,color] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                        "min-h-12 rounded-full border text-sm font-semibold transition-[background-color,border-color,color] duration-200 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring",
                         choice === a ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-card-foreground hover:border-primary",
                       )}
                     >
@@ -141,7 +141,7 @@ export function GiftCardStudio() {
                     aria-pressed={choice === CUSTOM}
                     onClick={() => setChoice(CUSTOM)}
                     className={cn(
-                      "min-h-12 rounded-full border text-sm font-semibold transition-[background-color,border-color,color] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                      "min-h-12 rounded-full border text-sm font-semibold transition-[background-color,border-color,color] duration-200 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring",
                       choice === CUSTOM ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-card-foreground hover:border-primary",
                     )}
                   >
@@ -218,7 +218,7 @@ export function GiftCardStudio() {
           </form>
         </div>
 
-        <div className="order-first space-y-5 lg:sticky lg:top-24 lg:order-none">
+        <div className="order-first space-y-5 lg:sticky lg:top-24 lg:order-0">
           <GiftCardPreview amount={amount} to={to.trim()} from={from.trim()} message={message.trim()} code={shownCode} />
 
           {card ? (

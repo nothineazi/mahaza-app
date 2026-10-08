@@ -30,7 +30,7 @@ Registre des décisions d'architecture (ADR). Format : contexte, décision, alte
 | 019 | Node.js 24 LTS (22 refusé) | ACCEPTÉ (RUN-01b) |
 | 020 | Next.js 16.4.0 | ACCEPTÉ (version exacte : à confirmer) |
 | 021 | React 19.3.0 | ACCEPTÉ |
-| 022 | Tailwind CSS 3.4.19 maintenu | ACCEPTÉ |
+| 022 | Tailwind CSS 3.4.19 maintenu | REMPLACÉ par ADR-035 |
 | 023 | Playwright et axe-core en dépendances de développement | ACCEPTÉ |
 | 024 | Budget de First Load JS sous Next 16 | ACCEPTÉ provisoirement (remplacé à l'étape 6 du RUN-01b) |
 | 025 | `APP_ENV` à l'exécution, rendu dynamique, liens WhatsApp sans destinataire hors production | ACCEPTÉ |
@@ -43,6 +43,7 @@ Registre des décisions d'architecture (ADR). Format : contexte, décision, alte
 | 032 | Cartes cadeaux conservées comme simulation FICTIVE | ACCEPTÉ |
 | 033 | Jobs e2e et Docker dans la CI du RUN-01 | ACCEPTÉ |
 | 034 | Turbopack par défaut | ACCEPTÉ |
+| 035 | Tailwind CSS 4.3.3, configuration CSS-first | ACCEPTÉ (GO de Yass, RUN-01b) |
 
 ---
 
@@ -183,7 +184,7 @@ Ces dix-huit décisions ont été validées par Yass le 2026-10-08 (PLAN v1.0). 
 - **Décision** : Tailwind reste en 3.4.19 ; aucune autre montée majeure (TypeScript 5.9.3, ESLint 9.39.5, Vitest 5.0.3, lucide-react 1.52).
 - **Alternatives** : Tailwind 4 (montée majeure, GO requis).
 - **Conséquences** : la chaîne Tailwind 3 porte les alertes `npm audit` restantes (voir `docs/SECURITY.md`) ; Tailwind 4 les supprimerait.
-- **Statut** : ACCEPTÉ.
+- **Statut** : **REMPLACÉ** par ADR-035 (RUN-01b : Tailwind 4, GO de Yass).
 
 ### ADR-023 — Playwright et axe-core en dépendances de développement
 - **Contexte** : le RUN-01 exige un smoke Playwright à 375 et 1280 px ; `STANDARDS.md` §1 liste Playwright et `@axe-core/playwright`.
@@ -250,3 +251,15 @@ Ces dix-huit décisions ont été validées par Yass le 2026-10-08 (PLAN v1.0). 
 ### ADR-034 — Turbopack par défaut
 - **Décision** : `next build` et `next dev` utilisent Turbopack (défaut de Next 16) ; aucune configuration webpack n'existe. `--webpack` reste disponible (poids un peu plus faible : voir ADR-024). `scripts/measure-first-load.mjs` lit `.next/diagnostics/route-bundle-stats.json`, produit par Turbopack.
 - **Statut** : **ACCEPTÉ** (Yass, RUN-01b).
+
+---
+
+## Décisions du RUN-01b
+
+### ADR-035 — Tailwind CSS 4.3.3, configuration CSS-first
+- **Contexte** : GO de Yass pour la montée majeure Tailwind 3 → 4 (exception à CLAUDE.md §4, ADR-022 remplacé). Les fondations visuelles (design factory) sont écrites en CSS-first (`@theme`) : migrer avant de les poser évite de les refaire.
+- **Décision** : `tailwindcss@4.3.3` + `@tailwindcss/postcss@4.3.3`, migration par l'outil officiel `@tailwindcss/upgrade` (guide : tailwindcss.com/docs/upgrade-guide), puis reprise à la main. Plus de `tailwind.config.ts` ni d'`autoprefixer` (Lightning CSS est intégré). Le pont jetons → classes est dans `src/app/globals.css` (`@theme inline`, valeurs `rgb(var(--x))`). `tailwindcss-animate` (plugin v3, non maintenu) est remplacé par `tw-animate-css@1.4.0` (MIT, CSS pur, même noms de classes `animate-in`, `fade-in-*`, `zoom-in-*`, `slide-in-from-*`), en dépendance de développement.
+- **Pièges rencontrés et corrigés** (détail dans `docs/runs/RUN-01b.md`) : (1) l'outil a renommé à tort la variante de bouton `"outline"` en `"outline-solid"` (une chaîne, pas une classe) ; (2) `src/brand/theme/effects.css` n'était pas dans une couche CSS : en Tailwind 4 une règle hors couche l'emporte sur les classes utilitaires (`tracking-*`, `outline-*`) ; il est maintenant importé après Tailwind, dans `@layer base` / `@layer components` ; (3) en v3, un `sm:text-5xl` imposait son interligne à une classe `leading-*` de base (ordre CSS) ; en v4, `leading-*` l'emporte : cinq éléments reçoivent `sm:leading-none` / `sm:leading-9` / `sm:leading-7` pour garder le rendu à l'identique ; (4) `bg-success/12` (opacité hors échelle v3, donc ignorée) est désormais appliquée : la pastille « Active » des salles et de l'équipe a maintenant son fond vert pâle voulu ; (5) le curseur « main » des boutons n'est plus posé par défaut : rétabli en `@layer base`.
+- **Alternatives** : rester en Tailwind 3 (chaîne de build portant 5 des 10 alertes `npm audit`).
+- **Conséquences** : rendu public pixel-identique (32 captures comparées, voir le rapport) ; `npm audit` passe de 10 à 5 alertes (voir `docs/SECURITY.md`). Les jetons en canaux RGB sont conservés jusqu'à la couche design factory (étape 3).
+- **Statut** : **ACCEPTÉ** (GO de Yass).

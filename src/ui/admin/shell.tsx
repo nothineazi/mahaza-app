@@ -10,7 +10,7 @@ import { AdminSiteSelector } from "@/ui/admin/site-selector";
 export function AdminShell({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-dvh bg-muted/40">
-      <a href="#contenu-admin" className="sr-only z-[60] rounded-full bg-inverse px-5 py-3 text-sm font-medium text-inverse-foreground focus:not-sr-only focus:fixed focus:left-4 focus:top-4">
+      <a href="#contenu-admin" className="sr-only z-60 rounded-full bg-inverse px-5 py-3 text-sm font-medium text-inverse-foreground focus:not-sr-only focus:fixed focus:left-4 focus:top-4">
         Aller au contenu
       </a>
       <header className="border-b border-border bg-background">
@@ -27,7 +27,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
         </div>
       </header>
       <AdminNav />
-      <main id="contenu-admin" tabIndex={-1} className="mx-auto max-w-7xl px-4 py-6 outline-none">
+      <main id="contenu-admin" tabIndex={-1} className="mx-auto max-w-7xl px-4 py-6 outline-hidden">
         <AdminSiteSelector />
         <p className="mb-6 rounded-xl bg-card px-4 py-2.5 text-xs text-muted-foreground shadow-soft">
           Démonstration sans authentification. Les modifications restent en mémoire dans votre navigateur et disparaissent au rechargement. Données de démonstration marquées <strong className="text-foreground">FICTIF</strong>.

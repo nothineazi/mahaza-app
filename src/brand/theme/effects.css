@@ -1,17 +1,37 @@
 /*
- * Habillage (ombres, animations, focus). Importé via src/brand/theme/fonts.ts.
+ * Habillage (animations, focus). Importé par src/app/globals.css, après Tailwind.
+ * Tailwind 4 range ses classes dans des couches CSS : tout ce qui est ici est dans une couche, sinon une règle hors couche
+ * l'emporterait sur les classes utilitaires (ex. `tracking-*`, `focus-visible:outline-*`).
  * Les couleurs restent celles du thème (variables --background, --primary…) : aucun jeton n'est modifié.
  */
 
-html {
-  --shadow-soft: 0 1px 2px rgb(46 42 43 / 0.04), 0 10px 28px -14px rgb(46 42 43 / 0.14);
-  --shadow-lift: 0 2px 4px rgb(46 42 43 / 0.06), 0 22px 44px -18px rgb(46 42 43 / 0.26);
-  --ease-lux: cubic-bezier(0.22, 0.61, 0.36, 1);
+@layer base {
+  html {
+    --ease-lux: cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
+
+  /* Focus clavier homogène et bien visible. */
+  :focus-visible {
+    outline: 2px solid rgb(var(--primary));
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
 }
 
-.font-heading {
-  font-feature-settings: "liga", "kern";
-  letter-spacing: 0.005em;
+@layer components {
+  .font-heading {
+    font-feature-settings: "liga", "kern";
+    letter-spacing: 0.005em;
+  }
+
+  .lux-fade-up { animation: lux-fade-up 0.5s var(--ease-lux) both; }
+  .lux-fade { animation: lux-fade 0.4s var(--ease-lux) both; }
+  .lux-pop { animation: lux-pop 0.28s var(--ease-lux) both; }
+  .lux-skeleton {
+    background: linear-gradient(90deg, rgb(var(--muted)) 25%, rgb(var(--secondary)) 50%, rgb(var(--muted)) 75%);
+    background-size: 200% 100%;
+    animation: lux-shimmer 1.6s linear infinite;
+  }
 }
 
 @keyframes lux-fade-up {
@@ -29,22 +49,6 @@ html {
 @keyframes lux-pop {
   0% { transform: scale(0.96); opacity: 0; }
   100% { transform: scale(1); opacity: 1; }
-}
-
-.lux-fade-up { animation: lux-fade-up 0.5s var(--ease-lux) both; }
-.lux-fade { animation: lux-fade 0.4s var(--ease-lux) both; }
-.lux-pop { animation: lux-pop 0.28s var(--ease-lux) both; }
-.lux-skeleton {
-  background: linear-gradient(90deg, rgb(var(--muted)) 25%, rgb(var(--secondary)) 50%, rgb(var(--muted)) 75%);
-  background-size: 200% 100%;
-  animation: lux-shimmer 1.6s linear infinite;
-}
-
-/* Focus clavier homogène et bien visible. */
-:focus-visible {
-  outline: 2px solid rgb(var(--primary));
-  outline-offset: 2px;
-  border-radius: 4px;
 }
 
 /* Les animations premium sont neutralisées pour les personnes qui préfèrent moins de mouvement. */

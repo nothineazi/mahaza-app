@@ -61,7 +61,7 @@ Les évolutions du socle circulent dans un seul sens : souche → tag → `git m
 
 - **Rendu** : toutes les pages sont rendues à la demande (le layout appelle `connection()` pour lire `APP_ENV` à chaque requête). Les pages sont des composants serveur qui montent des composants client.
 - **Environnement** (`src/core/lib/runtime.ts`) : `APP_ENV` ∈ {`development`, `staging`, `production`}, défaut `development`. `RuntimeProvider` transmet la valeur aux composants client (`useRuntime()`), qui construisent les liens WhatsApp sans destinataire hors production.
-- **Thème** (`src/brand/theme/tokens.css`) : jetons en canaux RGB (`--primary: 31 91 94`), utilisés par Tailwind via `rgb(var(--x) / <alpha>)`. Clair par défaut ; sombre selon le système ou par `data-theme="dark"`. Les surfaces toujours sombres (pied de page, hero, carte cadeau) utilisent `inverse` / `inverse-foreground`.
+- **Thème** (`src/brand/theme/tokens.css`) : jetons en canaux RGB (`--primary: 31 91 94`), utilisés par Tailwind 4 via `@theme inline` (`--color-x: rgb(var(--x))`, `src/app/globals.css`). Clair par défaut ; sombre selon le système ou par `data-theme="dark"`. Les surfaces toujours sombres (pied de page, hero, carte cadeau) utilisent `inverse` / `inverse-foreground`.
 - **Police** : Cormorant Garamond (titres) via `next/font/google`, variable `--font-display`.
 - **Temps** : stocké en UTC dans la cible ; affichage `Africa/Douala` (`src/core/lib/dates.ts`). **Montants** : FCFA entiers (`formatPrice`).
 - **Planification** : les fonctions de `src/core/booking/` sont pures (contexte passé en paramètre) et couvertes par les tests unitaires : créneaux, enchaînement multi-soins, conflits praticien / salle, cycle de vie, expiration d'acompte.

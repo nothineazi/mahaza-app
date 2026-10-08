@@ -80,7 +80,7 @@ function Detail({ reservation, onClose }: { reservation: Reservation; onClose: (
               onClose();
               router.push("/admin/clients");
             }}
-            className="inline-flex min-h-8 items-center gap-1.5 font-medium text-primary underline underline-offset-4 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="inline-flex min-h-8 items-center gap-1.5 font-medium text-primary underline underline-offset-4 hover:text-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring"
           >
             <UserRound className="size-4" aria-hidden /> {reservation.customerName}
           </button>

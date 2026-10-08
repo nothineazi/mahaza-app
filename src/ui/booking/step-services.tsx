@@ -41,7 +41,7 @@ export function StepServices({ draft, onToggle, max }: { draft: Draft; onToggle:
               aria-pressed={category === c}
               onClick={() => setCategory(c)}
               className={cn(
-                "min-h-11 shrink-0 rounded-full border px-4 text-sm transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                "min-h-11 shrink-0 rounded-full border px-4 text-sm transition-colors duration-200 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring",
                 category === c ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card hover:border-primary",
               )}
             >
@@ -75,7 +75,7 @@ export function StepServices({ draft, onToggle, max }: { draft: Draft; onToggle:
                       disabled={blocked}
                       onClick={() => onToggle(s.id)}
                       className={cn(
-                        "group flex min-h-14 w-full items-center justify-between gap-4 rounded-2xl border bg-card px-5 py-3 text-left transition-[border-color,box-shadow,background-color] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50",
+                        "group flex min-h-14 w-full items-center justify-between gap-4 rounded-2xl border bg-card px-5 py-3 text-left transition-[border-color,box-shadow,background-color] duration-200 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50",
                         inCart ? "border-primary bg-secondary/50 shadow-soft" : "border-border enabled:hover:border-primary/60 enabled:hover:shadow-soft",
                       )}
                     >
@@ -91,7 +91,7 @@ export function StepServices({ draft, onToggle, max }: { draft: Draft; onToggle:
                       <span
                         className={cn(
                           "flex min-h-9 shrink-0 items-center gap-1.5 rounded-full border px-3.5 text-sm font-medium transition-colors duration-200",
-                          inCart ? "border-primary bg-primary text-primary-foreground" : "border-border group-enabled:group-hover:border-primary group-enabled:group-hover:text-primary",
+                          inCart ? "border-primary bg-primary text-primary-foreground" : "border-border group-hover:group-enabled:border-primary group-hover:group-enabled:text-primary",
                         )}
                       >
                         {inCart ? <Check className="size-4" aria-hidden /> : <Plus className="size-4" aria-hidden />}

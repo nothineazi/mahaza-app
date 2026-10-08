@@ -108,7 +108,7 @@ export function ReservationsList() {
                 type="button"
                 aria-pressed={on}
                 onClick={() => setStatuses((cur) => (on ? cur.filter((x) => x !== s) : [...cur, s]))}
-                className={cn("min-h-10 rounded-full border px-4 text-sm transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring", on ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card hover:border-primary")}
+                className={cn("min-h-10 rounded-full border px-4 text-sm transition-colors duration-200 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring", on ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card hover:border-primary")}
               >
                 {STATUS_LABELS[s]} <span className="opacity-80">({count(s)})</span>
               </button>
@@ -177,7 +177,7 @@ export function ReservationsList() {
               <button
                 type="button"
                 onClick={() => setOpenId(r.id)}
-                className="block w-full rounded-2xl text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                className="block w-full rounded-2xl text-left focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
               >
                 <Card interactive className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
                   <div className="min-w-0 space-y-1">

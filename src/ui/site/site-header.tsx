@@ -15,7 +15,7 @@ export function SiteHeader() {
     <>
       <a
         href="#contenu"
-        className="sr-only z-[60] rounded-full bg-inverse px-5 py-3 text-sm font-medium text-inverse-foreground focus:not-sr-only focus:fixed focus:left-4 focus:top-4"
+        className="sr-only z-60 rounded-full bg-inverse px-5 py-3 text-sm font-medium text-inverse-foreground focus:not-sr-only focus:fixed focus:left-4 focus:top-4"
       >
         Aller au contenu
       </a>

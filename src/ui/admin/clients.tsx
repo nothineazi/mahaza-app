@@ -83,7 +83,7 @@ export function Clients() {
                 const l = loyalty(c, history);
                 return (
                   <li key={c.id}>
-                    <button type="button" aria-pressed={c.id === selectedId} onClick={() => setSelectedId(c.id)} className="block w-full rounded-2xl text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                    <button type="button" aria-pressed={c.id === selectedId} onClick={() => setSelectedId(c.id)} className="block w-full rounded-2xl text-left focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring">
                       <Card interactive className={cn("flex items-center justify-between gap-3 p-3.5", c.id === selectedId && "border-primary ring-1 ring-primary")}>
                         <span className="min-w-0">
                           <span className="block truncate font-medium">{c.name}</span>
@@ -195,7 +195,7 @@ function ClientDetail({ client, history, onBack }: { client: Client; history: Re
           <ul className="divide-y divide-border">
             {sorted.map((r) => (
               <li key={r.id}>
-                <button type="button" onClick={() => setOpenId(r.id)} className="flex min-h-14 w-full items-center justify-between gap-3 rounded-xl py-3 text-left transition-colors hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                <button type="button" onClick={() => setOpenId(r.id)} className="flex min-h-14 w-full items-center justify-between gap-3 rounded-xl py-3 text-left transition-colors hover:bg-muted/60 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring">
                   <span className="min-w-0">
                     <span className="block text-sm font-medium"><span className="first-letter:uppercase">{formatDateShort(r.date)}</span> · {r.lines[0].start} – {reservationEnd(r.lines)}</span>
                     <span className="block truncate text-sm text-muted-foreground">{r.lines.map((x) => brand.services.find((s) => s.id === x.serviceId)?.name).join(" + ")}</span>

@@ -60,7 +60,7 @@ export function StepPractitioners({ draft, onChoose }: { draft: Draft; onChoose:
 
 function Option({ name, checked, onSelect, title, hint, icon, badge }: { name: string; checked: boolean; onSelect: () => void; title: string; hint: string; icon: React.ReactNode; badge?: React.ReactNode }) {
   return (
-    <label className={cn("flex min-h-[72px] cursor-pointer items-center gap-4 rounded-2xl border p-4 transition-[border-color,box-shadow,background-color] duration-200 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring", checked ? "border-primary bg-secondary/50 shadow-soft" : "border-border bg-card hover:border-primary/60")}>
+    <label className={cn("flex min-h-[72px] cursor-pointer items-center gap-4 rounded-2xl border p-4 transition-[border-color,box-shadow,background-color] duration-200 has-focus-visible:ring-2 has-focus-visible:ring-ring", checked ? "border-primary bg-secondary/50 shadow-soft" : "border-border bg-card hover:border-primary/60")}>
       <input type="radio" name={name} checked={checked} onChange={onSelect} className="sr-only" />
       <span className={cn("flex size-11 shrink-0 items-center justify-center rounded-full transition-colors", checked ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground")}>{icon}</span>
       <span className="min-w-0">

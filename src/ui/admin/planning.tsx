@@ -113,7 +113,7 @@ function Segmented<T extends string>({ label, value, onChange, options, classNam
           type="button"
           aria-pressed={value === v}
           onClick={() => onChange(v)}
-          className={cn("min-h-10 rounded-full px-4 text-sm font-medium transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring", value === v ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground")}
+          className={cn("min-h-10 rounded-full px-4 text-sm font-medium transition-colors duration-200 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring", value === v ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground")}
         >
           {text}
         </button>
@@ -165,7 +165,7 @@ function DayView({ date, reservations, staff, rooms, groupBy, onOpen }: { date: 
       <ul className="space-y-2 md:hidden" aria-label="Agenda du jour">
         {entries.map(({ r, l }) => (
           <li key={`${r.id}-${l.serviceId}`}>
-            <button type="button" onClick={() => onOpen(r.id)} className={cn("w-full rounded-2xl border-l-4 px-4 py-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring", BLOCK[r.status])}>
+            <button type="button" onClick={() => onOpen(r.id)} className={cn("w-full rounded-2xl border-l-4 px-4 py-3 text-left focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring", BLOCK[r.status])}>
               <span className="flex items-center justify-between gap-2">
                 <span className="font-semibold">{l.start} – {endTime(l.start, l.durationMin)}</span>
                 <StatusPill status={r.status} />
@@ -208,7 +208,7 @@ function DayView({ date, reservations, staff, rooms, groupBy, onOpen }: { date: 
                     type="button"
                     onClick={() => onOpen(r.id)}
                     title={`${r.customerName} · ${STATUS_LABELS[r.status]}`}
-                    className={cn("absolute inset-x-1 overflow-hidden rounded-lg border-l-4 px-2 py-1 text-left text-xs transition-shadow duration-200 hover:shadow-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring", BLOCK[r.status])}
+                    className={cn("absolute inset-x-1 overflow-hidden rounded-lg border-l-4 px-2 py-1 text-left text-xs transition-shadow duration-200 hover:shadow-soft focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring", BLOCK[r.status])}
                     style={{ top: ((timeToMin(l.start) - open) / 60) * HOUR_PX + 1, height: (l.durationMin / 60) * HOUR_PX - 2 }}
                   >
                     <span className="block font-semibold">{l.start} – {endTime(l.start, l.durationMin)}</span>
@@ -246,7 +246,7 @@ function WeekView({ days, today, reservations, onOpen, onPickDay }: { days: stri
             <ul className="min-h-12 space-y-1.5 p-1.5 md:min-h-40">
               {list.map((r) => (
                 <li key={r.id}>
-                  <button type="button" onClick={() => onOpen(r.id)} className={cn("w-full rounded-lg border-l-4 px-2 py-1.5 text-left text-xs transition-shadow hover:shadow-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring", BLOCK[r.status])}>
+                  <button type="button" onClick={() => onOpen(r.id)} className={cn("w-full rounded-lg border-l-4 px-2 py-1.5 text-left text-xs transition-shadow hover:shadow-soft focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring", BLOCK[r.status])}>
                     <span className="block font-semibold">{r.lines[0].start} – {reservationEnd(r.lines)}</span>
                     <span className="block truncate">{r.lines.map((l) => serviceName(l.serviceId)).join(" + ")}</span>
                     <span className="block truncate text-muted-foreground">{r.customerName}</span>

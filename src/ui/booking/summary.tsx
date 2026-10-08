@@ -67,7 +67,7 @@ export function SummaryBody({ draft, lines, onRemove }: Props) {
                     <button
                       type="button"
                       onClick={() => onRemove(s.id)}
-                      className="-mr-2 flex size-11 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      className="-mr-2 flex size-11 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-destructive focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring"
                     >
                       <Trash2 className="size-4" aria-hidden />
                       <span className="sr-only">Retirer {s.name}</span>
@@ -144,13 +144,13 @@ export function SummaryBar({ draft, lines, action, onRemove }: Props & { action:
   const site = draft.siteId ? getSite(draft.siteId) : null;
   return (
     <>
-      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 pb-[env(safe-area-inset-bottom)] shadow-lift backdrop-blur lg:hidden">
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 pb-[env(safe-area-inset-bottom)] shadow-lift backdrop-blur-sm lg:hidden">
         <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3">
           <button
             type="button"
             onClick={() => setOpen(true)}
             aria-haspopup="dialog"
-            className="flex min-h-11 min-w-0 flex-1 items-center gap-2 rounded-xl text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="flex min-h-11 min-w-0 flex-1 items-center gap-2 rounded-xl text-left focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring"
           >
             <span className="min-w-0">
               <span className="block truncate text-sm font-medium">

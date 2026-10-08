@@ -68,7 +68,7 @@ export function StepSlot({ draft, ctx, lines, onChange, ignoreId }: Props) {
                 aria-pressed={selected}
                 onClick={() => onChange({ date: d, time: null })}
                 className={cn(
-                  "flex min-h-[88px] w-[76px] shrink-0 flex-col items-center justify-center rounded-2xl border px-2 py-2.5 text-center transition-[background-color,border-color,color] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60",
+                  "flex min-h-[88px] w-[76px] shrink-0 flex-col items-center justify-center rounded-2xl border px-2 py-2.5 text-center transition-[background-color,border-color,color] duration-200 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60",
                   selected ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card enabled:hover:border-primary",
                 )}
               >
@@ -100,7 +100,7 @@ export function StepSlot({ draft, ctx, lines, onChange, ignoreId }: Props) {
                 aria-pressed={draft.time === t}
                 onClick={() => onChange({ time: t })}
                 className={cn(
-                  "min-h-12 rounded-full border text-sm font-medium transition-[background-color,border-color,color] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                  "min-h-12 rounded-full border text-sm font-medium transition-[background-color,border-color,color] duration-200 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring",
                   draft.time === t ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card hover:border-primary",
                 )}
               >

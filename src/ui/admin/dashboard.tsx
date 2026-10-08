@@ -79,7 +79,7 @@ export function Dashboard() {
               type="button"
               aria-pressed={period === p}
               onClick={() => setPeriod(p)}
-              className={cn("min-h-10 rounded-full px-5 text-sm font-medium transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring", period === p ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground")}
+              className={cn("min-h-10 rounded-full px-5 text-sm font-medium transition-colors duration-200 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring", period === p ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground")}
             >
               {p === "day" ? "Jour" : "Semaine"}
             </button>
@@ -174,7 +174,7 @@ function Kpi({ icon: Icon, label, value, note, children }: { icon: typeof Percen
 function ReservationRow({ r, onOpen }: { r: Reservation; onOpen: (id: string) => void }) {
   return (
     <li>
-      <button type="button" onClick={() => onOpen(r.id)} className="flex min-h-14 w-full items-center justify-between gap-3 rounded-xl py-3 text-left transition-colors hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+      <button type="button" onClick={() => onOpen(r.id)} className="flex min-h-14 w-full items-center justify-between gap-3 rounded-xl py-3 text-left transition-colors hover:bg-muted/60 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring">
         <span className="min-w-0">
           <span className="block font-medium">{r.customerName}</span>
           <span className="block truncate text-sm text-muted-foreground">
@@ -208,8 +208,8 @@ function WeekChart({ days, today }: { days: ReturnType<typeof weekBreakdown>; to
           const isToday = d.date === today;
           const labelled = d.count > 0 && (d.date === peak.date || isToday);
           return (
-            <li key={d.date} tabIndex={0} className="group relative flex h-full flex-1 flex-col items-center justify-end rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label={`${formatDateShort(d.date)} : ${d.count} réservation${d.count > 1 ? "s" : ""}`}>
-              <span role="tooltip" className={cn("pointer-events-none absolute -top-2 z-10 w-max max-w-[11rem] -translate-y-full rounded-lg bg-inverse px-3 py-1.5 text-xs text-inverse-foreground opacity-0 shadow-lift transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100", i / (days.length - 1) < 0.4 ? "left-0" : i / (days.length - 1) > 0.6 ? "right-0" : "left-1/2 -translate-x-1/2")}>
+            <li key={d.date} tabIndex={0} className="group relative flex h-full flex-1 flex-col items-center justify-end rounded-lg focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring" aria-label={`${formatDateShort(d.date)} : ${d.count} réservation${d.count > 1 ? "s" : ""}`}>
+              <span role="tooltip" className={cn("pointer-events-none absolute -top-2 z-10 w-max max-w-44 -translate-y-full rounded-lg bg-inverse px-3 py-1.5 text-xs text-inverse-foreground opacity-0 shadow-lift transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100", i / (days.length - 1) < 0.4 ? "left-0" : i / (days.length - 1) > 0.6 ? "right-0" : "left-1/2 -translate-x-1/2")}>
                 {d.count} réservation{d.count > 1 ? "s" : ""} · CA estimé {formatPrice(d.revenue)} (FICTIF)
               </span>
               {labelled && <span className="mb-1 text-xs font-semibold">{d.count}</span>}
@@ -222,7 +222,7 @@ function WeekChart({ days, today }: { days: ReturnType<typeof weekBreakdown>; to
         })}
       </ul>
       <details className="mt-4">
-        <summary className="min-h-11 cursor-pointer py-2 text-sm text-primary underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">Voir les valeurs en tableau</summary>
+        <summary className="min-h-11 cursor-pointer py-2 text-sm text-primary underline underline-offset-4 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring">Voir les valeurs en tableau</summary>
         <table className="mt-2 w-full text-sm">
           <caption className="sr-only">Réservations et chiffre d&apos;affaires estimé (fictif) par jour</caption>
           <thead>
