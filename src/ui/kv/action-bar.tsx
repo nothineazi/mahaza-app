@@ -29,7 +29,7 @@ function ActionButton({ action, className }: { action: BarAction; className: str
       {action.label}
     </>
   );
-  if (action.href) {
+  if (action.href && !action.disabled) {
     return (
       <a href={action.href} target="_blank" rel="noopener noreferrer" onClick={action.onClick} className={className}>
         {content}
@@ -79,8 +79,7 @@ function DestructiveMenu({ action, menuLabel }: { action: BarAction; menuLabel: 
     };
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        // Le menu referme d'abord : Échap ne doit pas fermer aussi la fiche qui le contient.
-        e.stopPropagation();
+        // La fiche qui contient le menu ne se ferme pas (voir `ModalContent`, `onEscapeKeyDown`).
         close(true);
       }
     };

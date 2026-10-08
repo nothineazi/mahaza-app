@@ -45,7 +45,7 @@ export function LazyOnVisible({ load, fallback }: { load: () => Promise<Componen
 
   return (
     <div ref={ref}>
-      {Component ? <Component /> : fallback}
+      {Component ? <Component /> : failed ? null : fallback}
       {failed && !Component && (
         <p role="alert" className="mx-auto max-w-6xl px-4 pb-8 text-sm text-destructive sm:px-6">
           Cette section n&apos;a pas pu se charger (réseau instable ?). Rechargez la page pour la voir.

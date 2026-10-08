@@ -15,7 +15,7 @@ export const Modal = DialogPrimitive.Root;
 export const ModalContent = React.forwardRef<
   React.ComponentRef<typeof DialogPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> & { size?: "md" | "lg" }
->(({ className, children, size = "md", ...props }, ref) => (
+>(({ className, children, size = "md", onEscapeKeyDown, ...props }, ref) => (
   <DialogPrimitive.Portal>
     <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-inverse/55 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
     <DialogPrimitive.Content
@@ -26,6 +26,11 @@ export const ModalContent = React.forwardRef<
         size === "lg" ? "sm:max-w-2xl" : "sm:max-w-lg",
         className,
       )}
+      onEscapeKeyDown={(e) => {
+        // Échap dans un menu ouvert (ex. « Autres actions ») ne referme que le menu, pas la fiche qui le contient.
+        if ((e.target as Element | null)?.closest?.('[role="menu"]')) e.preventDefault();
+        onEscapeKeyDown?.(e);
+      }}
       {...props}
     >
       {children}

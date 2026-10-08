@@ -171,6 +171,8 @@ test.describe("back-office : fiches et formulaires", () => {
     await dialog.getByRole("button", { name: "Autres actions" }).click();
     await expect(dialog.getByRole("menuitem", { name: "Annuler la réservation" })).toBeVisible();
     await page.keyboard.press("Escape"); // referme le menu seulement
+    await expect(dialog.getByRole("menu")).toBeHidden();
+    await page.waitForTimeout(600); // laisse passer l'animation de fermeture d'une fiche qui se fermerait à tort
     await expect(dialog).toBeVisible();
     await page.keyboard.press("Escape");
     await expect(dialog).toBeHidden();
