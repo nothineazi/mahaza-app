@@ -14,7 +14,6 @@ import {
  * Les numéros MoMo / WhatsApp ci-dessous sont des PLACEHOLDERS FICTIFS : ne jamais payer ni écrire à ces numéros.
  */
 export const theme: ThemeConfig = {
-  id: "ovaglow",
   name: "OVAGLOW",
   tagline: "Institut & barbershop",
   description: "Marque fictive de démonstration : soins du visage et du corps, mains et pieds, coiffure et barbier. Réservez dans l'un de nos sites fictifs.",

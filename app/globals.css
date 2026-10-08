@@ -4,7 +4,7 @@
 
 @layer base {
   :root {
-    /* Valeurs de repli (thème Mahaza) ; les vraies valeurs sont injectées par app/layout.tsx. */
+    /* Valeurs de repli ; les vraies valeurs sont injectées par app/layout.tsx. */
     --background: 255 250 251;
     --foreground: 58 36 48;
     --card: 255 255 255;

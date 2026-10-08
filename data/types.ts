@@ -83,8 +83,7 @@ export interface Booking {
 }
 
 // ---------------------------------------------------------------------------
-// Thème Mahaza « premium » : réservations multi-soins, cycle de vie, clients.
-// Types uniquement (effacés à la compilation) : le thème St Louis n'est pas concerné.
+// Rendu « premium » : réservations multi-soins, cycle de vie, clients.
 // ---------------------------------------------------------------------------
 
 export type BookingStatus = "pending_deposit" | "confirmed" | "completed" | "cancelled" | "no_show";
@@ -205,7 +204,6 @@ export interface HomeContent {
 }
 
 export interface ThemeConfig {
-  id: "ovaglow";
   name: string;
   tagline: string;
   description: string;

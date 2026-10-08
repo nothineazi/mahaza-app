@@ -1,7 +1,7 @@
 import { theme } from "@/theme.config";
 import type { Service, Site } from "@/data/types";
 
-/** Site par défaut des marques mono-site (ex. St Louis) : aucune étape « spa » n'est alors affichée. */
+/** Site par défaut des marques mono-site : aucune étape « site » n'est alors affichée. */
 const defaultSite: Site = { id: "main", name: theme.name, city: theme.city, address: theme.address };
 
 export const sites: Site[] = theme.sites && theme.sites.length > 0 ? theme.sites : [defaultSite];

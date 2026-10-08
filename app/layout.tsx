@@ -2,9 +2,8 @@ import type { Metadata, Viewport } from "next";
 import type { CSSProperties, ReactNode } from "react";
 import { theme } from "@/theme.config";
 import { hexToChannels } from "@/lib/utils";
-import { StoreProvider } from "@/lib/store";
 import { MahazaStoreProvider } from "@/lib/mahaza/store";
-import { premiumRootClass } from "@/lib/mahaza/root-class";
+import { displayFont } from "@/lib/mahaza/fonts";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -42,12 +41,10 @@ const themeVars = {
 } as CSSProperties;
 
 export default function RootLayout({ children }: { children: ReactNode }) {
-  const fontClass = theme.id === "mahaza" ? premiumRootClass : undefined;
-
   return (
-    <html lang="fr" style={themeVars} data-theme={theme.id} {...(fontClass ? { className: fontClass } : {})}>
+    <html lang="fr" style={themeVars} className={displayFont.variable}>
       <body className="min-h-dvh">
-        {theme.id === "mahaza" ? <MahazaStoreProvider>{children}</MahazaStoreProvider> : <StoreProvider>{children}</StoreProvider>}
+        <MahazaStoreProvider>{children}</MahazaStoreProvider>
       </body>
     </html>
   );

@@ -10,10 +10,6 @@ RUN npm ci
 FROM node:22-alpine AS builder
 WORKDIR /app
 
-# Marque à construire : "mahaza" (défaut) ou "stlouis".
-# NEXT_PUBLIC_* est figée dans le bundle au build : l'ARG doit précéder `npm run build`.
-ARG NEXT_PUBLIC_THEME=mahaza
-ENV NEXT_PUBLIC_THEME=$NEXT_PUBLIC_THEME
 ENV NEXT_TELEMETRY_DISABLED=1
 
 COPY --from=deps /app/node_modules ./node_modules

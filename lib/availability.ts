@@ -49,8 +49,8 @@ export function depositFor(price: number, percent: number): number {
 }
 
 /**
- * Acompte d'un service : forfait du site s'il est défini (FICTIF en démo Mahaza),
- * sinon pourcentage du prix (St Louis).
+ * Acompte d'un service : forfait du site s'il est défini (FICTIF dans la souche),
+ * sinon pourcentage du prix.
  */
 export function depositForService(service: Pick<Service, "price">, site: Pick<Site, "depositAmount">, percent = 0): number {
   if (site.depositAmount != null) return site.depositAmount;

@@ -1,5 +1,5 @@
 import { Cormorant_Garamond } from "next/font/google";
-// Le CSS premium est importé ici : ce module n'est chargé que pour le thème Mahaza (voir app/layout.tsx).
+// Le CSS premium est importé ici (voir app/layout.tsx).
 import "./mahaza.css";
 
 /** Police d'affichage (titres). Repli auto-ajusté par next/font : pas de décalage de mise en page. */

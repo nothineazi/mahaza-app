@@ -2,7 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { theme } from "@/theme.config";
-import { mahazaClients, mahazaDemoReservations } from "@/data/mahaza-demo";
+import { demoClients, demoReservations } from "@/data/mahaza-demo";
 import type { BookingStatus, Client, Practitioner, Reservation, ReservationLine, Room } from "@/data/types";
 import { nowMinutes, todayISO } from "@/lib/dates";
 import { belongsToSite, firstSiteId, getSite } from "@/lib/sites";
@@ -82,7 +82,7 @@ const wantedOf = (lines: ReservationLine[]): Wanted[] =>
 export function MahazaStoreProvider({ children }: { children: ReactNode }) {
   const [today, setToday] = useState("");
   const [reservations, setReservations] = useState<Reservation[]>([]);
-  const [clients, setClients] = useState<Client[]>(mahazaClients);
+  const [clients, setClients] = useState<Client[]>(demoClients);
   const [rooms, setRooms] = useState<Room[]>(theme.rooms);
   const [staff, setStaff] = useState<Practitioner[]>(theme.practitioners);
   const [giftCards, setGiftCards] = useState<GiftCard[]>([]);
@@ -99,7 +99,7 @@ export function MahazaStoreProvider({ children }: { children: ReactNode }) {
     setReservations(
       buildSeedReservations(
         {
-          demo: mahazaDemoReservations,
+          demo: demoReservations,
           services: theme.services,
           defaultDurationMin: theme.defaultDurationMin ?? 60,
           referencePrefix: theme.referencePrefix,
@@ -108,7 +108,7 @@ export function MahazaStoreProvider({ children }: { children: ReactNode }) {
           nowMs: Date.now(),
           seedHoldMin: premium.seedHoldMin,
         },
-        mahazaClients,
+        demoClients,
       ),
     );
   }, []);
