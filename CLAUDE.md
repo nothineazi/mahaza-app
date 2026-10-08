@@ -30,6 +30,8 @@ Souche **privée** d'un logiciel de gestion d'institut de beauté et de barbersh
   4. une demande contredit une règle non négociable (§4) ;
   5. un même blocage persiste après 3 tentatives méthodiques (débogage systématique : reproduire, isoler, hypothèse, test). Documente-le dans le rapport ; si la suite du run reste faisable, continue, sinon arrête-toi.
 - Utilise une liste de tâches pour suivre le run ; coche au fil de l'eau.
+- **Configurations à faire par Yass** (secrets, tokens, Dokploy, GitHub) : ne les demande **qu'au run où elles deviennent nécessaires**. Donne alors un guide **pas à pas** : où cliquer, quoi copier, commandes en PowerShell, et comment vérifier que c'est bon. Fais tout ce qui ne dépend pas de lui avant de t'arrêter.
+- **Runs sensibles** (auth, autorisation/RLS, acompte, lien client, données santé) : avant la PR, fais une **passe de revue sécurité dédiée** (relecture ligne à ligne contre `STANDARDS.md` §4–§6 + tests d'attaque : IDOR, contournement de permission, rejeu, énumération) et consigne-la dans le rapport.
 - Si un outil, skill ou commande utile existe dans ton environnement (`/simplify`, revue de code, checklist sécurité, worktrees, débogage systématique, vérification avant complétion), utilise-le sans demander.
 
 ## 4. Non négociables
