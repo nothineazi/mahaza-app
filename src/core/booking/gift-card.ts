@@ -26,6 +26,17 @@ export function validateGiftAmount(raw: string | number, cfg: BrandPolicies["gif
   return { ok: true, amount };
 }
 
+/** Carte cadeau FICTIVE créée par la simulation de l'accueil (aucun stockage : elle vit dans l'état local du composant). */
+export interface GiftCard {
+  id: string;
+  code: string;
+  amount: number;
+  from: string;
+  to: string;
+  message: string;
+  createdAt: number;
+}
+
 export interface GiftCardDraft {
   code: string;
   amount: number;

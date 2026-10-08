@@ -3,7 +3,6 @@ import { connection } from "next/server";
 import type { ReactNode } from "react";
 import { brand } from "@/brand/brand.config";
 import { parseAppEnv } from "@/core/lib/runtime";
-import { AppStoreProvider } from "@/core/state/store";
 import { fontVariables } from "@/brand/theme/fonts";
 import { EnvBanner } from "@/ui/env-banner";
 import { RuntimeProvider } from "@/ui/runtime-provider";
@@ -37,7 +36,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
         <ThemeProvider>
           <RuntimeProvider appEnv={appEnv}>
             <EnvBanner appEnv={appEnv} />
-            <AppStoreProvider>{children}</AppStoreProvider>
+            {children}
           </RuntimeProvider>
         </ThemeProvider>
       </body>

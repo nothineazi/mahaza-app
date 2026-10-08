@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import { ArrowLeft } from "lucide-react";
 import { brand } from "@/brand/brand.config";
 import { useAppStore } from "@/core/state/store";
@@ -9,15 +10,42 @@ import { timeToMin } from "@/core/lib/dates";
 import { firstSiteId, multiSite } from "@/core/sites/sites";
 import { cn } from "@/core/lib/utils";
 import { Button } from "@/ui/primitives/button";
-import { DEPOSIT_FORM_ID, StepDeposit } from "@/ui/booking/step-deposit";
-import { StepConfirmation } from "@/ui/booking/step-confirmation";
-import { StepPractitioners } from "@/ui/booking/step-practitioners";
+import { Skeleton } from "@/ui/primitives/skeleton";
 import { StepServices } from "@/ui/booking/step-services";
 import { StepSite } from "@/ui/booking/step-site";
-import { StepSlot } from "@/ui/booking/step-slot";
 import { Stepper } from "@/ui/booking/stepper";
 import { SummaryBar, SummaryPanel, type PrimaryAction } from "@/ui/booking/summary";
-import { STEP_TITLES, emptyDraft, wantedFromDraft, type Draft, type StepKey } from "@/ui/booking/types";
+import { DEPOSIT_FORM_ID, STEP_TITLES, emptyDraft, wantedFromDraft, type Draft, type StepKey } from "@/ui/booking/types";
+
+/**
+ * Les étapes après le choix des soins sont chargées à la demande (ADR-040) : le premier écran (site, soins, panier) ne
+ * télécharge pas le code des créneaux, de l'acompte ni de la confirmation (.ics, compte à rebours, lien WhatsApp).
+ * L'étape suivante est préchargée dès que le navigateur est au repos, pour que le passage reste immédiat.
+ */
+const LOADERS = {
+  practitioners: () => import("@/ui/booking/step-practitioners").then((m) => m.StepPractitioners),
+  slot: () => import("@/ui/booking/step-slot").then((m) => m.StepSlot),
+  deposit: () => import("@/ui/booking/step-deposit").then((m) => m.StepDeposit),
+  confirmation: () => import("@/ui/booking/step-confirmation").then((m) => m.StepConfirmation),
+} as const;
+
+/** Gabarit de chargement d'une étape : titre déjà affiché, blocs de la hauteur d'une liste de choix. */
+const StepLoading = () => (
+  <div role="status" aria-live="polite" aria-busy="true" className="space-y-3">
+    <span className="sr-only">Chargement de l&apos;étape</span>
+    <Skeleton className="h-24" />
+    <Skeleton className="h-24" />
+    <Skeleton className="h-24" />
+  </div>
+);
+
+const StepPractitioners = dynamic(LOADERS.practitioners, { loading: StepLoading });
+const StepSlot = dynamic(LOADERS.slot, { loading: StepLoading });
+const StepDeposit = dynamic(LOADERS.deposit, { loading: StepLoading });
+const StepConfirmation = dynamic(LOADERS.confirmation, { loading: StepLoading });
+
+// Safari ne fournit pas requestIdleCallback : repli sur un délai court.
+const idle = (fn: () => void) => (typeof window.requestIdleCallback === "function" ? window.requestIdleCallback(fn, { timeout: 3000 }) : window.setTimeout(fn, 1500));
 
 const FLOW: StepKey[] = multiSite
   ? ["site", "services", "practitioners", "slot", "deposit", "confirmation"]
@@ -49,6 +77,12 @@ export function BookingWizard() {
     }
     window.scrollTo({ top: 0 });
     headingRef.current?.focus({ preventScroll: true });
+  }, [stepIndex]);
+
+  // Précharge l'étape suivante pendant que la personne remplit l'étape courante.
+  useEffect(() => {
+    const next = FLOW[stepIndex + 1];
+    if (next && next in LOADERS) idle(() => void LOADERS[next as keyof typeof LOADERS]());
   }, [stepIndex]);
 
   const patch = (p: Partial<Draft>) => setDraft((d) => ({ ...d, ...p }));

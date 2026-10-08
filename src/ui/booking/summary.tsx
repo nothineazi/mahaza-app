@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 import { ChevronUp, Info, Trash2 } from "lucide-react";
 import { brand } from "@/brand/brand.config";
 import type { ReservationLine } from "@/core/types";
@@ -10,7 +11,6 @@ import { getSite, multiSite } from "@/core/sites/sites";
 import { depositForService } from "@/core/booking/availability";
 import { formatPrice } from "@/core/lib/utils";
 import { Button } from "@/ui/primitives/button";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/ui/primitives/dialog";
 import { Card } from "@/ui/primitives/card";
 import type { Draft } from "@/ui/booking/types";
 
@@ -23,11 +23,15 @@ export interface PrimaryAction {
   hint?: string;
 }
 
-interface Props {
+export interface SummaryProps {
   draft: Draft;
   lines: ReservationLine[] | null;
   onRemove?: (serviceId: string) => void;
 }
+type Props = SummaryProps;
+
+const loadSheet = () => import("@/ui/booking/summary-sheet").then((m) => m.SummarySheet);
+const SummarySheet = dynamic(loadSheet);
 
 
 /** Contenu du récapitulatif : site, soins du panier, créneau, acompte. Aucun prix de soin (inconnus). */
@@ -140,6 +144,12 @@ function ActionButton({ action, className }: { action: PrimaryAction; className?
 /** Barre fixe (< lg) : résumé compact, feuille du panier détaillé et action principale. */
 export function SummaryBar({ draft, lines, action, onRemove }: Props & { action: PrimaryAction | null }) {
   const [open, setOpen] = useState(false);
+  // Le dialogue n'est monté (et son code téléchargé) qu'à la première ouverture ; on le précharge au repos du navigateur.
+  const [everOpened, setEverOpened] = useState(false);
+  useEffect(() => {
+    const id = typeof window.requestIdleCallback === "function" ? window.requestIdleCallback(() => void loadSheet(), { timeout: 4000 }) : window.setTimeout(() => void loadSheet(), 2000);
+    return () => (typeof window.cancelIdleCallback === "function" ? window.cancelIdleCallback(id) : window.clearTimeout(id));
+  }, []);
   const count = draft.cart.length;
   const site = draft.siteId ? getSite(draft.siteId) : null;
   return (
@@ -148,7 +158,10 @@ export function SummaryBar({ draft, lines, action, onRemove }: Props & { action:
         <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3">
           <button
             type="button"
-            onClick={() => setOpen(true)}
+            onClick={() => {
+              setOpen(true);
+              setEverOpened(true);
+            }}
             aria-haspopup="dialog"
             className="flex min-h-11 min-w-0 flex-1 items-center gap-2 rounded-xl text-left focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring"
           >
@@ -173,18 +186,7 @@ export function SummaryBar({ draft, lines, action, onRemove }: Props & { action:
           )}
         </div>
       </div>
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent variant="sheet">
-          <DialogHeader>
-            <DialogTitle>Votre réservation</DialogTitle>
-            <DialogDescription>Récapitulatif de vos choix.</DialogDescription>
-          </DialogHeader>
-          <SummaryBody draft={draft} lines={lines} onRemove={onRemove} />
-          <Button variant="outline" onClick={() => setOpen(false)}>
-            Fermer
-          </Button>
-        </DialogContent>
-      </Dialog>
+      {everOpened && <SummarySheet open={open} onOpenChange={setOpen} draft={draft} lines={lines} onRemove={onRemove} />}
     </>
   );
 }

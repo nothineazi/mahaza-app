@@ -11,9 +11,8 @@ import { getSite } from "@/core/sites/sites";
 import { formatPrice } from "@/core/lib/utils";
 import { Button } from "@/ui/primitives/button";
 import { FieldError, FieldLabel, Input } from "@/ui/primitives/field";
-import type { Draft } from "@/ui/booking/types";
+import { DEPOSIT_FORM_ID, type Draft } from "@/ui/booking/types";
 
-export const DEPOSIT_FORM_ID = "deposit-form";
 
 interface Props {
   draft: Draft;

@@ -32,7 +32,7 @@ Registre des décisions d'architecture (ADR). Format : contexte, décision, alte
 | 021 | React 19.3.0 | ACCEPTÉ |
 | 022 | Tailwind CSS 3.4.19 maintenu | REMPLACÉ par ADR-035 |
 | 023 | Playwright et axe-core en dépendances de développement | ACCEPTÉ |
-| 024 | Budget de First Load JS sous Next 16 | ACCEPTÉ provisoirement (remplacé à l'étape 6 du RUN-01b) |
+| 024 | Budget de First Load JS sous Next 16 | REMPLACÉ par ADR-040 (RUN-01b) |
 | 025 | `APP_ENV` à l'exécution, rendu dynamique, liens WhatsApp sans destinataire hors production | ACCEPTÉ |
 | 026 | Périmètre de l'anti-fuite de marque | ACCEPTÉ |
 | 027 | Thèmes clair et sombre, surfaces inversées | REMPLACÉ (RUN-01b, mode sombre par classe) |
@@ -48,6 +48,7 @@ Registre des décisions d'architecture (ADR). Format : contexte, décision, alte
 | 037 | Correspondance des statuts de réservation → tons de `StatusBadge` | **À VALIDER** |
 | 038 | Polices auto-hébergées : Inter, Cormorant Garamond, JetBrains Mono | **À VALIDER** |
 | 039 | Matrice statut → action primaire de la fiche de réservation | **À VALIDER** |
+| 040 | Allègement : store hors de l'accueil, chargement différé, nouveau budget de poids | **À VALIDER** |
 
 ---
 
@@ -205,7 +206,7 @@ Ces dix-huit décisions ont été validées par Yass le 2026-10-08 (PLAN v1.0). 
 - **Décision** : le budget de non-régression est fixé à **175 kB (`/`) et 192 kB (`/reserver`)** dans `scripts/first-load-budget.json`, contrôlé en CI. Le dépassement de la base de référence est **imputé à Next 16** et consigné dans `docs/runs/RUN-01.md`.
 - **Alternatives** : (a) rester en Next 15 (fin de maintenance le 21/10/2026, contraire à ADR-002) ; (b) alléger le code applicatif : le plancher du framework (144 kB) dépasse déjà la base de `/`, donc aucun allègement du code ne suffit ; (c) charger les cartes cadeaux et le tunnel en différé, au gain limité.
 - **Conséquences** : le critère d'acceptation « First Load JS ≤ base » du RUN-01 n'est **pas** tenu. À confirmer : nouvelle base = valeurs Next 16, ou plan d'allègement ciblé dès le RUN-04 (chargement différé, scission du store).
-- **Statut** : **ACCEPTÉ provisoirement** (Yass, RUN-01b) : plafonds 175 kB (`/`) et 192 kB (`/reserver`). **Remplacé à l'étape 6 du RUN-01b** par une nouvelle mesure (voir la section ADR-024 mise à jour à la fin du run).
+- **Statut** : **ACCEPTÉ provisoirement** (Yass, RUN-01b : plafonds 175 kB pour `/` et 192 kB pour `/reserver`), puis **REMPLACÉ** à la fin du RUN-01b par la nouvelle mesure et le nouveau budget de l'ADR-040.
 
 ### ADR-025 — `APP_ENV` à l'exécution, rendu dynamique, liens WhatsApp sans destinataire hors production
 - **Contexte** : le bandeau « Version de développement – données fictives » et les liens WhatsApp sans destinataire dépendent de l'environnement ; une même image doit servir le staging et la production.
@@ -351,3 +352,34 @@ Ces dix-huit décisions ont été validées par Yass le 2026-10-08 (PLAN v1.0). 
 - **Écart** : la factory place « tout le reste » en secondaire sans limite ; ici « Remettre en attente d'acompte » et « Marquer no-show » s'ajoutent au statut `confirmed` (quatre secondaires). Sur mobile, les secondaires se partagent la ligne (`flex-1`).
 - **Alternatives** : aucune primaire pour `confirmed` (la clôture serait moins visible) ; primaire « Déplacer » (action fréquente mais pas une avancée du cycle).
 - **Statut** : **À VALIDER** (à confirmer avec la gérante / la réception ; changer la matrice = une table `PRIMARY_TRANSITION` dans `src/ui/admin/reservation-dialog.tsx`).
+
+### ADR-040 — Allègement : store hors de l'accueil, chargement différé, nouveau budget de poids
+- **Contexte** : Yass a accepté provisoirement 175 / 192 kB (ADR-024) et demande, à la fin du RUN-01b, d'expliquer l'écart de `/_not-found` (104 → 144 kB), de différer le tunnel de réservation et les cartes cadeaux, de scinder le store, puis de remesurer et de rapprocher le budget de la base (142 / 168 kB).
+- **Analyse de l'écart de `/_not-found`** (First Load JS, gzip niveau 9, même script `scripts/measure-first-load.mjs`) — **framework ou code applicatif ?**
+
+  | Mesure | `/_not-found` ou `/` d'une application vide (layout + une page de texte) |
+  |---|---:|
+  | Next 15.5.27 (webpack) | **103** (`/_not-found` : 104) |
+  | Next 16.4.0 (Turbopack), React 19.3.0 | **134,7** |
+  | **Écart dû à Next 16 + React 19.3** | **+31,7 kB** |
+
+  Dans OVAGLOW, `/_not-found` valait 144,1 kB sous Next 16 : **134,7 kB de framework (93 %)** et **9,4 kB de code applicatif** (providers du layout racine : store de la démo avec ses données seed et le moteur de planification, thème, environnement). Sur les +40,1 kB observés au RUN-01 (104 → 144,1), **31,7 kB (79 %) viennent du framework** (aucun code applicatif ne peut les retirer) et 8,4 kB (21 %) du layout racine d'OVAGLOW, que cet ADR supprime. Après l'allègement, `/_not-found` pèse **136,5 kB** : 1,8 kB au-dessus du plancher de Next 16.
+- **Décisions** :
+  1. **Scission du store** : le `AppStoreProvider` (état de la démo, seed, moteur) quitte le layout racine pour un layout de groupe de routes `src/app/(app)/layout.tsx` qui n'enveloppe que `/reserver` et `/admin` (les URL ne changent pas). L'accueil et les pages d'erreur ne téléchargent plus ce code. Le store persiste entre `/reserver` et `/admin` ; **il repart des données seed si l'on passe par l'accueil** (écart assumé : le store est transitoire, ADR-030, et sera remplacé par des services serveur au RUN-02). Les cartes cadeaux sortent du store (état local du composant, type `GiftCard` dans `core/booking/gift-card.ts`).
+  2. **Cartes cadeaux différées** : titre et texte rendus par le serveur ; le studio (formulaire, aperçu, code, lien WhatsApp) n'est téléchargé que lorsque la section approche de l'écran (`IntersectionObserver`, marge de 600 px). Le gabarit a les hauteurs exactes de la section chargée à 375 et 1280 px (CLS mesuré 0,0000 pendant un défilement complet).
+  3. **Hero** : le texte et les boutons restent côté serveur ; seule l'alternance des images est un composant client (`hero-images.tsx`, sans fusion de classes ni donnée de marque côté client : `tailwind-merge` n'est plus dans l'accueil).
+  4. **Tunnel de réservation différé** : les étapes après le choix des soins (praticien, créneau, acompte, confirmation avec `.ics`, compte à rebours et lien WhatsApp) sont chargées à la demande (`next/dynamic`), l'étape suivante étant préchargée au repos du navigateur ; la feuille mobile du récapitulatif (dialogue Radix) n'est montée qu'à la première ouverture et préchargée au repos.
+- **Mesures** (First Load JS en kB gzip, tableau complet dans `docs/runs/RUN-01b.md`) :
+
+  | Route | Base Next 15 | RUN-01 (Next 16) | Fin d'étape 5 | **Après allègement** | Budget CI (ADR-040) | Ancien budget |
+  |---|---:|---:|---:|---:|---:|---:|
+  | `/` | 142 | 171,0 | 172,4 | **146,8** | **149** | 175 |
+  | `/reserver` | 168 | 187,6 | 188,7 | **169,5** | **172** | 192 |
+  | `/_not-found` | 104 | 144,1 | 145,4 | **136,5** | – | – |
+  | `/admin` (6 écrans : 183,4 à 187,8) | 149-156 | 179-183 | 183-187 | 183,4 à 187,8 | – | – |
+
+  Écart restant à la base : **+4,8 kB sur `/`** et **+1,5 kB sur `/reserver`**, alors que le plancher de Next 16 est à 134,7 kB (contre 103 pour Next 15). Les 12,1 kB de `/` au-dessus du plancher se répartissent entre `next/image` et `next/link` (code client du framework), `lucide-react`, le thème (`next-themes`, 1,4 kB) et le hero.
+- **Budget** : `scripts/first-load-budget.json` passe à **149 kB (`/`) et 172 kB (`/reserver`)** (mesure + ~1,5 %), contrôlé en CI. Les routes `/admin/*` ne sont pas budgétées (outil interne, derrière authentification dès le RUN-02) ; elles pèsent ≈ 187 kB (store, kv, Radix) et resteront mesurées dans les rapports.
+- **Non fait** : `tailwind-merge` (8,6 kB gzip) reste dans `/reserver` et `/admin` (les composants clients appellent `cn()`), l'alléger ferait perdre la fusion des classes ; `next/image` n'est pas remplacé par `<img>` (les dépôts clients y mettront des photos AVIF/WebP, `STANDARDS.md` §7).
+- **Alternatives** : garder le store dans le layout racine (+9 kB sur `/`, aucun risque de perte d'état) ; déférer par `ssr: false` (interdit dans un composant serveur, et supprimerait le texte du serveur).
+- **Statut** : **À VALIDER**.

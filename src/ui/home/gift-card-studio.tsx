@@ -5,9 +5,8 @@ import Image from "next/image";
 import { Check, Copy, Gift, Info, MessageCircle, RotateCcw } from "lucide-react";
 import { brand } from "@/brand/brand.config";
 import { cn, formatPrice } from "@/core/lib/utils";
-import { generateGiftCode, giftCardMessage, giftCardWaLink, validateGiftAmount } from "@/core/booking/gift-card";
+import { generateGiftCode, giftCardMessage, giftCardWaLink, validateGiftAmount, type GiftCard } from "@/core/booking/gift-card";
 import { phoneDigits } from "@/core/clients/phone";
-import { useAppStore, type GiftCard } from "@/core/state/store";
 import { useRuntime } from "@/ui/runtime-provider";
 import { Button } from "@/ui/primitives/button";
 import { FieldError, FieldLabel, Input, Textarea } from "@/ui/primitives/field";
@@ -56,12 +55,12 @@ export function GiftCardPreview({ amount, to, from, message, code }: { amount: n
 /**
  * Cartes cadeaux : choix du montant, message personnalisé, aperçu, code FICTIF et envoi simulé via wa.me.
  * Aucun paiement réel ; la réception du paiement Mobile Money serait vérifiée manuellement.
+ * Chargé à la demande (voir `GiftCardSection`) : ce module n'est pas dans le First Load JS de l'accueil.
  */
 export function GiftCardStudio() {
   const gift = brand.home?.gift;
   const { recipientless } = useRuntime();
   const policies = brand.policies;
-  const { addGiftCard } = useAppStore();
   const uid = useId();
   const [choice, setChoice] = useState<number | typeof CUSTOM | null>(null);
   const [customRaw, setCustomRaw] = useState("");
@@ -84,7 +83,7 @@ export function GiftCardStudio() {
     e.preventDefault();
     setTouched(true);
     if (amount == null || phoneError || (phone.trim() && phoneDigits(phone).length < 8)) return;
-    setCard(addGiftCard({ code: generateGiftCode(), amount, from: from.trim(), to: to.trim(), message: message.trim() }));
+    setCard({ id: `g${Date.now().toString(36)}`, createdAt: Date.now(), code: generateGiftCode(), amount, from: from.trim(), to: to.trim(), message: message.trim() });
   };
 
   const reset = () => {
@@ -112,8 +111,7 @@ export function GiftCardStudio() {
   const waMessage = card ? giftCardMessage(card, brand.name) : "";
 
   return (
-    <section id="cartes-cadeaux" className="scroll-mt-20 bg-secondary">
-      <div className="mx-auto grid max-w-6xl gap-12 px-4 py-20 sm:px-6 lg:grid-cols-[1fr_1.05fr] lg:items-start">
+    <div className="mx-auto grid max-w-6xl gap-12 px-4 py-20 sm:px-6 lg:grid-cols-[1fr_1.05fr] lg:items-start">
         <div className="space-y-8">
           <SectionTitle kicker="Offrir un moment" title={gift.title} lead={gift.text} />
 
@@ -259,7 +257,6 @@ export function GiftCardStudio() {
             </p>
           )}
         </div>
-      </div>
-    </section>
+    </div>
   );
 }

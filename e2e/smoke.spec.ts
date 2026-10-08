@@ -87,6 +87,36 @@ test.describe("réservation multi-soins", () => {
   });
 });
 
+test.describe("chargement différé (poids du premier chargement)", () => {
+  test("accueil : le studio de cartes cadeaux n'est chargé qu'à l'approche de la section", async ({ page }) => {
+    await page.goto("/");
+    // Titre et texte rendus par le serveur ; le formulaire n'existe pas encore (son code n'est pas téléchargé).
+    await expect(page.locator("#cartes-cadeaux").getByRole("heading", { level: 2 })).toBeVisible();
+    await expect(page.getByRole("button", { name: /Générer ma carte cadeau/ })).toHaveCount(0);
+    await page.locator("#cartes-cadeaux").scrollIntoViewIfNeeded();
+    const generate = page.getByRole("button", { name: /Générer ma carte cadeau/ });
+    await expect(generate).toBeVisible();
+    await page.getByRole("button", { name: /^10 000 FCFA$/ }).first().click();
+    await generate.click();
+    await expect(page.getByText(/GC-[A-Z0-9]{4}-[A-Z0-9]{4}/).first()).toBeVisible();
+    await expect(page.getByText("FICTIF – ne pas payer").first()).toBeVisible();
+    await expectNoHorizontalScroll(page);
+  });
+
+  test("réservation : récapitulatif détaillé (feuille mobile) ouvert à la demande", async ({ page }) => {
+    test.skip((page.viewportSize()?.width ?? 1280) >= 1024, "la barre du panier n'existe que sous 1024 px");
+    await page.goto("/reserver");
+    await page.getByRole("button", { name: /Site Aurore/ }).click();
+    await page.getByRole("button", { name: /Soin Lumière/ }).first().click();
+    await page.getByRole("button", { name: /Voir le récapitulatif|1 soin/ }).first().click();
+    const dialog = page.getByRole("dialog");
+    await expect(dialog.getByRole("heading", { name: "Votre réservation" })).toBeVisible();
+    await expect(dialog.getByText("Soin Lumière").first()).toBeVisible();
+    await page.keyboard.press("Escape");
+    await expect(dialog).toBeHidden();
+  });
+});
+
 test.describe("back-office", () => {
   test("tableau de bord, planning, réservations (export CSV), clients, salles, équipe", async ({ page }) => {
     await page.goto("/admin");

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Garde-fou du design system du back-office (docs/reference/factory-core.md §10, adapté à notre arborescence).
 //
-// Périmètre : le back-office (`src/app/admin`, `src/ui/admin`) et les composants kv (`src/ui/kv`).
+// Périmètre : le back-office (`src/app/(app)/admin`, `src/ui/admin`) et les composants kv (`src/ui/kv`).
 // Hors périmètre, volontairement : le site public (registre premium éditorial : `src/ui/home`, `booking`, `site`, `primitives`,
 // `src/app/(page d'accueil, /reserver)`), `node_modules`, les fichiers CSS.
 //
@@ -20,7 +20,7 @@ import { fileURLToPath } from "node:url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const strict = process.argv.includes("--strict");
-const SCOPE = ["src/app/admin", "src/ui/admin", "src/ui/kv"];
+const SCOPE = ["src/app/(app)/admin", "src/ui/admin", "src/ui/kv"];
 
 const PATTERNS = [
   { id: "style-inline", why: "style={{…}} : utiliser une classe (ou déclarer l'exception)", re: /style=\{\{/ },

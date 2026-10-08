@@ -7,7 +7,7 @@ import { sites } from "@/core/sites/sites";
 import { Button } from "@/ui/primitives/button";
 import { Card } from "@/ui/primitives/card";
 import { SectionTitle } from "@/ui/primitives/section-title";
-import { GiftCardStudio } from "@/ui/home/gift-card-studio";
+import { GiftCardSection } from "@/ui/home/gift-card-section";
 import { HeroCarousel } from "@/ui/home/hero-carousel";
 
 const FEATURED_ICONS: LucideIcon[] = [Flower2, Droplets, Waves, Hand];
@@ -138,7 +138,7 @@ export function Home() {
         </div>
       </section>
 
-      <GiftCardStudio />
+      <GiftCardSection />
 
       {/* Sites */}
       <section id="sites" className="mx-auto max-w-6xl scroll-mt-20 px-4 py-24 sm:px-6">
