@@ -12,7 +12,7 @@ import { HeroCarousel } from "./hero-carousel";
 
 const FEATURED_ICONS: LucideIcon[] = [Flower2, Droplets, Waves, Hand];
 
-/** Accueil Mahaza premium : contenu issu du site actuel (voir `theme.home` et le README pour le détail réel / fictif). */
+/** Accueil premium : contenu éditorial dans `theme.home` (tout est FICTIF dans la souche). */
 export function MahazaHome() {
   const home = theme.home;
   if (!home) return null;
@@ -43,7 +43,7 @@ export function MahazaHome() {
           />
         </div>
         <div className="space-y-6">
-          <SectionTitle kicker="Mahaza Beauty" title={home.about.title} lead={home.about.text} />
+          <SectionTitle kicker={theme.name} title={home.about.title} lead={home.about.text} />
           <Button asChild size="lg">
             <Link href="/reserver">Réserver un soin</Link>
           </Button>
@@ -104,7 +104,7 @@ export function MahazaHome() {
 
       {/* Catalogue */}
       <section className="mx-auto max-w-4xl px-4 pb-24 sm:px-6">
-        <SectionTitle kicker="Le catalogue" title="Nos services" lead="Tarifs communiqués par le spa : le site actuel n'affiche aucun prix." />
+        <SectionTitle kicker="Le catalogue" title="Nos services" lead="Prix en FCFA, FICTIFS : donnés à titre d'exemple." />
         <div className="mt-10 space-y-3">
           {theme.categories.map((category) => (
             <details key={category} className="group rounded-2xl border border-border bg-card shadow-soft transition-shadow open:shadow-lift">
@@ -140,9 +140,9 @@ export function MahazaHome() {
 
       <GiftCardStudio />
 
-      {/* Spas */}
-      <section id="spas" className="mx-auto max-w-6xl scroll-mt-20 px-4 py-24 sm:px-6">
-        <SectionTitle kicker="Douala · Yaoundé" title="Nos spas" />
+      {/* Sites */}
+      <section id="sites" className="mx-auto max-w-6xl scroll-mt-20 px-4 py-24 sm:px-6">
+        <SectionTitle kicker={`${theme.city} (fictive)`} title="Nos sites" />
         <ul className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {sites.map((s) => (
             <li key={s.id}>

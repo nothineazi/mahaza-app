@@ -69,7 +69,7 @@ export function Clients() {
             <Input id="client-q" type="search" className="pl-11" placeholder="Nom ou téléphone" value={query} onChange={(e) => setQuery(e.target.value)} />
           </div>
           <p aria-live="polite" className="text-xs text-muted-foreground">
-            {rows.length} client{rows.length > 1 ? "s" : ""} pour ce spa
+            {rows.length} client{rows.length > 1 ? "s" : ""} pour ce site
           </p>
           {rows.length === 0 ? (
             <Card className="flex flex-col items-center gap-2 p-8 text-center">

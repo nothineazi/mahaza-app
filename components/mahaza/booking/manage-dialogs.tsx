@@ -40,7 +40,7 @@ function ModifyForm({ reservation, onClose, onDone }: { reservation: Reservation
     if (!draft.date || !draft.time) return;
     const res = store.rescheduleReservation(reservation.id, draft.date, timeToMin(draft.time));
     if (!res.ok) return setError(res.reason);
-    onDone("Votre rendez-vous a été modifié (simulation : rien n'est envoyé au spa).");
+    onDone("Votre rendez-vous a été modifié (simulation : rien n'est envoyé au site).");
     onClose();
   };
 

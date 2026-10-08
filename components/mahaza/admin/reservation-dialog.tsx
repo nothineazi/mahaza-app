@@ -11,6 +11,7 @@ import { transitionLabel } from "@/lib/mahaza/status";
 import { buildMovedLines, findConflicts, hasBlocking, type Conflict } from "@/lib/mahaza/conflicts";
 import { formatCountdown, remainingMs } from "@/lib/mahaza/holds";
 import { reminderLink } from "@/lib/mahaza/reminders";
+import { useRuntime } from "@/components/runtime-provider";
 import { reservationEnd } from "@/lib/mahaza/scheduling";
 import { useNow } from "@/lib/mahaza/use-now";
 import { hoursFor } from "@/lib/availability";
@@ -46,7 +47,8 @@ function Detail({ reservation, onClose }: { reservation: Reservation; onClose: (
   const [moving, setMoving] = useState(false);
   const site = getSite(reservation.siteId);
   const status = reservation.status;
-  const rctx = { brand: theme.name, siteName: site.name, services: theme.services, staff };
+  const { recipientless } = useRuntime();
+  const rctx = { brand: theme.name, siteName: site.name, services: theme.services, staff, recipientless };
 
   const apply = (to: BookingStatus) => {
     const res: Result = setStatus(reservation.id, to);
@@ -84,7 +86,7 @@ function Detail({ reservation, onClose }: { reservation: Reservation; onClose: (
           </button>
           <span className="block text-muted-foreground">{reservation.customerPhone}</span>
         </Row>
-        {multiSite && <Row k="Spa">{site.name}</Row>}
+        {multiSite && <Row k="Site">{site.name}</Row>}
         <Row k="Quand">
           <span className="first-letter:uppercase">{formatDateLong(reservation.date)}</span>, {reservation.lines[0].start} – {reservationEnd(reservation.lines)} <span className="text-muted-foreground">(indicatif)</span>
         </Row>
@@ -272,7 +274,7 @@ function MoveForm({ reservation, onDone }: { reservation: Reservation; onDone: (
         </fieldset>
       ))}
       <div aria-live="polite" data-testid="conflicts">
-        {!hours && <p className="text-sm text-destructive">Le spa est fermé ce jour-là.</p>}
+        {!hours && <p className="text-sm text-destructive">Le site est fermé ce jour-là.</p>}
         {conflicts.length === 0 && hours ? <p className="text-sm text-success">Aucun conflit : créneau libre.</p> : <ConflictList conflicts={conflicts} />}
         {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
       </div>

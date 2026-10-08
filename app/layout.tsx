@@ -1,50 +1,42 @@
 import type { Metadata, Viewport } from "next";
-import type { CSSProperties, ReactNode } from "react";
+import { connection } from "next/server";
+import type { ReactNode } from "react";
 import { theme } from "@/theme.config";
-import { hexToChannels } from "@/lib/utils";
+import { parseAppEnv } from "@/lib/runtime";
 import { MahazaStoreProvider } from "@/lib/mahaza/store";
 import { displayFont } from "@/lib/mahaza/fonts";
+import { EnvBanner } from "@/components/env-banner";
+import { RuntimeProvider } from "@/components/runtime-provider";
+import "@/brand/theme/tokens.css";
 import "./globals.css";
 
 export const metadata: Metadata = {
   title: { default: `${theme.name} — ${theme.tagline}`, template: `%s · ${theme.name}` },
   description: theme.description,
-  icons: theme.icon ? { icon: [{ url: theme.icon.src, type: theme.icon.type }], apple: theme.icon.src } : { icon: "/icon.svg" },
   robots: { index: false, follow: false },
 };
 
 export const viewport: Viewport = {
-  themeColor: theme.colors.background,
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: theme.themeColor.light },
+    { media: "(prefers-color-scheme: dark)", color: theme.themeColor.dark },
+  ],
   width: "device-width",
   initialScale: 1,
 };
 
-const c = theme.colors;
-const themeVars = {
-  "--background": hexToChannels(c.background),
-  "--foreground": hexToChannels(c.foreground),
-  "--card": hexToChannels(c.card),
-  "--primary": hexToChannels(c.primary),
-  "--primary-foreground": hexToChannels(c.primaryForeground),
-  "--secondary": hexToChannels(c.secondary),
-  "--secondary-foreground": hexToChannels(c.secondaryForeground),
-  "--muted": hexToChannels(c.muted),
-  "--muted-foreground": hexToChannels(c.mutedForeground),
-  "--accent": hexToChannels(c.accent),
-  "--accent-foreground": hexToChannels(c.accentForeground),
-  "--border": hexToChannels(c.border),
-  "--success": hexToChannels(c.success),
-  "--destructive": hexToChannels(c.destructive),
-  "--radius": theme.radius,
-  "--font-heading": theme.fonts.heading,
-  "--font-body": theme.fonts.body,
-} as CSSProperties;
+export default async function RootLayout({ children }: { children: ReactNode }) {
+  // APP_ENV est lu à chaque requête : la même image sert le staging et la production.
+  await connection();
+  const appEnv = parseAppEnv(process.env.APP_ENV);
 
-export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="fr" style={themeVars} className={displayFont.variable}>
+    <html lang="fr" className={displayFont.variable}>
       <body className="min-h-dvh">
-        <MahazaStoreProvider>{children}</MahazaStoreProvider>
+        <RuntimeProvider appEnv={appEnv}>
+          <EnvBanner appEnv={appEnv} />
+          <MahazaStoreProvider>{children}</MahazaStoreProvider>
+        </RuntimeProvider>
       </body>
     </html>
   );

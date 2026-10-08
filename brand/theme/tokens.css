@@ -1,0 +1,80 @@
+/*
+ * Jetons de couleur d'OVAGLOW (marque FICTIVE de la souche), thèmes clair et sombre.
+ *
+ * Format : canaux « R G B » pour rgb(var(--x) / <alpha>) (voir tailwind.config.ts). Le commentaire donne l'hexadécimal.
+ * Source de vérité unique : `node scripts/check-contrast.mjs` lit ce fichier et vérifie les contrastes WCAG AA des deux thèmes.
+ *
+ * Activation :
+ * - clair par défaut ;
+ * - sombre si le système le demande (prefers-color-scheme), sauf si <html data-theme="light"> ;
+ * - sombre forcé par <html data-theme="dark">.
+ * Les blocs sombres (media et attribut) doivent rester identiques : le script le vérifie.
+ */
+
+:root {
+  color-scheme: light;
+  --background: 248 246 242; /* #F8F6F2 */
+  --foreground: 27 38 38; /* #1B2626 */
+  --card: 255 255 255; /* #FFFFFF */
+  --primary: 31 91 94; /* #1F5B5E */
+  --primary-foreground: 255 255 255; /* #FFFFFF */
+  --secondary: 230 238 236; /* #E6EEEC */
+  --secondary-foreground: 23 59 61; /* #173B3D */
+  --muted: 239 236 230; /* #EFECE6 */
+  --muted-foreground: 85 98 97; /* #556261 */
+  --accent: 201 161 91; /* #C9A15B */
+  --accent-foreground: 36 26 8; /* #241A08 */
+  --border: 221 216 206; /* #DDD8CE */
+  --success: 26 107 63; /* #1A6B3F */
+  --success-foreground: 255 255 255; /* #FFFFFF */
+  --destructive: 169 43 43; /* #A92B2B */
+  --inverse: 20 32 31; /* #14201F */
+  --inverse-foreground: 245 242 236; /* #F5F2EC */
+  --radius: 0.9rem;
+  --font-heading: var(--font-display), Georgia, "Times New Roman", serif;
+  --font-body: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --background: 14 21 21; /* #0E1515 */
+    --foreground: 236 232 225; /* #ECE8E1 */
+    --card: 22 33 32; /* #162120 */
+    --primary: 124 203 198; /* #7CCBC6 */
+    --primary-foreground: 11 31 32; /* #0B1F20 */
+    --secondary: 30 49 48; /* #1E3130 */
+    --secondary-foreground: 207 230 227; /* #CFE6E3 */
+    --muted: 26 38 37; /* #1A2625 */
+    --muted-foreground: 176 188 186; /* #B0BCBA */
+    --accent: 214 179 116; /* #D6B374 */
+    --accent-foreground: 31 22 6; /* #1F1606 */
+    --border: 43 60 59; /* #2B3C3B */
+    --success: 95 203 144; /* #5FCB90 */
+    --success-foreground: 8 31 20; /* #081F14 */
+    --destructive: 240 138 130; /* #F08A82 */
+    --inverse: 26 41 40; /* #1A2928 */
+    --inverse-foreground: 243 240 234; /* #F3F0EA */
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --background: 14 21 21; /* #0E1515 */
+  --foreground: 236 232 225; /* #ECE8E1 */
+  --card: 22 33 32; /* #162120 */
+  --primary: 124 203 198; /* #7CCBC6 */
+  --primary-foreground: 11 31 32; /* #0B1F20 */
+  --secondary: 30 49 48; /* #1E3130 */
+  --secondary-foreground: 207 230 227; /* #CFE6E3 */
+  --muted: 26 38 37; /* #1A2625 */
+  --muted-foreground: 176 188 186; /* #B0BCBA */
+  --accent: 214 179 116; /* #D6B374 */
+  --accent-foreground: 31 22 6; /* #1F1606 */
+  --border: 43 60 59; /* #2B3C3B */
+  --success: 95 203 144; /* #5FCB90 */
+  --success-foreground: 8 31 20; /* #081F14 */
+  --destructive: 240 138 130; /* #F08A82 */
+  --inverse: 26 41 40; /* #1A2928 */
+  --inverse-foreground: 243 240 234; /* #F3F0EA */
+}

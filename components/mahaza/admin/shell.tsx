@@ -6,11 +6,11 @@ import { Pill } from "../ui/pill";
 import { AdminNav } from "./nav";
 import { AdminSiteSelector } from "./site-selector";
 
-/** Coque du back-office premium : en-tête, navigation, sélecteur de spa, bandeau « démo ». */
+/** Coque du back-office premium : en-tête, navigation, sélecteur de site, bandeau « démo ». */
 export function MahazaAdminShell({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-dvh bg-muted/40">
-      <a href="#contenu-admin" className="sr-only z-[60] rounded-full bg-foreground px-5 py-3 text-sm font-medium text-background focus:not-sr-only focus:fixed focus:left-4 focus:top-4">
+      <a href="#contenu-admin" className="sr-only z-[60] rounded-full bg-inverse px-5 py-3 text-sm font-medium text-inverse-foreground focus:not-sr-only focus:fixed focus:left-4 focus:top-4">
         Aller au contenu
       </a>
       <header className="border-b border-border bg-background">

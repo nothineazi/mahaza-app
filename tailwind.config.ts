@@ -11,7 +11,6 @@ const config: Config = {
         background: token("background"),
         foreground: token("foreground"),
         card: token("card"),
-        "card-foreground": token("card-foreground"),
         primary: token("primary"),
         "primary-foreground": token("primary-foreground"),
         secondary: token("secondary"),
@@ -24,6 +23,9 @@ const config: Config = {
         ring: token("primary"),
         destructive: token("destructive"),
         success: token("success"),
+        "success-foreground": token("success-foreground"),
+        inverse: token("inverse"),
+        "inverse-foreground": token("inverse-foreground"),
       },
       fontFamily: {
         heading: ["var(--font-heading)"],

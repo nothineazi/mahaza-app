@@ -137,7 +137,7 @@ function DayView({ date, reservations, staff, rooms, groupBy, onOpen }: { date: 
     return (
       <Card className="flex flex-col items-center gap-2 p-10 text-center">
         <CalendarOff className="size-8 text-muted-foreground" aria-hidden />
-        <p className="font-heading text-2xl font-medium">Spa fermé ce jour-là</p>
+        <p className="font-heading text-2xl font-medium">Site fermé ce jour-là</p>
       </Card>
     );
   }

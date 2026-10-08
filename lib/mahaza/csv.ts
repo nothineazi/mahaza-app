@@ -27,7 +27,7 @@ export const CSV_HEADER = [
   "Date",
   "Début",
   "Fin",
-  "Spa",
+  "Site",
   "Client",
   "Téléphone",
   "Soins",

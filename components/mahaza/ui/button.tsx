@@ -12,11 +12,11 @@ export const buttonVariants = cva(
         primary: "bg-primary text-primary-foreground shadow-soft hover:bg-primary/90 hover:shadow-lift",
         gold: "bg-accent text-accent-foreground shadow-soft hover:bg-accent/90 hover:shadow-lift",
         outline: "border border-foreground/25 bg-transparent text-foreground hover:border-primary hover:text-primary",
-        "outline-light": "border border-background/50 bg-transparent text-background hover:border-accent hover:text-accent",
+        "outline-light": "border border-inverse-foreground/50 bg-transparent text-inverse-foreground hover:border-accent hover:text-accent",
         soft: "bg-secondary text-secondary-foreground hover:bg-secondary/70",
         ghost: "text-foreground hover:bg-muted",
         danger: "border border-destructive text-destructive hover:bg-destructive/10",
-        whatsapp: "bg-success text-white shadow-soft hover:bg-success/90",
+        whatsapp: "bg-success text-success-foreground shadow-soft hover:bg-success/90",
       },
       size: {
         sm: "min-h-10 px-4 text-sm",

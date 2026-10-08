@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import { Card } from "../ui/card";
 import type { Draft } from "./types";
 
-/** Étape « choix du spa » : un spa choisi fait avancer directement. */
+/** Étape « choix du site » : un site choisi fait avancer directement. */
 export function StepSite({ draft, onSelect }: { draft: Draft; onSelect: (siteId: string) => void }) {
   return (
     <ul className="grid gap-4 sm:grid-cols-2">

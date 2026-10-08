@@ -30,7 +30,7 @@ interface Props {
 }
 
 
-/** Contenu du récapitulatif : spa, soins du panier, créneau, acompte. Aucun prix de soin (inconnus). */
+/** Contenu du récapitulatif : site, soins du panier, créneau, acompte. Aucun prix de soin (inconnus). */
 export function SummaryBody({ draft, lines, onRemove }: Props) {
   const site = draft.siteId ? getSite(draft.siteId) : null;
   const services = draft.cart.map((id) => theme.services.find((s) => s.id === id)).filter((s): s is NonNullable<typeof s> => Boolean(s));
@@ -41,7 +41,7 @@ export function SummaryBody({ draft, lines, onRemove }: Props) {
     <div className="space-y-5 text-sm">
       {multiSite && site && (
         <div>
-          <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Spa</p>
+          <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Site</p>
           <p className="mt-1 font-medium">{site.name}</p>
         </div>
       )}

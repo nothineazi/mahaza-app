@@ -31,7 +31,7 @@ export function StepServices({ draft, onToggle, max }: { draft: Draft; onToggle:
         <div className="relative">
           <label htmlFor={`${uid}-q`} className="sr-only">Rechercher un soin</label>
           <Search className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
-          <Input id={`${uid}-q`} type="search" className="pl-11" placeholder="Rechercher un soin (ex. hammam, cils…)" value={query} onChange={(e) => setQuery(e.target.value)} />
+          <Input id={`${uid}-q`} type="search" className="pl-11" placeholder="Rechercher un soin (ex. massage, manucure…)" value={query} onChange={(e) => setQuery(e.target.value)} />
         </div>
         <div role="group" aria-label="Filtrer par catégorie" className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:px-0">
           {[null, ...theme.categories].map((c) => (

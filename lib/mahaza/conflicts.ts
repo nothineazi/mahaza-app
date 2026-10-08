@@ -48,7 +48,7 @@ export function findConflicts(ctx: PlanContext, date: string, lines: Reservation
   const out: Conflict[] = [];
   const hours = hoursFor(ctx.opening, date);
   if (!hours) {
-    out.push({ kind: "closed", blocking: true, lineIndex: 0, message: "Le spa est fermé ce jour-là." });
+    out.push({ kind: "closed", blocking: true, lineIndex: 0, message: "Le site est fermé ce jour-là." });
     return out;
   }
   const open = timeToMin(hours.open);

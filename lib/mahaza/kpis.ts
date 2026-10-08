@@ -4,9 +4,9 @@ import { addDays, timeToMin, weekDays } from "@/lib/dates";
 import { occupiesSlot } from "./status";
 
 export interface KpiContext {
-  /** Réservations du spa sélectionné uniquement. */
+  /** Réservations du site sélectionné uniquement. */
   reservations: Reservation[];
-  /** Praticiens du spa sélectionné. */
+  /** Praticiens du site sélectionné. */
   staff: Practitioner[];
   services: Service[];
   opening: ThemeConfig["opening"];

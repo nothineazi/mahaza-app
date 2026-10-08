@@ -8,6 +8,7 @@ import { useAdminData } from "@/lib/mahaza/store";
 import { activeReservations, estimatedRevenue, occupancyRate, pendingDeposits, periodDays, remindersDue, upcoming, weekBreakdown, type KpiContext, type Period } from "@/lib/mahaza/kpis";
 import { formatCountdown, remainingMs } from "@/lib/mahaza/holds";
 import { reminderLink } from "@/lib/mahaza/reminders";
+import { useRuntime } from "@/components/runtime-provider";
 import { reservationEnd } from "@/lib/mahaza/scheduling";
 import { useNow } from "@/lib/mahaza/use-now";
 import { nowMinutes, formatDate, formatDateLong, formatDateShort } from "@/lib/dates";
@@ -22,6 +23,7 @@ import { ReservationDialog } from "./reservation-dialog";
 const pct = (v: number | null) => (v == null ? "—" : `${Math.round(v * 100)} %`);
 
 export function Dashboard() {
+  const { recipientless } = useRuntime();
   const data = useAdminData();
   const { ready, today, reservations, staff, site, markReminderSent } = data;
   const [period, setPeriod] = useState<Period>("day");
@@ -59,7 +61,7 @@ export function Dashboard() {
   const next = upcoming(reservations, today, nowMinutes());
   const reminders = remindersDue(reservations, today);
   const week = weekBreakdown(ctx);
-  const rctx = { brand: theme.name, siteName: site.name, services: theme.services, staff };
+  const rctx = { brand: theme.name, siteName: site.name, services: theme.services, staff, recipientless };
 
   return (
     <div className="space-y-8">
@@ -107,7 +109,7 @@ export function Dashboard() {
         <Card className="p-5">
           <h2 className="font-heading text-2xl font-medium">Prochains rendez-vous</h2>
           {next.length === 0 ? (
-            <p className="mt-4 rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">Aucun rendez-vous à venir pour ce spa.</p>
+            <p className="mt-4 rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">Aucun rendez-vous à venir pour ce site.</p>
           ) : (
             <ul className="mt-3 divide-y divide-border">
               {next.map((r) => (
@@ -207,7 +209,7 @@ function WeekChart({ days, today }: { days: ReturnType<typeof weekBreakdown>; to
           const labelled = d.count > 0 && (d.date === peak.date || isToday);
           return (
             <li key={d.date} tabIndex={0} className="group relative flex h-full flex-1 flex-col items-center justify-end rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label={`${formatDateShort(d.date)} : ${d.count} réservation${d.count > 1 ? "s" : ""}`}>
-              <span role="tooltip" className="pointer-events-none absolute -top-2 z-10 -translate-y-full whitespace-nowrap rounded-lg bg-foreground px-3 py-1.5 text-xs text-background opacity-0 shadow-lift transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100">
+              <span role="tooltip" className="pointer-events-none absolute -top-2 z-10 -translate-y-full whitespace-nowrap rounded-lg bg-inverse px-3 py-1.5 text-xs text-inverse-foreground opacity-0 shadow-lift transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100">
                 {d.count} réservation{d.count > 1 ? "s" : ""} · CA estimé {formatPrice(d.revenue)} (FICTIF)
               </span>
               {labelled && <span className="mb-1 text-xs font-semibold">{d.count}</span>}

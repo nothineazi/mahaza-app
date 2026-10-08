@@ -14,7 +14,7 @@ export function generateGiftCode(random: (n: number) => Uint8Array = (n) => cryp
 
 export type AmountCheck = { ok: true; amount: number } | { ok: false; reason: string };
 
-/** Montant libre : entier dans la fourchette réelle du site (20 000 – 100 000 FCFA), au pas configuré (FICTIF). */
+/** Montant libre : entier dans la fourchette configurée (FICTIVE), au pas configuré (FICTIF). */
 export function validateGiftAmount(raw: string | number, cfg: PremiumConfig["giftCard"]): AmountCheck {
   const amount = typeof raw === "number" ? raw : Number(String(raw).replace(/\s/g, ""));
   if (!Number.isInteger(amount)) return { ok: false, reason: "Saisissez un montant entier en FCFA." };
@@ -44,7 +44,7 @@ export function giftCardMessage(card: GiftCardDraft, brand: string): string {
 }
 
 /** Lien wa.me : vers le destinataire si son numéro est connu, sinon sélecteur de contact WhatsApp. */
-export function giftCardWaLink(recipientPhone: string, message: string): string {
-  const digits = phoneDigits(recipientPhone);
+export function giftCardWaLink(recipientPhone: string, message: string, recipientless = false): string {
+  const digits = recipientless ? "" : phoneDigits(recipientPhone);
   return `https://wa.me/${digits}?text=${encodeURIComponent(message)}`;
 }

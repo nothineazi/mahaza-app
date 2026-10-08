@@ -8,6 +8,8 @@ export interface ReminderContext {
   siteName: string;
   services: Service[];
   staff: Practitioner[];
+  /** Hors production : lien sans destinataire. */
+  recipientless?: boolean;
 }
 
 /** Message modèle J-1 (pré-rempli : l'envoi reste manuel dans WhatsApp). */
@@ -27,5 +29,5 @@ export function reminderMessage(r: Reservation, ctx: ReminderContext): string {
 
 /** wa.me vers le téléphone du client. */
 export function reminderLink(r: Reservation, ctx: ReminderContext): string {
-  return whatsappLink(phoneDigits(r.customerPhone), reminderMessage(r, ctx));
+  return whatsappLink(phoneDigits(r.customerPhone), reminderMessage(r, ctx), ctx.recipientless);
 }

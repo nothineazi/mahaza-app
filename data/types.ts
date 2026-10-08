@@ -155,23 +155,6 @@ export interface PremiumConfig {
   giftCard: { minAmount: number; maxAmount: number; stepAmount: number; messageMax: number };
 }
 
-export interface ThemeColors {
-  background: string;
-  foreground: string;
-  card: string;
-  primary: string;
-  primaryForeground: string;
-  secondary: string;
-  secondaryForeground: string;
-  muted: string;
-  mutedForeground: string;
-  accent: string;
-  accentForeground: string;
-  border: string;
-  success: string;
-  destructive: string;
-}
-
 /** Horaires d'une plage de jours (0 = dimanche … 6 = samedi). */
 export interface ScheduleRange {
   label: string;
@@ -207,12 +190,8 @@ export interface ThemeConfig {
   name: string;
   tagline: string;
   description: string;
-  /** Logo placeholder (texte) en attendant le vrai fichier. */
+  /** Wordmark texte de la marque (affiché par `BrandLogo`). */
   logoText: string;
-  /** Vrai logo (fichier local). Affiché à sa taille native ou plus petite, jamais agrandi. */
-  logo?: { src: string; width: number; height: number; alt: string };
-  /** Favicon / icône (fichier local) ; sinon /icon.svg généré. */
-  icon?: { src: string; type: string };
   city: string;
   address: string;
   hoursLabel: string;
@@ -226,10 +205,8 @@ export interface ThemeConfig {
   sites?: Site[];
   /** Durée du créneau quand le service n'a pas de durée. FICTIF. */
   defaultDurationMin?: number;
-  colors: ThemeColors;
-  fonts: { heading: string; body: string };
-  /** Rayon des coins (css), pour différencier les deux marques. */
-  radius: string;
+  /** Couleur de la barre du navigateur (hex), alignée sur `--background` de `brand/theme/tokens.css`. */
+  themeColor: { light: string; dark: string };
   opening: {
     open: string;
     close: string;

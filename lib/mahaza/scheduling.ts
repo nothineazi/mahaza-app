@@ -3,7 +3,7 @@ import { hoursFor } from "@/lib/availability";
 import { minToTime, timeToMin } from "@/lib/dates";
 import { occupiesSlot } from "./status";
 
-/** Contexte d'ordonnancement d'un spa : tout est passé en paramètre (fonctions pures, testables). */
+/** Contexte d'ordonnancement d'un site : tout est passé en paramètre (fonctions pures, testables). */
 export interface PlanContext {
   siteId: string;
   services: Service[];
@@ -32,7 +32,7 @@ export type PlanFailure = "closed" | "outside_hours" | "too_soon" | "no_practiti
 export type PlanResult = { ok: true; lines: ReservationLine[] } | { ok: false; reason: PlanFailure };
 
 export const FAILURE_LABELS: Record<PlanFailure, string> = {
-  closed: "Le spa est fermé ce jour-là.",
+  closed: "Le site est fermé ce jour-là.",
   outside_hours: "Le créneau dépasse les horaires d'ouverture.",
   too_soon: "Ce créneau est trop proche (préavis de 30 minutes).",
   no_practitioner: "Aucun praticien disponible sur ce créneau.",
@@ -53,7 +53,7 @@ interface Busy {
   reservationId: string;
 }
 
-/** Créneaux occupés d'un jour pour un spa (hors réservation ignorée). */
+/** Créneaux occupés d'un jour pour un site (hors réservation ignorée). */
 export function busyOn(ctx: Pick<PlanContext, "siteId" | "reservations">, date: string, ignoreId?: string): Busy[] {
   const out: Busy[] = [];
   for (const r of ctx.reservations) {

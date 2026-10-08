@@ -31,28 +31,8 @@ export const theme: ThemeConfig = {
   // Adresse réservée à la documentation (TLD .invalid, RFC 2606) : ne reçoit jamais rien.
   contactEmail: "contact@ovaglow.invalid",
   socials: [],
-  colors: {
-    background: "#F8F6F2",
-    foreground: "#1B2626",
-    card: "#FFFFFF",
-    primary: "#1F5B5E",
-    primaryForeground: "#FFFFFF",
-    secondary: "#E6EEEC",
-    secondaryForeground: "#173B3D",
-    muted: "#EFECE6",
-    mutedForeground: "#556261",
-    accent: "#C9A15B",
-    accentForeground: "#241A08",
-    border: "#DDD8CE",
-    success: "#1A6B3F",
-    destructive: "#A92B2B",
-  },
-  // Titres : police d'affichage serif (Cormorant Garamond, via next/font : variable --font-display), repli Georgia.
-  fonts: {
-    heading: 'var(--font-display), Georgia, "Times New Roman", serif',
-    body: 'ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-  },
-  radius: "0.9rem",
+  // Couleurs, polices et rayon : brand/theme/tokens.css (thèmes clair et sombre).
+  themeColor: { light: "#F8F6F2", dark: "#0E1515" },
   opening: {
     open: "09:00",
     close: "19:00",

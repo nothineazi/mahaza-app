@@ -10,7 +10,7 @@ import { FictiveBadge } from "@/components/fictive-badge";
 import { Card } from "../ui/card";
 import type { Draft } from "./types";
 
-/** Un choix par soin du panier : « sans préférence » (par défaut) ou un praticien qualifié du spa. */
+/** Un choix par soin du panier : « sans préférence » (par défaut) ou un praticien qualifié du site. */
 export function StepPractitioners({ draft, onChoose }: { draft: Draft; onChoose: (serviceId: string, practitionerId: string | null) => void }) {
   const { staff } = useMahazaStore();
   const uid = useId();
@@ -31,7 +31,7 @@ export function StepPractitioners({ draft, onChoose }: { draft: Draft; onChoose:
               <legend className="font-heading text-2xl font-medium">{service?.name}</legend>
               {options.length === 0 ? (
                 <p className="mt-3 rounded-xl border border-dashed border-border p-4 text-sm text-muted-foreground">
-                  Aucun praticien n&apos;est disponible pour ce soin dans ce spa pour le moment. Retirez-le du panier ou choisissez un autre spa.
+                  Aucun praticien n&apos;est disponible pour ce soin dans ce site pour le moment. Retirez-le du panier ou choisissez un autre site.
                 </p>
               ) : (
                 <div className="mt-4 grid gap-3 sm:grid-cols-2">

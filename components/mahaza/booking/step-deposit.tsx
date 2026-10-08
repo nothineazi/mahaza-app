@@ -72,9 +72,10 @@ export function StepDeposit({ draft, onChange, onConfirm, error, onPickAnotherSl
         </p>
         <div className="flex items-center justify-between gap-3 rounded-xl bg-card p-4 text-card-foreground">
           <div>
-            <p className="text-xs text-muted-foreground">Numéro marchand MoMo (placeholder)</p>
+            <p className="text-xs text-muted-foreground">Numéro marchand MoMo</p>
             <p className="text-xl font-bold tracking-wide">{theme.momo.merchantNumber}</p>
             <p className="text-xs text-muted-foreground">{theme.momo.merchantName}</p>
+            <p className="mt-1 text-xs font-semibold text-destructive">FICTIF – ne pas payer</p>
           </div>
           <Button variant="outline" size="sm" onClick={copyNumber}>
             {copied ? <Check /> : <Copy />}
@@ -85,7 +86,7 @@ export function StepDeposit({ draft, onChange, onConfirm, error, onPickAnotherSl
           <li>Ouvrez MTN MoMo ou Orange Money sur votre téléphone.</li>
           <li>Choisissez « Transfert d&apos;argent » (ou « Paiement marchand »).</li>
           <li>
-            Saisissez le numéro {theme.momo.merchantNumber} et le montant {formatPrice(deposit)}.
+            Saisissez le numéro {theme.momo.merchantNumber} (FICTIF – ne pas payer) et le montant {formatPrice(deposit)}.
           </li>
           <li>
             Dans le motif, indiquez la référence <strong>{nextReference}</strong>.
@@ -98,7 +99,7 @@ export function StepDeposit({ draft, onChange, onConfirm, error, onPickAnotherSl
         </p>
         <p className="flex gap-2 rounded-xl bg-card/70 p-3 text-xs text-card-foreground">
           <Info className="mt-0.5 size-4 shrink-0" aria-hidden />
-          Démo : aucun paiement réel n&apos;est effectué sur ce site. Le spa vérifie la réception de l&apos;acompte manuellement.
+          Démo : aucun paiement réel n&apos;est effectué sur ce site. Le site vérifie la réception de l&apos;acompte manuellement.
         </p>
       </section>
 

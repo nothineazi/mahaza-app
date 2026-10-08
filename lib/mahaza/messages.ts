@@ -12,7 +12,7 @@ export interface ConfirmationContext {
   rooms: Room[];
 }
 
-/** Message WhatsApp pré-rempli envoyé au spa après la réservation (le client l'envoie lui-même). */
+/** Message WhatsApp pré-rempli envoyé au site après la réservation (le client l'envoie lui-même). */
 export function confirmationMessage(r: Reservation, ctx: ConfirmationContext): string {
   const detail = r.lines.map((l) => {
     const s = ctx.services.find((x) => x.id === l.serviceId)?.name ?? l.serviceId;

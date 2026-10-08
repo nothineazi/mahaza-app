@@ -53,7 +53,7 @@ interface Store {
   setFocusClientId: (id: string | null) => void;
   /** Référence qui sera attribuée à la prochaine réservation web (instructions MoMo). */
   nextReference: string;
-  /** Contexte d'ordonnancement d'un spa (horloge lue à l'appel). */
+  /** Contexte d'ordonnancement d'un site (horloge lue à l'appel). */
   planContext: (siteId: string) => PlanContext;
   createReservation: (input: NewReservation) => Result<Reservation>;
   setStatus: (id: string, to: BookingStatus) => Result;
@@ -276,7 +276,7 @@ export function useMahazaStore(): Store {
   return ctx;
 }
 
-/** Données du spa sélectionné dans le back-office, filtrées par spa. */
+/** Données du site sélectionné dans le back-office, filtrées par site. */
 export function useAdminData() {
   const store = useMahazaStore();
   const { adminSiteId, reservations, clients, rooms, staff } = store;

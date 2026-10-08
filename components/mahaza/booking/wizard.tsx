@@ -24,7 +24,7 @@ const FLOW: StepKey[] = multiSite
   : ["services", "practitioners", "slot", "deposit", "confirmation"];
 
 const LEADS: Partial<Record<StepKey, string>> = {
-  site: "Chaque spa a ses propres praticiens, salles et disponibilités.",
+  site: "Chaque site a ses propres praticiens, salles et disponibilités.",
   services: "Composez votre moment : plusieurs soins peuvent s'enchaîner sur un même créneau.",
   slot: "Les soins du panier s'enchaînent à partir de l'heure choisie.",
 };
@@ -66,7 +66,7 @@ export function MahazaBookingWizard() {
   const lines = plan?.ok ? plan.lines : null;
 
   const selectSite = (siteId: string) => {
-    // Chaque spa a ses propres praticiens et salles : on repart de zéro sur le créneau.
+    // Chaque site a ses propres praticiens et salles : on repart de zéro sur le créneau.
     patch({ siteId, choice: {}, date: null, time: null });
     go("services");
   };
@@ -97,14 +97,14 @@ export function MahazaBookingWizard() {
     setStepIndex(0);
   };
 
-  // Un soin sans praticien qualifié dans ce spa bloque l'étape (message dans l'étape).
+  // Un soin sans praticien qualifié dans ce site bloque l'étape (message dans l'étape).
   const blockedService = draft.cart.some((id) => !staff.some((p) => p.active && (p.siteId ?? firstSiteId) === draft.siteId && p.serviceIds.includes(id)));
 
   const action: PrimaryAction | null =
     step === "services"
       ? { label: "Continuer", disabled: draft.cart.length === 0, onClick: () => go("practitioners"), hint: "Ajoutez au moins un soin." }
       : step === "practitioners"
-        ? { label: "Choisir le créneau", disabled: blockedService, onClick: () => go("slot"), hint: "Un soin n'a aucun praticien dans ce spa." }
+        ? { label: "Choisir le créneau", disabled: blockedService, onClick: () => go("slot"), hint: "Un soin n'a aucun praticien dans ce site." }
         : step === "slot"
           ? { label: "Continuer vers l'acompte", disabled: !lines, onClick: () => go("deposit"), hint: plan && !plan.ok ? FAILURE_LABELS[plan.reason] : "Choisissez un jour et une heure." }
           : step === "deposit"

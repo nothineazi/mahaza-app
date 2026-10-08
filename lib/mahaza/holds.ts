@@ -1,6 +1,6 @@
 import type { PremiumConfig, Reservation, Site } from "@/data/types";
 
-/** Délai d'expiration de l'acompte (minutes) pour un spa : surcharge du site sinon valeur globale (FICTIVE). */
+/** Délai d'expiration de l'acompte (minutes) pour un site : surcharge du site sinon valeur globale (FICTIVE). */
 export const holdMinutesFor = (site: Pick<Site, "depositHoldMin">, premium: Pick<PremiumConfig, "depositHoldMin">): number =>
   site.depositHoldMin ?? premium.depositHoldMin;
 

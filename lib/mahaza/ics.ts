@@ -66,7 +66,7 @@ export function buildIcs(r: Reservation, ctx: IcsContext): string {
       const room = ctx.rooms.find((x) => x.id === l.roomId)?.name ?? "—";
       return `${l.start} ${s} — ${p} (${room})`;
     }),
-    "Durées indicatives, à confirmer par le spa.",
+    "Durées indicatives, à confirmer par le site.",
   ].join("\n");
 
   const lines = [

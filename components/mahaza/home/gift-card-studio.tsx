@@ -8,6 +8,7 @@ import { cn, formatPrice } from "@/lib/utils";
 import { generateGiftCode, giftCardMessage, giftCardWaLink, validateGiftAmount } from "@/lib/mahaza/gift-card";
 import { phoneDigits } from "@/lib/mahaza/phone";
 import { useMahazaStore, type GiftCard } from "@/lib/mahaza/store";
+import { useRuntime } from "@/components/runtime-provider";
 import { Button } from "../ui/button";
 import { FieldError, FieldLabel, Input, Textarea } from "../ui/field";
 import { SectionTitle } from "../ui/section-title";
@@ -21,7 +22,7 @@ export function GiftCardPreview({ amount, to, from, message, code }: { amount: n
     <div
       role="img"
       aria-label={`Aperçu de la carte cadeau${amount ? ` de ${formatPrice(amount)}` : ""}${to ? ` pour ${to}` : ""}. Carte fictive de démonstration.`}
-      className="relative isolate aspect-[8/5] w-full overflow-hidden rounded-3xl bg-foreground p-5 text-background shadow-lift ring-1 ring-accent/60 sm:p-7"
+      className="relative isolate aspect-[8/5] w-full overflow-hidden rounded-3xl bg-inverse p-5 text-inverse-foreground shadow-lift ring-1 ring-accent/60 sm:p-7"
     >
       <span aria-hidden className="absolute inset-2 -z-10 rounded-[1.25rem] border border-accent/40" />
       {decor && (
@@ -30,7 +31,7 @@ export function GiftCardPreview({ amount, to, from, message, code }: { amount: n
       <div aria-hidden className="flex h-full flex-col justify-between">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <p className="font-heading text-2xl font-medium leading-none sm:text-3xl">Mahaza Beauty</p>
+            <p className="font-heading text-2xl font-medium leading-none sm:text-3xl">{theme.name}</p>
             <p className="mt-1 text-[10px] uppercase tracking-[0.3em] text-accent sm:text-xs">Carte cadeau</p>
           </div>
           <span className="rotate-6 rounded-sm border border-accent px-2 py-0.5 text-[10px] font-semibold tracking-widest text-accent">FICTIF</span>
@@ -38,15 +39,15 @@ export function GiftCardPreview({ amount, to, from, message, code }: { amount: n
         <div className="space-y-1">
           <p className="font-heading text-4xl font-medium text-accent sm:text-5xl">{amount ? formatPrice(amount) : "— FCFA"}</p>
           {(to || from) && (
-            <p className="text-xs text-background/85 sm:text-sm">
+            <p className="text-xs text-inverse-foreground/85 sm:text-sm">
               {to && <>Pour <strong className="font-semibold">{to}</strong></>}
               {to && from && " · "}
               {from && <>De la part de <strong className="font-semibold">{from}</strong></>}
             </p>
           )}
-          {message && <p className="line-clamp-2 font-heading text-base italic leading-snug text-background/90 sm:text-lg">« {message} »</p>}
+          {message && <p className="line-clamp-2 font-heading text-base italic leading-snug text-inverse-foreground/90 sm:text-lg">« {message} »</p>}
         </div>
-        <p className="font-mono text-xs tracking-[0.25em] text-background/85 sm:text-sm">{code ?? "GC-····-····"}</p>
+        <p className="font-mono text-xs tracking-[0.25em] text-inverse-foreground/85 sm:text-sm">{code ?? "GC-····-····"}</p>
       </div>
     </div>
   );
@@ -58,6 +59,7 @@ export function GiftCardPreview({ amount, to, from, message, code }: { amount: n
  */
 export function GiftCardStudio() {
   const gift = theme.home?.gift;
+  const { recipientless } = useRuntime();
   const premium = theme.premium;
   const { addGiftCard } = useMahazaStore();
   const uid = useId();
@@ -230,6 +232,7 @@ export function GiftCardStudio() {
                   <p className="text-xs text-muted-foreground">Numéro marchand MoMo (placeholder)</p>
                   <p className="text-lg font-bold tracking-wide">{theme.momo.merchantNumber}</p>
                   <p className="text-xs text-muted-foreground">{theme.momo.merchantName}</p>
+                  <p className="mt-1 text-xs font-semibold text-destructive">FICTIF – ne pas payer</p>
                 </div>
                 <Button variant="outline" size="sm" onClick={copyNumber}>
                   {copied ? <Check /> : <Copy />}
@@ -237,7 +240,7 @@ export function GiftCardStudio() {
                 </Button>
               </div>
               <Button asChild variant="whatsapp" size="lg" className="w-full">
-                <a href={giftCardWaLink(phone, waMessage)} target="_blank" rel="noopener noreferrer">
+                <a href={giftCardWaLink(phone, waMessage, recipientless)} target="_blank" rel="noopener noreferrer">
                   <MessageCircle /> {phone.trim() ? "Envoyer la carte au destinataire" : "Partager la carte sur WhatsApp"}
                 </a>
               </Button>
@@ -252,7 +255,7 @@ export function GiftCardStudio() {
           ) : (
             <p className="flex gap-2 text-xs text-secondary-foreground">
               <Info className="mt-0.5 size-4 shrink-0" aria-hidden />
-              L&apos;aperçu se met à jour en direct. Montant : fourchette du site actuel (20 000 – 100 000 FCFA) ; paliers et pas à confirmer par Mahaza.
+              L&apos;aperçu se met à jour en direct. Montants, paliers et pas FICTIFS, à définir par la marque.
             </p>
           )}
         </div>

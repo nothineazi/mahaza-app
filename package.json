@@ -1,13 +1,18 @@
 {
-  "name": "mahaza-demo",
+  "name": "ovatech-spa-core",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "node .next/standalone/server.js",
+    "typecheck": "tsc --noEmit",
     "lint": "eslint .",
-    "test": "vitest run"
+    "test": "vitest run",
+    "check:contrast": "node scripts/check-contrast.mjs",
+    "check:brand": "node scripts/check-brand-leak.mjs",
+    "assets:generate": "node scripts/generate-brand-assets.mjs",
+    "verify": "npm run typecheck && npm run lint && npm test && npm run check:contrast && npm run check:brand"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.2.0",
@@ -35,5 +40,6 @@
     "tailwindcss": "^3.4.19",
     "typescript": "^5.9.3",
     "vitest": "^5.0.3"
-  }
+  },
+  "description": "Souche privée OVAGLOW : logiciel de gestion d'institut de beauté et de barbershop (jamais déployée, CI uniquement)."
 }

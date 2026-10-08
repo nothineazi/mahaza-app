@@ -12,6 +12,7 @@ import { reservationEnd } from "@/lib/mahaza/scheduling";
 import { formatDateLong, endTime } from "@/lib/dates";
 import { getSite, multiSite } from "@/lib/sites";
 import { whatsappLink } from "@/lib/whatsapp";
+import { useRuntime } from "@/components/runtime-provider";
 import { formatPrice } from "@/lib/utils";
 import { Button } from "../ui/button";
 import { Card } from "../ui/card";
@@ -23,6 +24,7 @@ import type { Draft } from "./types";
 export function StepConfirmation({ draft, onUpdate, onRestart }: { draft: Draft; onUpdate: (patch: Partial<Draft>) => void; onRestart: () => void }) {
   const { reservations, staff, rooms, setStatus } = useMahazaStore();
   const reservation = reservations.find((r) => r.id === draft.reservationId);
+  const { recipientless } = useRuntime();
   const [modifyOpen, setModifyOpen] = useState(false);
   const [cancelOpen, setCancelOpen] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
@@ -32,10 +34,10 @@ export function StepConfirmation({ draft, onUpdate, onRestart }: { draft: Draft;
   const status = reservation.status;
   const expired = status === "cancelled" && !draft.userCancelled;
   const active = status === "pending_deposit" || status === "confirmed";
-  const message = confirmationMessage(reservation, { brand: theme.name, siteName: multiSite ? site.name : null, momoNumber: theme.momo.merchantNumber, services: theme.services, staff, rooms });
+  const message = confirmationMessage(reservation, { brand: theme.name, siteName: multiSite ? site.name : null, momoNumber: `${theme.momo.merchantNumber} (FICTIF – ne pas payer)`, services: theme.services, staff, rooms });
 
   const downloadIcs = () =>
-    downloadText(`mahaza-${reservation.reference}.ics`, buildIcs(reservation, { siteName: site.name, brand: theme.name, services: theme.services, staff, rooms, now: new Date() }), "text/calendar;charset=utf-8");
+    downloadText(`rdv-${reservation.reference}.ics`, buildIcs(reservation, { siteName: site.name, brand: theme.name, services: theme.services, staff, rooms, now: new Date() }), "text/calendar;charset=utf-8");
 
   return (
     <div className="mx-auto max-w-3xl space-y-8">
@@ -81,7 +83,7 @@ export function StepConfirmation({ draft, onUpdate, onRestart }: { draft: Draft;
           <dl className="grid gap-4 text-sm sm:grid-cols-2">
             {multiSite && (
               <div>
-                <dt className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Spa</dt>
+                <dt className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Site</dt>
                 <dd className="mt-1 font-medium">{site.name}</dd>
               </div>
             )}
@@ -123,7 +125,7 @@ export function StepConfirmation({ draft, onUpdate, onRestart }: { draft: Draft;
         {active && (
           <>
             <Button asChild variant="whatsapp" size="lg" className="w-full">
-              <a href={whatsappLink(theme.whatsappNumber, message)} target="_blank" rel="noopener noreferrer">
+              <a href={whatsappLink(theme.whatsappNumber, message, recipientless)} target="_blank" rel="noopener noreferrer">
                 <MessageCircle /> Envoyer la confirmation sur WhatsApp
               </a>
             </Button>
@@ -154,7 +156,7 @@ export function StepConfirmation({ draft, onUpdate, onRestart }: { draft: Draft;
       {status === "pending_deposit" && (
         <div className="rounded-2xl border border-dashed border-border p-5 text-sm">
           <p className="font-medium">Outil de démonstration</p>
-          <p className="mt-1 text-muted-foreground">Dans la réalité, le spa confirme après vérification de l&apos;acompte. Simulez cette étape pour voir l&apos;état « confirmé ».</p>
+          <p className="mt-1 text-muted-foreground">Dans la réalité, le site confirme après vérification de l&apos;acompte. Simulez cette étape pour voir l&apos;état « confirmé ».</p>
           <Button variant="soft" size="sm" className="mt-3" onClick={() => setStatus(reservation.id, "confirmed")}>
             Simuler la confirmation du salon
           </Button>

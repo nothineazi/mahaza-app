@@ -23,7 +23,7 @@ export function SectionTitle({
       {kicker && <p className={cn("text-xs font-semibold uppercase tracking-[0.28em]", tone === "light" ? "text-accent" : "text-primary")}>{kicker}</p>}
       <Tag className="font-heading text-4xl font-medium leading-[1.1] sm:text-5xl">{title}</Tag>
       <span aria-hidden className={cn("block h-px w-14 bg-accent", align === "center" && "mx-auto")} />
-      {lead && <p className={cn("text-base leading-relaxed", tone === "light" ? "text-background/80" : "text-foreground/75")}>{lead}</p>}
+      {lead && <p className={cn("text-base leading-relaxed", tone === "light" ? "text-inverse-foreground/80" : "text-foreground/75")}>{lead}</p>}
     </div>
   );
 }
