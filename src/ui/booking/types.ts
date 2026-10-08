@@ -3,7 +3,7 @@ import type { Wanted } from "@/core/booking/scheduling";
 export type StepKey = "site" | "services" | "practitioners" | "slot" | "deposit" | "confirmation";
 
 export const STEP_LABELS: Record<StepKey, string> = {
-  site: "Spa",
+  site: "Site",
   services: "Soins",
   practitioners: "Praticien",
   slot: "Créneau",
@@ -12,7 +12,7 @@ export const STEP_LABELS: Record<StepKey, string> = {
 };
 
 export const STEP_TITLES: Record<StepKey, string> = {
-  site: "Choisissez votre spa",
+  site: "Choisissez votre site",
   services: "Composez votre moment",
   practitioners: "Votre praticien",
   slot: "Choisissez votre créneau",

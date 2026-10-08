@@ -5,14 +5,16 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "node .next/standalone/server.js",
+    "start": "node scripts/start-standalone.mjs",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "test": "vitest run",
     "check:contrast": "node scripts/check-contrast.mjs",
     "check:brand": "node scripts/check-brand-leak.mjs",
     "assets:generate": "node scripts/generate-brand-assets.mjs",
-    "verify": "npm run typecheck && npm run lint && npm test && npm run check:contrast && npm run check:brand"
+    "verify": "npm run typecheck && npm run lint && npm test && npm run check:contrast && npm run check:brand",
+    "measure:first-load": "node scripts/measure-first-load.mjs",
+    "e2e": "playwright test"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.2.0",
@@ -22,24 +24,33 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^1.52.0",
-    "next": "^15.5.27",
-    "react": "^19.3.0",
-    "react-dom": "^19.3.0",
+    "next": "16.4.0",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
     "tailwind-merge": "^3.7.0",
     "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
     "@eslint/eslintrc": "^3.3.7",
+    "@playwright/test": "^1.64.0",
     "@types/node": "^22.20.5",
-    "@types/react": "^19.3.0",
-    "@types/react-dom": "^19.3.0",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
     "autoprefixer": "^10.6.1",
-    "eslint": "^9.39.5",
-    "eslint-config-next": "^15.5.27",
+    "eslint": "9.39.5",
+    "eslint-config-next": "16.4.0",
     "postcss": "^8.5.29",
     "tailwindcss": "^3.4.19",
     "typescript": "^5.9.3",
     "vitest": "^5.0.3"
   },
-  "description": "Souche privée OVAGLOW : logiciel de gestion d'institut de beauté et de barbershop (jamais déployée, CI uniquement)."
+  "description": "Souche privée OVAGLOW : logiciel de gestion d'institut de beauté et de barbershop (jamais déployée, CI uniquement).",
+  "overrides": {
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0"
+  },
+  "engines": {
+    "node": ">=22.13.0 <23"
+  }
 }

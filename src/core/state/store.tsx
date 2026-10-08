@@ -91,10 +91,15 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
   const counter = useRef(0);
   // Copie lisible de l'état pour les actions (évite des fermetures périmées dans les gestionnaires).
   const latest = useRef({ reservations, clients, rooms, staff });
+  // Écriture pendant le rendu voulue : les fonctions de planification lues pendant le rendu doivent voir l'état courant (store transitoire,
+  // remplacé par des services serveur). Règle react-hooks/refs (eslint-plugin-react-hooks 7, React Compiler) désactivée ici seulement.
+  // eslint-disable-next-line react-hooks/refs
   latest.current = { reservations, clients, rooms, staff };
 
   useEffect(() => {
     const t = todayISO();
+    // Initialisation côté client uniquement (la date du jour et l'horloge n'existent pas au rendu serveur : évite un décalage d'hydratation).
+    /* eslint-disable react-hooks/set-state-in-effect */
     setToday(t);
     setReservations(
       buildSeedReservations(
@@ -111,6 +116,7 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
         demoClients,
       ),
     );
+    /* eslint-enable react-hooks/set-state-in-effect */
   }, []);
 
   // Expiration des acomptes : un seul minuteur léger, sans mise à jour d'état tant que rien n'expire.

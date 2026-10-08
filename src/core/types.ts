@@ -10,7 +10,7 @@ export interface Service {
   price?: number;
 }
 
-/** Un spa / site physique. Les marques mono-site n'en déclarent pas (voir `BrandConfig.sites`). */
+/** Un site physique (institut, barbershop). Les marques mono-site n'en déclarent pas (voir `BrandConfig.sites`). */
 export interface Site {
   id: string;
   name: string;

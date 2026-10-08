@@ -106,7 +106,7 @@ export function Dashboard() {
       </section>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <Card className="p-5">
+        <Card className="min-w-0 p-5">
           <h2 className="font-heading text-2xl font-medium">Prochains rendez-vous</h2>
           {next.length === 0 ? (
             <p className="mt-4 rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">Aucun rendez-vous à venir pour ce site.</p>
@@ -119,7 +119,7 @@ export function Dashboard() {
           )}
         </Card>
 
-        <Card className="p-5">
+        <Card className="min-w-0 p-5">
           <h2 className="font-heading text-2xl font-medium">Rappels J-1 à envoyer</h2>
           <p className="mt-1 text-xs text-muted-foreground">Rendez-vous de demain, confirmés ou en attente d&apos;acompte. L&apos;envoi se fait depuis WhatsApp.</p>
           {reminders.length === 0 ? (
@@ -193,7 +193,7 @@ function WeekChart({ days, today }: { days: ReturnType<typeof weekBreakdown>; to
   const peak = days.reduce((a, b) => (b.count > a.count ? b : a), days[0]);
   const H = 140;
   return (
-    <Card className="p-5">
+    <Card className="min-w-0 p-5">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <h2 className="font-heading text-2xl font-medium">Réservations de la semaine</h2>
         <FictiveBadge />
@@ -203,13 +203,13 @@ function WeekChart({ days, today }: { days: ReturnType<typeof weekBreakdown>; to
         <li aria-hidden className="pointer-events-none absolute inset-x-0 border-t border-border/70" style={{ bottom: 36 + H }}>
           <span className="absolute -top-5 left-0 text-[11px] text-muted-foreground">{max}</span>
         </li>
-        {days.map((d) => {
+        {days.map((d, i) => {
           const h = Math.round((d.count / max) * H);
           const isToday = d.date === today;
           const labelled = d.count > 0 && (d.date === peak.date || isToday);
           return (
             <li key={d.date} tabIndex={0} className="group relative flex h-full flex-1 flex-col items-center justify-end rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label={`${formatDateShort(d.date)} : ${d.count} réservation${d.count > 1 ? "s" : ""}`}>
-              <span role="tooltip" className="pointer-events-none absolute -top-2 z-10 -translate-y-full whitespace-nowrap rounded-lg bg-inverse px-3 py-1.5 text-xs text-inverse-foreground opacity-0 shadow-lift transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100">
+              <span role="tooltip" className={cn("pointer-events-none absolute -top-2 z-10 w-max max-w-[11rem] -translate-y-full rounded-lg bg-inverse px-3 py-1.5 text-xs text-inverse-foreground opacity-0 shadow-lift transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100", i <= 2 ? "left-0" : i >= 4 ? "right-0" : "left-1/2 -translate-x-1/2")}>
                 {d.count} réservation{d.count > 1 ? "s" : ""} · CA estimé {formatPrice(d.revenue)} (FICTIF)
               </span>
               {labelled && <span className="mb-1 text-xs font-semibold">{d.count}</span>}

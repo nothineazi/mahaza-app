@@ -211,7 +211,7 @@ export function GiftCardStudio() {
             </fieldset>
 
             {!card && (
-              <Button type="submit" size="lg" className="w-full sm:w-auto">
+              <Button type="submit" size="lg" className="w-full whitespace-normal px-6 sm:w-auto sm:whitespace-nowrap sm:px-9">
                 <Gift /> Générer ma carte cadeau (fictive)
               </Button>
             )}
