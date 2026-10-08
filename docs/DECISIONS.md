@@ -27,22 +27,22 @@ Registre des décisions d'architecture (ADR). Format : contexte, décision, alte
 | 016 | PWA native (manifest + `sw.js` maison) | ACCEPTÉ |
 | 017 | Staging en `http://IP:PORT` | ACCEPTÉ |
 | 018 | Images construites en CI (GHCR), jamais sur le KVM | ACCEPTÉ |
-| 019 | Node.js 22 | **À VALIDER** (passage à Node 24 proposé) |
+| 019 | Node.js 24 LTS (22 refusé) | ACCEPTÉ (RUN-01b) |
 | 020 | Next.js 16.4.0 | ACCEPTÉ (version exacte : à confirmer) |
 | 021 | React 19.3.0 | ACCEPTÉ |
 | 022 | Tailwind CSS 3.4.19 maintenu | ACCEPTÉ |
-| 023 | Playwright et axe-core en dépendances de développement | **À VALIDER** |
-| 024 | Budget de First Load JS sous Next 16 | **À VALIDER** |
-| 025 | `APP_ENV` à l'exécution, rendu dynamique, liens WhatsApp sans destinataire hors production | **À VALIDER** |
-| 026 | Périmètre de l'anti-fuite de marque | **À VALIDER** |
-| 027 | Thèmes clair et sombre, surfaces inversées | **À VALIDER** |
-| 028 | Illustrations SVG générées, servies depuis `public/brand/` | **À VALIDER** |
-| 029 | Jeu de données FICTIF d'OVAGLOW | **À VALIDER** |
-| 030 | Store en mémoire transitoire conservé | **À VALIDER** |
-| 031 | Textes non encore centralisés par module | **À VALIDER** |
-| 032 | Cartes cadeaux conservées comme simulation FICTIVE | **À VALIDER** |
-| 033 | Jobs e2e et Docker dans la CI du RUN-01 | **À VALIDER** |
-| 034 | Turbopack par défaut | **À VALIDER** |
+| 023 | Playwright et axe-core en dépendances de développement | ACCEPTÉ |
+| 024 | Budget de First Load JS sous Next 16 | ACCEPTÉ provisoirement (remplacé à l'étape 6 du RUN-01b) |
+| 025 | `APP_ENV` à l'exécution, rendu dynamique, liens WhatsApp sans destinataire hors production | ACCEPTÉ |
+| 026 | Périmètre de l'anti-fuite de marque | ACCEPTÉ |
+| 027 | Thèmes clair et sombre, surfaces inversées | REMPLACÉ (RUN-01b, mode sombre par classe) |
+| 028 | Illustrations SVG générées, servies depuis `public/brand/` | ACCEPTÉ |
+| 029 | Jeu de données FICTIF d'OVAGLOW | ACCEPTÉ |
+| 030 | Store en mémoire transitoire conservé | ACCEPTÉ |
+| 031 | Textes non encore centralisés par module | ACCEPTÉ |
+| 032 | Cartes cadeaux conservées comme simulation FICTIVE | ACCEPTÉ |
+| 033 | Jobs e2e et Docker dans la CI du RUN-01 | ACCEPTÉ |
+| 034 | Turbopack par défaut | ACCEPTÉ |
 
 ---
 
@@ -152,12 +152,21 @@ Ces dix-huit décisions ont été validées par Yass le 2026-10-08 (PLAN v1.0). 
 
 ## Versions figées
 
-### ADR-019 — Node.js 22
-- **Contexte** : `STANDARDS.md` §1 demande « Node.js LTS active ». Au 2026-10-08, la LTS active est Node 24 « Krypton » (24.21.0) ; Node 22 « Jod » (22.23.3) est en LTS de maintenance (support jusqu'à avril 2027). La démo et la sandbox tournaient en Node 22.
-- **Décision** : **Node 22** est figé dans `.nvmrc` (`22`), `engines` (`>=22.13.0 <23`) et le `Dockerfile` (`node:22-alpine`), par prudence : un changement de majeure de Node n'est pas couvert par l'exception de gel actée pour Next 16.
-- **Alternatives** : Node 24 (LTS active).
-- **Conséquences** : Next 16 exige Node ≥ 20.9 : compatible. Le passage à Node 24 est un changement de trois lignes (`.nvmrc`, `engines`, `Dockerfile`) ; ESLint 10 exigerait Node ≥ 22.13.
-- **Statut** : **À VALIDER** — Yass choisit entre rester sur 22 et passer à 24 avant le RUN-02.
+### ADR-019 — Node.js 24 LTS
+- **Contexte** : `STANDARDS.md` §1 demande « Node.js LTS active ». Le RUN-01 avait figé Node 22 par prudence et soumis le choix à Yass. **Décision de Yass (RUN-01b) : Node 22 refusé, Node 24 retenu.**
+- **Calendrier officiel** (`nodejs/Release`, `schedule.json`, lu le 2026-10-08) :
+
+  | Version | Début | LTS active | Maintenance | Fin de vie |
+  |---|---|---|---|---|
+  | 22 « Jod » | 2024-04-24 | 2024-10-29 | 2025-10-21 | **2027-04-30** |
+  | **24 « Krypton »** | 2025-05-06 | **2025-10-28** | **2026-10-20** | **2028-04-30** |
+  | 26 | 2026-05-05 | 2026-10-28 | 2027-10-20 | 2029-04-30 |
+
+  Dernière 24.x au 2026-10-08 : **24.21.0** (2026-09-07). Précision : Node 24 passe en maintenance le 2026-10-20 et Node 26 devient LTS active le 2026-10-28 ; Node 24 reste toutefois supporté (correctifs de sécurité) **jusqu'au 2028-04-30**, soit 12 mois de plus que Node 22.
+- **Décision** : **Node 24** dans `.nvmrc` (`24`), `engines` (`>=24.0.0 <25`), `Dockerfile` (`node:24-alpine`, trois étapes) et la CI (`setup-node` lit `.nvmrc`). `@types/node` passe en `^24` (typage de l'API Node ciblée, version majeure imposée par ce changement de runtime).
+- **Alternatives** : rester en Node 22 (refusé) ; Node 26 (pas encore LTS).
+- **Conséquences** : Next 16, React 19.3 et la chaîne d'outils fonctionnent sans changement de code. Le passage à Node 26 est à reconsidérer après le 2026-10-28 (changement de trois lignes : `.nvmrc`, `engines`, `Dockerfile`) ; aucune urgence avant 2028.
+- **Statut** : **ACCEPTÉ** (RUN-01b).
 
 ### ADR-020 — Next.js 16.4.0
 - **Décision** : `next@16.4.0` (version exacte, dernière stable au 2026-10-08), `eslint-config-next@16.4.0`. Migration faite avec le codemod officiel `@next/codemod upgrade` et le guide embarqué `node_modules/next/dist/docs/01-app/02-guides/upgrading/version-16.md`.
@@ -179,7 +188,7 @@ Ces dix-huit décisions ont été validées par Yass le 2026-10-08 (PLAN v1.0). 
 ### ADR-023 — Playwright et axe-core en dépendances de développement
 - **Contexte** : le RUN-01 exige un smoke Playwright à 375 et 1280 px ; `STANDARDS.md` §1 liste Playwright et `@axe-core/playwright`.
 - **Décision** : `@playwright/test@1.64.0` et `@axe-core/playwright@4.13.0` (nouvelles dépendances, pas des montées). Les tests sont dans `e2e/`. Dans la sandbox de l'agent, un Chromium préinstallé est utilisé via `PW_CHROMIUM_PATH` ; la CI installe le navigateur.
-- **Statut** : **À VALIDER**.
+- **Statut** : **ACCEPTÉ** (Yass, RUN-01b).
 
 ---
 
@@ -191,53 +200,53 @@ Ces dix-huit décisions ont été validées par Yass le 2026-10-08 (PLAN v1.0). 
 - **Décision** : le budget de non-régression est fixé à **175 kB (`/`) et 192 kB (`/reserver`)** dans `scripts/first-load-budget.json`, contrôlé en CI. Le dépassement de la base de référence est **imputé à Next 16** et consigné dans `docs/runs/RUN-01.md`.
 - **Alternatives** : (a) rester en Next 15 (fin de maintenance le 21/10/2026, contraire à ADR-002) ; (b) alléger le code applicatif : le plancher du framework (144 kB) dépasse déjà la base de `/`, donc aucun allègement du code ne suffit ; (c) charger les cartes cadeaux et le tunnel en différé, au gain limité.
 - **Conséquences** : le critère d'acceptation « First Load JS ≤ base » du RUN-01 n'est **pas** tenu. À confirmer : nouvelle base = valeurs Next 16, ou plan d'allègement ciblé dès le RUN-04 (chargement différé, scission du store).
-- **Statut** : **À VALIDER**.
+- **Statut** : **ACCEPTÉ provisoirement** (Yass, RUN-01b) : plafonds 175 kB (`/`) et 192 kB (`/reserver`). **Remplacé à l'étape 6 du RUN-01b** par une nouvelle mesure (voir la section ADR-024 mise à jour à la fin du run).
 
 ### ADR-025 — `APP_ENV` à l'exécution, rendu dynamique, liens WhatsApp sans destinataire hors production
 - **Contexte** : le bandeau « Version de développement – données fictives » et les liens WhatsApp sans destinataire dépendent de l'environnement ; une même image doit servir le staging et la production.
 - **Décision** : `APP_ENV` (`development` | `staging` | `production`) est lu **à chaque requête** (le layout racine appelle `connection()` : toutes les pages sont rendues à la demande). Une valeur absente ou inconnue vaut `development`. Le bandeau et les liens `https://wa.me/?text=…` sont actifs **tant que `APP_ENV` ≠ `production`** (le plan ne cite que le staging ; l'extension à `development` évite qu'un numéro fictif reçoive un vrai message).
 - **Alternatives** : `NEXT_PUBLIC_APP_ENV` figé au build (une image par environnement, contraire à ADR-018) ; liens sans destinataire en staging seulement.
 - **Conséquences** : plus de pages prérendues statiquement (coût serveur marginal, aucun contenu personnalisé).
-- **Statut** : **À VALIDER**.
+- **Statut** : **ACCEPTÉ** (Yass, RUN-01b).
 
 ### ADR-026 — Périmètre de l'anti-fuite de marque
 - **Contexte** : `STANDARDS.md` §10 demande qu'un `git grep -i` sur « mahaza » et « st louis » ne renvoie rien « hors `docs/runs/` ». Or `CLAUDE.md`, `docs/PLAN.md` et `docs/STANDARDS.md`, qui font foi, nomment les dépôts clients.
 - **Décision** : `npm run check:brand` (`scripts/check-brand-leak.mjs`, exécuté en CI) analyse tous les fichiers suivis et non ignorés, **chemins compris**, **sauf `docs/` et `CLAUDE.md`**. Le code, les tests, les scripts, les configurations, le README et les ressources publiques sont couverts.
 - **Alternatives** : exclure seulement `docs/runs/` (le contrôle échouerait sur les trois fichiers de référence).
-- **Statut** : **À VALIDER**.
+- **Statut** : **ACCEPTÉ** (Yass, RUN-01b).
 
 ### ADR-027 — Thèmes clair et sombre, surfaces inversées
 - **Décision** : `src/brand/theme/tokens.css` définit les jetons (canaux RGB) en clair, en sombre selon `prefers-color-scheme` et en sombre forcé par `<html data-theme="dark">`. Deux jetons ajoutés : `inverse` / `inverse-foreground` (pied de page, hero, carte cadeau, infobulle : toujours des surfaces sombres) et `success-foreground`. `scripts/check-contrast.mjs` lit ce fichier et vérifie 48 couples par thème (WCAG 2.x AA), ainsi que l'égalité des deux blocs sombres. Aucune bascule manuelle : le thème suit le système.
 - **Alternatives** : bascule manuelle clair / sombre ; inversion `foreground` / `background` (contrastes impossibles avec l'or).
-- **Statut** : **À VALIDER** (palette : teal profond `#1F5B5E` et laiton `#C9A15B`).
+- **Statut** : **REMPLACÉ** (Yass, RUN-01b) par le mode sombre de la factory : classe `.dark`, `next-themes`, bascule dans le back-office (voir ADR-035 et ADR-036).
 
 ### ADR-028 — Illustrations SVG générées, servies depuis `public/brand/`
 - **Décision** : les visuels sont des SVG abstraits produits par `scripts/generate-brand-assets.mjs` (sortie déterministe), sans photo ni visage. Ils sont dans `public/brand/` (et `src/app/icon.svg` pour le favicon) plutôt que dans `src/brand/assets/`, car `next/image` et le favicon exigent des fichiers servis. `src/brand/copy/home.ts` les référence.
-- **Statut** : **À VALIDER** (écart à la structure de `STANDARDS.md` §2).
+- **Statut** : **ACCEPTÉ** (Yass, RUN-01b).
 
 ### ADR-029 — Jeu de données FICTIF d'OVAGLOW
 - **Décision** : 3 sites (« Site Aurore », « Site Brise », « Site Cèdre », ville et adresse fictives), 5 catégories et 20 soins avec **prix FICTIFS** en FCFA, durées non renseignées (créneaux indicatifs de 60 min), 15 praticiens, 15 salles, 26 réservations seed. Horaires fictifs. Numéro MoMo `6 00 00 00 00` affiché avec « FICTIF – ne pas payer ». Contact `contact@ovaglow.invalid` (TLD réservé). Aucun profil social.
 - **Écart au plan** : ce jeu est écrit dès l'import (commit 3) pour que la suite de tests reste verte, au lieu de l'étape 5.
-- **Statut** : **À VALIDER**.
+- **Statut** : **ACCEPTÉ** (Yass, RUN-01b).
 
 ### ADR-030 — Store en mémoire transitoire conservé
 - **Décision** : l'état de la démo (`src/core/state/store.tsx`) reste en mémoire React jusqu'à son remplacement par les services serveur (RUN-02 et suivants). Deux règles `react-hooks` 7 (`refs`, `set-state-in-effect`) sont désactivées localement, avec justification, car elles sont issues du React Compiler que le projet n'active pas.
-- **Statut** : **À VALIDER**.
+- **Statut** : **ACCEPTÉ** (Yass, RUN-01b).
 
 ### ADR-031 — Textes non encore centralisés par module
 - **Contexte** : `STANDARDS.md` §7 demande des textes centralisés par module (`copy.ts`) pour une i18n future.
 - **Décision** : au RUN-01, seul le contenu éditorial d'accueil est isolé (`src/brand/copy/home.ts`) ; les libellés d'interface restent dans les composants. La centralisation est reportée aux runs qui réécrivent ces écrans.
-- **Statut** : **À VALIDER**.
+- **Statut** : **ACCEPTÉ** (Yass, RUN-01b).
 
 ### ADR-032 — Cartes cadeaux conservées comme simulation FICTIVE
 - **Décision** : l'accueil garde le studio de cartes cadeaux de la démo, explicitement présenté comme simulation (code `GC-…` fictif non valable, aucun paiement, lien WhatsApp sans destinataire). La vraie carte cadeau est au RUN-15.
 - **Risque** : `STANDARDS.md` §13 interdit d'annoncer une fonctionnalité non construite ; la simulation est signalée à l'écran. À retirer si Yass préfère.
-- **Statut** : **À VALIDER**.
+- **Statut** : **ACCEPTÉ** (Yass, RUN-01b) : cartes cadeaux simulées, marquées à l'écran.
 
 ### ADR-033 — Jobs e2e et Docker dans la CI du RUN-01
 - **Décision** : en plus du minimum demandé, la CI exécute le smoke Playwright (job `e2e`) et démarre l'image (job `docker`, `/api/health`). Gitleaks, Trivy, `npm audit` et axe en CI complète viennent au RUN-03.
-- **Statut** : **À VALIDER**.
+- **Statut** : **ACCEPTÉ** (Yass, RUN-01b).
 
 ### ADR-034 — Turbopack par défaut
 - **Décision** : `next build` et `next dev` utilisent Turbopack (défaut de Next 16) ; aucune configuration webpack n'existe. `--webpack` reste disponible (poids un peu plus faible : voir ADR-024). `scripts/measure-first-load.mjs` lit `.next/diagnostics/route-bundle-stats.json`, produit par Turbopack.
-- **Statut** : **À VALIDER**.
+- **Statut** : **ACCEPTÉ** (Yass, RUN-01b).

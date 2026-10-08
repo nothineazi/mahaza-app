@@ -12,7 +12,7 @@ Souche **privée** d'un logiciel de gestion d'institut de beauté et de barbersh
 
 | Outil | Version | Remarque |
 |---|---|---|
-| Node.js | 22 (voir `.nvmrc`) | Windows : <https://nodejs.org> (installeur LTS 22) ou `nvm-windows` |
+| Node.js | 24 (voir `.nvmrc`) | Windows : <https://nodejs.org> (installeur LTS 24) ou `nvm-windows` |
 | npm | fourni avec Node | |
 | Git | récent | |
 | Docker Desktop | optionnel | pour construire et démarrer l'image |

@@ -70,7 +70,7 @@ Les évolutions du socle circulent dans un seul sens : souche → tag → `git m
 ## 5. Build, image, CI
 
 - `next build` → `output: "standalone"` ; `npm start` copie `public/` et `.next/static/` puis lance `server.js`.
-- `Dockerfile` en trois étapes (`deps`, `builder`, `runner`), `node:22-alpine`, utilisateur non-root, `HEALTHCHECK` sur `/api/health`. Fonctionne avec un système de fichiers en lecture seule.
+- `Dockerfile` en trois étapes (`deps`, `builder`, `runner`), `node:24-alpine`, utilisateur non-root, `HEALTHCHECK` sur `/api/health`. Fonctionne avec un système de fichiers en lecture seule.
 - `.github/workflows/ci.yml` : `verify` (typecheck, lint, tests, contrastes, anti-fuite, build, budget), `e2e` (Playwright 375 et 1280 px), `docker` (build, démarrage, `/api/health`).
 
 ## 6. Tests
