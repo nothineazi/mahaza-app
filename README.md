@@ -78,7 +78,7 @@ Aucun secret n'est nécessaire à ce stade. `.env*` est ignoré par Git ; `.env.
 | `verify` | `typecheck` + `lint` + `test` + `check:contrast` + `check:brand` + `check:design --strict` |
 | `check:contrast` | Contrastes WCAG AA des thèmes clair et sombre, calculés en OKLCH (`src/brand/theme/tokens.css`) ; `-- --markdown` pour le tableau |
 | `check:design` | Garde-fou du design system du back-office (`src/ui/kv`, `src/ui/admin`, `src/app/(app)/admin`) ; `-- --strict` échoue à la moindre violation (mode CI) ; exception : commentaire `check-design-allow(<motif>): <raison>` |
-| `check:brand` | Anti-fuite : aucune référence aux marques des dépôts clients |
+| `check:brand` | Anti-fuite : aucune occurrence des noms de `src/brand/forbidden-names.json` (marques des autres dépôts) |
 | `assets:generate` | Régénère les illustrations SVG (`public/brand/`) et le favicon |
 | `measure:first-load` | First Load JS (gzip) par route ; `-- --budget scripts/first-load-budget.json` pour le contrôle CI (149 / 172 kB) |
 | `e2e` | Playwright (375 et 1280 px) sur le build de production ; les noms viennent de la marque active (`e2e/brand-data.ts`) |
@@ -105,7 +105,7 @@ Le thème suit le système par défaut ; le bouton du back-office (barre latéra
 
 ## Créer une app cliente et recevoir le socle
 
-Une app cliente ne modifie que `src/brand/` (marque, thème, polices, vocabulaire `copy/vocab.ts`, seed, `copy/home.ts`), `public/brand/`, les métadonnées (`src/app/icon.svg`, nom) et `scripts/check-brand-leak.mjs`. `src/core` et `src/ui` restent intacts : `git diff upstream/main -- src/core src/ui` doit rester vide. Les tests du socle utilisent un jeu de données figé (`tests/core/fixture-brand/`, ADR-044) et l'e2e lit les noms dans la marque (`e2e/brand-data.ts`), donc la CI est identique.
+Une app cliente ne modifie que `src/brand/` (marque, thème, polices, vocabulaire `copy/vocab.ts`, seed, `copy/home.ts`), `public/brand/`, les métadonnées (`src/app/icon.svg`, nom) et la liste `src/brand/forbidden-names.json` (noms interdits par l'anti-fuite, lue par `scripts/check-brand-leak.mjs` et par l'e2e). En cas de conflit de merge sur `README.md`, `CHANGELOG.md` ou `package.json`, garder la version de l'app. `src/core` et `src/ui` restent intacts : `git diff upstream/main -- src/core src/ui` doit rester vide. Les tests du socle utilisent un jeu de données figé (`tests/core/fixture-brand/`, ADR-044) et l'e2e lit les noms dans la marque (`e2e/brand-data.ts`), donc la CI est identique.
 
 ```powershell
 git remote add upstream https://github.com/nothineazi/ovatech-spa-core.git

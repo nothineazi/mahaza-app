@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import AxeBuilder from "@axe-core/playwright";
 import { expect, type Page } from "@playwright/test";
 
@@ -32,8 +33,8 @@ export async function expectNoSeriousA11yViolations(page: Page) {
   expect(serious.map((v) => `${v.id} (${v.impact}) : ${v.nodes.map((n) => n.target.join(" ")).slice(0, 3).join(" | ")}`)).toEqual([]);
 }
 
-/** Noms des marques des dépôts clients : ne doivent jamais apparaître à l'écran (motif assemblé pour ne pas se signaler lui-même dans l'anti-fuite). */
-export const BRAND_LEAK = new RegExp([["maha", "za"].join(""), ["st[ _-]?lo", "uis"].join("")].join("|"), "i");
+/** Noms de marque interdits à l'écran (marques des autres dépôts) : liste de `src/brand/forbidden-names.json`, propre à chaque dépôt. */
+export const BRAND_LEAK = new RegExp((JSON.parse(readFileSync("src/brand/forbidden-names.json", "utf8")).patterns as string[]).join("|"), "i");
 
 /** Navigation du back-office : barre latérale sur bureau, tiroir (à ouvrir) sous 768 px. */
 export async function adminNav(page: Page) {

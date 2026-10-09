@@ -418,7 +418,7 @@ Ces dix-huit décisions ont été validées par Yass le 2026-10-08 (PLAN v1.0). 
 
 ### ADR-044 — Tests du socle indépendants de la marque ; e2e pilotés par la marque
 - **Contexte** : les tests du socle (planification, KPI, exports, WhatsApp) lisaient le seed d'OVAGLOW (`site-aurore`, « Soin Lumière », `OVG-`) ; l'e2e contenait des noms en dur. Dans une app cliente, qui remplace la marque, ces tests auraient échoué, et les modifier aurait créé des conflits à chaque merge de la souche.
-- **Décision** : `tests/core/fixture-brand/` est une copie figée du seed de référence (neutre : « MARQUE-TEST », préfixe `TST`) utilisée par `tests/core/fixtures.ts` ; seul `seed.test.ts` lit la marque réelle (invariants du seed : références valides, aucun chevauchement, cinq statuts, historique par client). `e2e/brand-data.ts` dérive de `brand.config` et de `vocab` les noms que les scénarios utilisent. La CI de la souche et celles des apps sont ainsi identiques.
+- **Décision** : `tests/core/fixture-brand/` est une copie figée du seed de référence (neutre : « MARQUE-TEST », préfixe `TST`) utilisée par `tests/core/fixtures.ts` ; seul `seed.test.ts` lit la marque réelle (invariants du seed : références valides, aucun chevauchement, cinq statuts, historique par client). `e2e/brand-data.ts` dérive de `brand.config` et de `vocab` les noms que les scénarios utilisent ; la liste des noms interdits (anti-fuite et e2e) est `src/brand/forbidden-names.json`, propre à chaque dépôt. La CI de la souche et celles des apps sont ainsi identiques.
 - **Conséquence** : un seed de marque doit respecter les invariants de `seed.test.ts` ; sinon la CI de l'app échoue (voulu).
 - **Statut** : **À VALIDER**.
 
