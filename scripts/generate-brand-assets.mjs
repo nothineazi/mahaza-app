@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Génère les illustrations SVG abstraites d'OVAGLOW (marque FICTIVE) : aucune photo, aucun visage, aucun média tiers.
+// Génère les illustrations SVG abstraites de la marque de démonstration de la souche (FICTIVE) : aucune photo, aucun visage, aucun média tiers.
 // Usage : node scripts/generate-brand-assets.mjs   (écrit dans public/brand/ et src/app/icon.svg ; sortie déterministe)
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -135,7 +135,7 @@ const mark = (size, radius, pad) => {
     `<path d="M${c - r * 0.62} ${c} A ${r * 0.62} ${r * 0.62} 0 0 1 ${c + r * 0.62} ${c}" fill="none" stroke="${P.brass}" stroke-width="${size * 0.09}" stroke-linecap="round"/>`
   );
 };
-const icon = (size, radius, pad) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}" width="${size}" height="${size}"><title>OVAGLOW</title>${mark(size, radius, pad)}</svg>`;
+const icon = (size, radius, pad) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}" width="${size}" height="${size}"><title>${process.env.BRAND_NAME ?? "Marque de démonstration"}</title>${mark(size, radius, pad)}</svg>`;
 out("src/app/icon.svg", icon(64, 14, 4));
 out("public/brand/icon.svg", icon(512, 112, 32));
 out("public/brand/icon-maskable.svg", icon(512, 0, 96));
