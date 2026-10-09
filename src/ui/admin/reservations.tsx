@@ -22,6 +22,7 @@ import { Panel } from "@/ui/kv/panel";
 import { LoadingRegion, Skeleton } from "@/ui/kv/skeleton";
 import { StateBlock } from "@/ui/kv/state-block";
 import { BookingStatusBadge } from "@/ui/kv/status-badge";
+import { vocab } from "@/brand/copy/vocab";
 
 
 export function ReservationsList() {
@@ -75,8 +76,8 @@ export function ReservationsList() {
           </>
         ),
       },
-      { id: "services", header: "Soins", cell: serviceNames, priority: 2, maxWidth: "max-w-[260px]" },
-      { id: "staff", header: "Praticien", cell: (r) => staffNames(r, staff), priority: 3, maxWidth: "max-w-[160px]" },
+      { id: "services", header: vocab.Services, cell: serviceNames, priority: 2, maxWidth: "max-w-[260px]" },
+      { id: "staff", header: vocab.Practitioner, cell: (r) => staffNames(r, staff), priority: 3, maxWidth: "max-w-[160px]" },
       { id: "phone", header: "Téléphone", cell: (r) => r.customerPhone, priority: 3 },
       { id: "reference", header: "Référence", cell: (r) => <span className="font-mono text-kv-meta text-muted-foreground">{r.reference}</span>, priority: 3 },
       { id: "deposit", header: "Acompte", cell: (r) => formatPrice(r.depositAmount), align: "right", priority: 2 },
@@ -146,7 +147,7 @@ export function ReservationsList() {
           ))}
         </div>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <Field label="Praticien" htmlFor={ids.p}>
+          <Field label={vocab.Practitioner} htmlFor={ids.p}>
             <select id={ids.p} className={fieldControl} value={practitioner} onChange={(e) => setPractitioner(e.target.value)}>
               <option value="">Tous</option>
               {staff.map((p) => (
@@ -154,7 +155,7 @@ export function ReservationsList() {
               ))}
             </select>
           </Field>
-          <Field label="Soin" htmlFor={ids.s}>
+          <Field label={vocab.Service} htmlFor={ids.s}>
             <select id={ids.s} className={fieldControl} value={service} onChange={(e) => setService(e.target.value)}>
               <option value="">Tous</option>
               {brand.categories.map((c) => (

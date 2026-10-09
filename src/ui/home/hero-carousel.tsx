@@ -2,6 +2,7 @@ import Link from "next/link";
 import { brand } from "@/brand/brand.config";
 import { Button } from "@/ui/primitives/button";
 import { HeroImages } from "@/ui/home/hero-images";
+import { vocab } from "@/brand/copy/vocab";
 
 /** Hero : texte et boutons rendus par le serveur ; seules les images alternent côté client (voir `HeroImages`). */
 export function HeroCarousel() {
@@ -22,7 +23,7 @@ export function HeroCarousel() {
             <Link href="/reserver">Prendre rendez-vous</Link>
           </Button>
           <Button asChild variant="outline-light" size="lg">
-            <Link href="/#soins">Découvrir nos soins</Link>
+            <Link href="/#soins">{vocab.discoverCta}</Link>
           </Button>
         </div>
       </div>

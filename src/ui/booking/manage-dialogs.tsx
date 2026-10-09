@@ -10,6 +10,7 @@ import { Button } from "@/ui/primitives/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/ui/primitives/dialog";
 import { StepSlot } from "@/ui/booking/step-slot";
 import { emptyDraft, wantedFromDraft, type Draft } from "@/ui/booking/types";
+import { vocab } from "@/brand/copy/vocab";
 
 /** Modification simulée : nouveau jour / heure pour les mêmes soins (état local, aucun envoi). */
 export function ModifyDialog({ reservation, open, onOpenChange, onDone }: { reservation: Reservation; open: boolean; onOpenChange: (o: boolean) => void; onDone: (message: string) => void }) {
@@ -48,7 +49,7 @@ function ModifyForm({ reservation, onClose, onDone }: { reservation: Reservation
     <>
       <DialogHeader>
         <DialogTitle>Modifier mon rendez-vous</DialogTitle>
-        <DialogDescription>Choisissez un nouveau jour et une nouvelle heure pour les mêmes soins. Simulation : l&apos;état reste dans votre navigateur.</DialogDescription>
+        <DialogDescription>Choisissez un nouveau jour et une nouvelle heure pour les mêmes {vocab.services}. Simulation : l&apos;état reste dans votre navigateur.</DialogDescription>
       </DialogHeader>
       <StepSlot draft={draft} ctx={ctx} lines={plan?.ok ? plan.lines : null} ignoreId={reservation.id} onChange={(p) => { setError(null); setDraft((d) => ({ ...d, ...p })); }} />
       {error && (

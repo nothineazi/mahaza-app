@@ -2,6 +2,7 @@ import type { Practitioner, Reservation, ReservationLine, Room, Service, BrandCo
 import { hoursFor } from "@/core/booking/availability";
 import { minToTime, timeToMin } from "@/core/lib/dates";
 import { occupiesSlot } from "@/core/booking/status";
+import { vocab } from "@/brand/copy/vocab";
 
 /** Contexte d'ordonnancement d'un site : tout est passé en paramètre (fonctions pures, testables). */
 export interface PlanContext {
@@ -35,9 +36,9 @@ export const FAILURE_LABELS: Record<PlanFailure, string> = {
   closed: "Le site est fermé ce jour-là.",
   outside_hours: "Le créneau dépasse les horaires d'ouverture.",
   too_soon: "Ce créneau est trop proche (préavis de 30 minutes).",
-  no_practitioner: "Aucun praticien disponible sur ce créneau.",
+  no_practitioner: `Aucun ${vocab.practitioner} disponible sur ce créneau.`,
   no_room: "Aucune salle compatible disponible sur ce créneau.",
-  unknown_service: "Soin inconnu.",
+  unknown_service: `${vocab.Service} inconnu.`,
 };
 
 export const lineDuration = (service: Pick<Service, "durationMin">, defaultDurationMin: number): number =>

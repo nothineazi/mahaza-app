@@ -7,6 +7,7 @@ import { ExternalLink, Menu, X } from "lucide-react";
 import { cn } from "@/core/lib/utils";
 import { BrandLogo } from "@/ui/brand-logo";
 import { AdminNav } from "@/ui/admin/nav";
+import { ResetDemoButton } from "@/ui/admin/reset-demo";
 import { AdminSiteSelector } from "@/ui/admin/site-selector";
 import { StatusBadge } from "@/ui/kv/status-badge";
 import { ThemeToggle } from "@/ui/kv/theme-toggle";
@@ -23,6 +24,9 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
       <AdminSiteSelector />
       <div className="flex-1">
         <AdminNav onNavigate={onNavigate} />
+      </div>
+      <div className="space-y-2 border-t border-sidebar-border pt-3">
+        <ResetDemoButton onDone={onNavigate} />
       </div>
       <div className="flex items-center justify-between gap-2 border-t border-sidebar-border pt-3">
         <Link href="/" className={cn(controlSecondary, "min-w-0 flex-1 justify-start")}>

@@ -2,6 +2,7 @@ import type { Reservation, ReservationLine } from "@/core/types";
 import { hoursFor } from "@/core/booking/availability";
 import { minToTime, timeToMin } from "@/core/lib/dates";
 import { busyOn, lineDuration, type PlanContext } from "@/core/booking/scheduling";
+import { vocab } from "@/brand/copy/vocab";
 
 export type ConflictKind = "practitioner" | "room" | "closed" | "hours" | "practitioner_inactive" | "qualification" | "room_inactive" | "room_category";
 
@@ -73,7 +74,7 @@ export function findConflicts(ctx: PlanContext, date: string, lines: Reservation
           kind: "practitioner",
           blocking: true,
           lineIndex: i,
-          message: `${practitioner?.name ?? "Praticien"} est déjà occupé(e) (${minToTime(b.from)} – ${minToTime(b.to)}).`,
+          message: `${practitioner?.name ?? vocab.Practitioner} est déjà occupé(e) (${minToTime(b.from)} – ${minToTime(b.to)}).`,
           otherReference: refOf(b.reservationId),
         });
       }
@@ -91,7 +92,7 @@ export function findConflicts(ctx: PlanContext, date: string, lines: Reservation
       out.push({ kind: "practitioner_inactive", blocking: false, lineIndex: i, message: `${practitioner.name} est marqué(e) inactif(ve).` });
     }
     if (practitioner && service && !practitioner.serviceIds.includes(service.id)) {
-      out.push({ kind: "qualification", blocking: false, lineIndex: i, message: `${practitioner.name} n'est pas assigné(e) au soin « ${service.name} ».` });
+      out.push({ kind: "qualification", blocking: false, lineIndex: i, message: `${practitioner.name} n'est pas assigné(e) au ${vocab.service} « ${service.name} ».` });
     }
     if (room && !room.active) {
       out.push({ kind: "room_inactive", blocking: false, lineIndex: i, message: `${room.name} est marquée inactive.` });

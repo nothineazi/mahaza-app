@@ -9,8 +9,9 @@ import { cn } from "@/core/lib/utils";
 import { FictiveBadge } from "@/ui/fictive-badge";
 import { Card } from "@/ui/primitives/card";
 import type { Draft } from "@/ui/booking/types";
+import { vocab } from "@/brand/copy/vocab";
 
-/** Un choix par soin du panier : « sans préférence » (par défaut) ou un praticien qualifié du site. */
+/** Un choix par service du panier : « sans préférence » (par défaut) ou un praticien qualifié du site. */
 export function StepPractitioners({ draft, onChoose }: { draft: Draft; onChoose: (serviceId: string, practitionerId: string | null) => void }) {
   const { staff } = useAppStore();
   const uid = useId();
@@ -18,7 +19,7 @@ export function StepPractitioners({ draft, onChoose }: { draft: Draft; onChoose:
   return (
     <div className="space-y-6">
       <p className="text-muted-foreground">
-        Laissez-nous attribuer la praticienne disponible, ou choisissez la personne de votre choix pour chaque soin.
+        Laissez-nous attribuer le {vocab.practitioner} disponible, ou choisissez la personne de votre choix pour chaque {vocab.service}.
       </p>
       {draft.cart.map((serviceId) => {
         const service = brand.services.find((s) => s.id === serviceId);
@@ -31,7 +32,7 @@ export function StepPractitioners({ draft, onChoose }: { draft: Draft; onChoose:
               <legend className="font-display text-2xl font-medium">{service?.name}</legend>
               {options.length === 0 ? (
                 <p className="mt-3 rounded-xl border border-dashed border-line p-4 text-sm text-muted-foreground">
-                  Aucun praticien n&apos;est disponible pour ce soin dans ce site pour le moment. Retirez-le du panier ou choisissez un autre site.
+                  Aucun {vocab.practitioner} n&apos;est disponible pour ce {vocab.service} dans ce site pour le moment. Retirez-le du panier ou choisissez un autre site.
                 </p>
               ) : (
                 <div className="mt-4 grid gap-3 sm:grid-cols-2">

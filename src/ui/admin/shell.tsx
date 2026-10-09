@@ -14,7 +14,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
         <MobileHeader />
         <main id="contenu-admin" tabIndex={-1} className="kv-content-fade mx-auto max-w-7xl space-y-6 p-4 outline-hidden md:p-5">
           <p className="rounded-lg border bg-card px-3 py-2 text-kv-meta text-muted-foreground">
-            Démonstration sans authentification. Les modifications restent en mémoire dans votre navigateur et disparaissent au rechargement. Données de démonstration marquées <strong className="font-semibold text-foreground">FICTIF</strong>.
+            Démonstration sans authentification. Les modifications sont conservées dans cet onglet du navigateur (elles ne vont nulle part ailleurs) ; « Réinitialiser la démo » (menu) revient aux données de départ. Données de démonstration marquées <strong className="font-semibold text-foreground">FICTIF</strong>.
           </p>
           {children}
         </main>

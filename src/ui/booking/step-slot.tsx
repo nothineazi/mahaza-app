@@ -12,6 +12,7 @@ import { cn } from "@/core/lib/utils";
 import { Card } from "@/ui/primitives/card";
 import { Skeleton, LoadingRegion } from "@/ui/primitives/skeleton";
 import { wantedFromDraft, type Draft } from "@/ui/booking/types";
+import { vocab } from "@/brand/copy/vocab";
 
 const DAYS_AHEAD = 14;
 
@@ -89,7 +90,7 @@ export function StepSlot({ draft, ctx, lines, onChange, ignoreId }: Props) {
           <Card className="mt-3 flex flex-col items-center gap-2 p-8 text-center">
             <CalendarX2 className="size-8 text-muted-foreground" aria-hidden />
             <p className="font-display text-2xl font-medium">Aucun créneau ce jour-là</p>
-            <p className="text-sm text-muted-foreground">Essayez un autre jour, ou allégez votre panier : plusieurs soins demandent un créneau plus long.</p>
+            <p className="text-sm text-muted-foreground">Essayez un autre jour, ou allégez votre panier : plusieurs {vocab.services} demandent un créneau plus long.</p>
           </Card>
         ) : (
           <div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-5">
@@ -137,7 +138,7 @@ export function StepSlot({ draft, ctx, lines, onChange, ignoreId }: Props) {
           </ol>
           <p className="mt-3 flex gap-2 text-xs text-muted-foreground">
             <Info className="mt-0.5 size-3.5 shrink-0" aria-hidden />
-            Praticiens et salles : données FICTIVES de démonstration. Les durées de soins sont à confirmer par {brand.name}.
+            {vocab.Practitioners} et salles : données FICTIVES de démonstration. Les durées des {vocab.services} sont à confirmer par {brand.name}.
           </p>
         </section>
       )}

@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest";
-import { brand } from "@/brand/brand.config";
 import { buildIcs, escapeIcsText, foldLine, toIcsUtc } from "@/core/lib/ics";
 import { csvCell, reservationsToCsv, toCsv } from "@/core/lib/csv";
 import { reminderLink, reminderMessage } from "@/core/whatsapp/reminders";
@@ -9,7 +8,7 @@ import { cartDurationLabel, cartTotalDuration } from "@/core/booking/cart";
 import { loyaltyFor } from "@/core/clients/loyalty";
 import { phoneKey } from "@/core/clients/phone";
 import { formatPrice } from "@/core/lib/utils";
-import { policies, reservation } from "./fixtures";
+import { brand, policies, reservation } from "./fixtures";
 
 const SITE = "site-aurore";
 const two = reservation({
@@ -22,7 +21,7 @@ const two = reservation({
 });
 
 describe("ICS", () => {
-  const ics = buildIcs(two, { siteName: "Site Aurore", brand: "OVAGLOW", services: brand.services, staff: brand.practitioners, rooms: brand.rooms, now: new Date(Date.UTC(2026, 9, 7, 8, 0, 0)) });
+  const ics = buildIcs(two, { siteName: "Site Aurore", brand: "MARQUE-TEST", services: brand.services, staff: brand.practitioners, rooms: brand.rooms, now: new Date(Date.UTC(2026, 9, 7, 8, 0, 0)) });
 
   it("convertit l'heure de Douala (UTC+1) en UTC", () => {
     expect(toIcsUtc("2026-10-13", "09:00")).toBe("20261013T080000Z");
@@ -37,9 +36,9 @@ describe("ICS", () => {
     expect(ics.endsWith("END:VCALENDAR\r\n")).toBe(true);
     expect(ics.replace(/\r\n/g, "")).not.toContain("\n");
     expect(ics).toContain("BEGIN:VALARM");
-    expect(ics).toContain("SUMMARY:[DÉMO] OVAGLOW — Site Aurore");
+    expect(ics).toContain("SUMMARY:[DÉMO] MARQUE-TEST — Site Aurore");
     expect(ics).toContain("adresse à confirmer");
-    expect(ics).toContain("UID:OVG-T001-t1@ovaglow.invalid");
+    expect(ics).toContain("UID:TST-T001-t1@marquetest.invalid");
   });
 
   it("aucune ligne ne dépasse 75 octets ; le contenu replié se reconstitue", () => {
@@ -83,13 +82,13 @@ describe("CSV", () => {
 });
 
 describe("rappel J-1 WhatsApp", () => {
-  const ctx = { brand: "OVAGLOW", siteName: "Site Aurore", services: brand.services, staff: brand.practitioners };
+  const ctx = { brand: "MARQUE-TEST", siteName: "Site Aurore", services: brand.services, staff: brand.practitioners };
   it("pré-remplit le message et vise le téléphone du client", () => {
     const msg = reminderMessage(two, ctx);
     expect(msg).toContain("Bonjour Alice");
     expect(msg).toContain("demain");
     expect(msg).toContain("10:00");
-    expect(msg).toContain("OVG-T001");
+    expect(msg).toContain("TST-T001");
     const link = reminderLink(two, ctx);
     expect(link.startsWith("https://wa.me/237600000099?text=")).toBe(true);
     expect(decodeURIComponent(link.split("text=")[1])).toBe(msg);
@@ -115,7 +114,7 @@ describe("cartes cadeaux", () => {
     expect(validateGiftAmount("abc", cfg).ok).toBe(false);
   });
   it("lien wa.me avec ou sans destinataire, message encodé", () => {
-    const msg = giftCardMessage({ code: "GC-ABCD-EFGH", amount: 40000, from: "Ruth", to: "Flore", message: "Joyeux anniversaire & à bientôt" }, "OVAGLOW");
+    const msg = giftCardMessage({ code: "GC-ABCD-EFGH", amount: 40000, from: "Ruth", to: "Flore", message: "Joyeux anniversaire & à bientôt" }, "MARQUE-TEST");
     expect(msg).toContain(formatPrice(40000));
     expect(msg).toContain("GC-ABCD-EFGH");
     expect(msg).toContain("non valable");
@@ -148,11 +147,11 @@ describe("panier, fidélité, téléphone", () => {
 
 describe("message de confirmation WhatsApp", () => {
   it("liste chaque soin avec praticien et salle, la référence et l'acompte", () => {
-    const msg = confirmationMessage(two, { brand: "OVAGLOW", siteName: "Site Aurore", momoNumber: "6 00 00 00 00", services: brand.services, staff: brand.practitioners, rooms: brand.rooms });
+    const msg = confirmationMessage(two, { brand: "MARQUE-TEST", siteName: "Site Aurore", momoNumber: "6 00 00 00 00", services: brand.services, staff: brand.practitioners, rooms: brand.rooms });
     expect(msg).toContain("(Site Aurore)");
     expect(msg).toContain("• 10:00 – 11:00 : Soin Lumière");
     expect(msg).toContain("• 11:00 – 12:00 : Manucure complète");
-    expect(msg).toContain("OVG-T001");
+    expect(msg).toContain("TST-T001");
     expect(msg).toContain("6 00 00 00 00");
   });
 });

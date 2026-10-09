@@ -1,4 +1,5 @@
 import type { Wanted } from "@/core/booking/scheduling";
+import { vocab } from "@/brand/copy/vocab";
 
 /** Identifiant du formulaire de l'étape « acompte » (le bouton principal du panier le soumet). */
 export const DEPOSIT_FORM_ID = "deposit-form";
@@ -7,8 +8,8 @@ export type StepKey = "site" | "services" | "practitioners" | "slot" | "deposit"
 
 export const STEP_LABELS: Record<StepKey, string> = {
   site: "Site",
-  services: "Soins",
-  practitioners: "Praticien",
+  services: vocab.Services,
+  practitioners: vocab.Practitioner,
   slot: "Créneau",
   deposit: "Acompte",
   confirmation: "Confirmation",
@@ -16,8 +17,8 @@ export const STEP_LABELS: Record<StepKey, string> = {
 
 export const STEP_TITLES: Record<StepKey, string> = {
   site: "Choisissez votre site",
-  services: "Composez votre moment",
-  practitioners: "Votre praticien",
+  services: vocab.composeTitle,
+  practitioners: `Votre ${vocab.practitioner}`,
   slot: "Choisissez votre créneau",
   deposit: "Acompte & coordonnées",
   confirmation: "Votre réservation",

@@ -44,11 +44,16 @@ Registre des décisions d'architecture (ADR). Format : contexte, décision, alte
 | 033 | Jobs e2e et Docker dans la CI du RUN-01 | ACCEPTÉ |
 | 034 | Turbopack par défaut | ACCEPTÉ |
 | 035 | Tailwind CSS 4.3.3, configuration CSS-first | ACCEPTÉ (GO de Yass, RUN-01b) |
-| 036 | Couche design factory : deux registres, jetons OKLCH, mode sombre par classe | **À VALIDER** |
-| 037 | Correspondance des statuts de réservation → tons de `StatusBadge` | **À VALIDER** |
-| 038 | Polices auto-hébergées : Inter, Cormorant Garamond, JetBrains Mono | **À VALIDER** |
-| 039 | Matrice statut → action primaire de la fiche de réservation | **À VALIDER** |
-| 040 | Allègement : store hors de l'accueil, chargement différé, nouveau budget de poids | **À VALIDER** |
+| 036 | Couche design factory : deux registres, jetons OKLCH, mode sombre par classe | ACCEPTÉ (Yass, RUN-P) |
+| 037 | Correspondance des statuts de réservation → tons de `StatusBadge` | ACCEPTÉ (Yass, RUN-P) |
+| 038 | Polices auto-hébergées : Inter, Cormorant Garamond, JetBrains Mono | ACCEPTÉ (Yass, RUN-P) |
+| 039 | Matrice statut → action primaire de la fiche de réservation | **ACCEPTÉ provisoirement** (RUN-P) : à valider avec la gérante et la réception (PLAN §6) |
+| 040 | Allègement : store hors de l'accueil, chargement différé, nouveau budget de poids | ACCEPTÉ (Yass, RUN-P) |
+| 041 | Persistance de l'état de la démo dans `sessionStorage` | **À VALIDER** |
+| 042 | Personnalisation par la marque : vocabulaire, logo, pictogrammes, mention de pied de page | **À VALIDER** |
+| 043 | Plan allégé : RUN-P, RUN-A, RUN-B, RUN-C ; le reste reporté en maintenance | ACCEPTÉ (consigne du RUN-P) |
+| 044 | Tests du socle indépendants de la marque ; e2e pilotés par la marque | **À VALIDER** |
+| 045 | Dérivation des apps depuis le tag `demo-v0.1` et publication GHCR | **À VALIDER** |
 
 ---
 
@@ -239,6 +244,8 @@ Ces dix-huit décisions ont été validées par Yass le 2026-10-08 (PLAN v1.0). 
 - **Décision** : l'état de la démo (`src/core/state/store.tsx`) reste en mémoire React jusqu'à son remplacement par les services serveur (RUN-02 et suivants). Deux règles `react-hooks` 7 (`refs`, `set-state-in-effect`) sont désactivées localement, avec justification, car elles sont issues du React Compiler que le projet n'active pas.
 - **Statut** : **ACCEPTÉ** (Yass, RUN-01b).
 
+- **Amendement RUN-P** : l'état est désormais persisté dans `sessionStorage` (ADR-041). Le store reste transitoire : il sera remplacé par les services serveur du RUN-A / RUN-B.
+
 ### ADR-031 — Textes non encore centralisés par module
 - **Contexte** : `STANDARDS.md` §7 demande des textes centralisés par module (`copy.ts`) pour une i18n future.
 - **Décision** : au RUN-01, seul le contenu éditorial d'accueil est isolé (`src/brand/copy/home.ts`) ; les libellés d'interface restent dans les composants. La centralisation est reportée aux runs qui réécrivent ces écrans.
@@ -301,7 +308,7 @@ Ces dix-huit décisions ont été validées par Yass le 2026-10-08 (PLAN v1.0). 
 - **Écarts à la factory** : filet `--line` du site public (point 4) ; couleur de la barre `themeColor` du navigateur : suit toujours la préférence système (écart n° 10 de la factory), car le bouton ne la modifie pas ; `next-themes` injecte un script en ligne : à couvrir par le nonce de la CSP au RUN-04.
 - **Conséquence visible** : le fond du site public passe du crème `#F8F6F2` au gris-teal quasi neutre de la recette (`oklch(0,985 0,002 200)`) ; le sombre devient plus profond. À valider visuellement (4 combinaisons).
 - **Alternatives** : thème sombre par `prefers-color-scheme` seul (pas de bouton) ; un seul registre pour les deux sites (perd l'identité éditoriale du site public).
-- **Statut** : **À VALIDER**.
+- **Statut** : **ACCEPTÉ** (Yass, RUN-P).
 
 ### ADR-037 — Correspondance des statuts de réservation → tons de `StatusBadge`
 - **Contexte** : la factory définit quatre tons de facture (`paid`, `overdue`, `pending`, `draft`) ; OVAGLOW a cinq statuts de réservation. Un badge coloré par ligne au maximum ; le texte porte toujours le sens.
@@ -317,7 +324,7 @@ Ces dix-huit décisions ont été validées par Yass le 2026-10-08 (PLAN v1.0). 
 
   Deux tons génériques s'y ajoutent pour les états qui ne sont pas des statuts de réservation : `success` (actif) et `neutral` (inactif, repère). Les blocs du planning réutilisent les mêmes jetons (fond = `-bg`, liseré gauche = `-fg`). Les cinq couples ont un contraste ≥ 4,5:1 dans les deux thèmes (minimum 5,21 clair, 6,50 sombre).
 - **Alternatives** : réutiliser telles quelles les quatre tons de la factory (confond « terminé » et « confirmé » ou « annulé » et « no-show »).
-- **Statut** : **À VALIDER**.
+- **Statut** : **ACCEPTÉ** (Yass, RUN-P).
 
 ### ADR-038 — Polices auto-hébergées : Inter, Cormorant Garamond, JetBrains Mono
 - **Contexte** : le build dépendait de Google Fonts (`next/font/google`) : un build sans réseau échouait (risque n° 5 du RUN-01), et le code est cédé aux clients, donc les licences doivent être ouvertes et versionnées.
@@ -334,7 +341,7 @@ Ces dix-huit décisions ont été validées par Yass le 2026-10-08 (PLAN v1.0). 
 - **Retraits pour ne pas charger de fichier inutile** : plus d'italique Cormorant (message de la carte cadeau en romain), plus d'italique Inter (note d'horaires du pied de page en romain), plus de `font-mono` sur le site public (code de carte cadeau en chiffres tabulaires Inter) : la police mono n'est jamais téléchargée par les pages publiques. La police de corps du site public passe de la pile système à Inter.
 - **Alternatives** : Geist (déjà celle de la factory, mais aucune raison de marque) ; fichiers « latin-ext » (inutiles en français) ; polices système seules (rendu différent d'un appareil à l'autre, y compris la graisse 450/520).
 - **Conséquences** : poids des polices public = 47 + 46 = 93 Ko (précédemment ≈ 3 fichiers Google téléchargés à l'exécution) ; le build ne contacte plus aucun serveur (vérifié avec un proxy HTTPS volontairement mort) ; Docker n'a plus besoin de réseau pour les polices. Un dépôt client change de police en remplaçant le dossier **avec sa licence**.
-- **Statut** : **À VALIDER**.
+- **Statut** : **ACCEPTÉ** (Yass, RUN-P).
 
 ### ADR-039 — Matrice statut → action primaire de la fiche de réservation
 - **Contexte** : la factory (§5.7) impose UNE action primaire adaptée au statut, toutes les autres actions restant visibles en secondaire, et seule l'action destructive dans un menu ; elle précise que cette matrice est une règle métier à faire valider avant de coder. Le run est autonome (`CLAUDE.md` §3) : choix le plus sûr et réversible, consigné ici.
@@ -351,7 +358,7 @@ Ces dix-huit décisions ont été validées par Yass le 2026-10-08 (PLAN v1.0). 
   Raison : l'action la plus fréquente de chaque statut actif fait avancer le cycle (valider l'acompte, puis clôturer) ; les corrections et réouvertures restent visibles mais ne sont jamais mises en avant ; l'annulation est la seule action destructive. Une action indisponible (ex. « Marquer terminée » avant le jour du rendez-vous) reste affichée, désactivée, avec sa raison écrite sous les actions et reliée par `aria-describedby`.
 - **Écart** : la factory place « tout le reste » en secondaire sans limite ; ici « Remettre en attente d'acompte » et « Marquer no-show » s'ajoutent au statut `confirmed` (quatre secondaires). Sur mobile, les secondaires se partagent la ligne (`flex-1`).
 - **Alternatives** : aucune primaire pour `confirmed` (la clôture serait moins visible) ; primaire « Déplacer » (action fréquente mais pas une avancée du cycle).
-- **Statut** : **À VALIDER** (à confirmer avec la gérante / la réception ; changer la matrice = une table `PRIMARY_TRANSITION` dans `src/ui/admin/reservation-dialog.tsx`).
+- **Statut** : **ACCEPTÉ provisoirement** (Yass, RUN-P) : à valider avec la gérante et la réception (ajouté à `docs/PLAN.md` §6, question 13) ; changer la matrice = une table `PRIMARY_TRANSITION` dans `src/ui/admin/reservation-dialog.tsx`.
 
 ### ADR-040 — Allègement : store hors de l'accueil, chargement différé, nouveau budget de poids
 - **Contexte** : Yass a accepté provisoirement 175 / 192 kB (ADR-024) et demande, à la fin du RUN-01b, d'expliquer l'écart de `/_not-found` (104 → 144 kB), de différer le tunnel de réservation et les cartes cadeaux, de scinder le store, puis de remesurer et de rapprocher le budget de la base (142 / 168 kB).
@@ -382,4 +389,41 @@ Ces dix-huit décisions ont été validées par Yass le 2026-10-08 (PLAN v1.0). 
 - **Budget** : `scripts/first-load-budget.json` passe à **149 kB (`/`) et 172 kB (`/reserver`)** (mesure + ~1,5 %), contrôlé en CI. Les routes `/admin/*` ne sont pas budgétées (outil interne, derrière authentification dès le RUN-02) ; elles pèsent ≈ 187 kB (store, kv, Radix) et resteront mesurées dans les rapports.
 - **Non fait** : `tailwind-merge` (8,6 kB gzip) reste dans `/reserver` et `/admin` (les composants clients appellent `cn()`), l'alléger ferait perdre la fusion des classes ; `next/image` n'est pas remplacé par `<img>` (les dépôts clients y mettront des photos AVIF/WebP, `STANDARDS.md` §7).
 - **Alternatives** : garder le store dans le layout racine (+9 kB sur `/`, aucun risque de perte d'état) ; déférer par `ssr: false` (interdit dans un composant serveur, et supprimerait le texte du serveur).
+- **Statut** : **ACCEPTÉ** (Yass, RUN-P).
+
+---
+
+## Décisions du RUN-P (apps de démonstration pour la présentation)
+
+### ADR-041 — Persistance de l'état de la démo dans `sessionStorage`
+- **Contexte** : le store de la démo (ADR-030, ADR-040) vivait en mémoire React dans le layout `(app)` : un détour par l'accueil ou un rechargement remettait les données seed, donc une réservation faite sur `/reserver` disparaissait du back-office pendant une présentation.
+- **Décision** : `src/core/state/persist.ts` écrit un instantané JSON (réservations, clients, salles, équipe, site du back-office) dans `sessionStorage` à chaque changement, après l'hydratation, et le relit au montage du store. Tout accès est enveloppé dans un `try/catch` ; repli sur une copie en mémoire du module quand le stockage est bloqué (navigation privée, quota). L'instantané est lié à la **date du jour** (les dates du seed sont relatives à la semaine en cours : le lendemain on repart du seed), à une **version** de format et à une **clé propre à la marque** (`<préfixe>-demo-state`). Un instantané absent, périmé ou corrompu est ignoré sans erreur. Bouton **« Réinitialiser la démo »** (barre latérale et tiroir mobile du back-office, avec confirmation) : efface l'instantané et repart du seed.
+- **Pourquoi `sessionStorage`** : propre à l'onglet, vidé à la fermeture de l'onglet, donc aucune donnée ne s'accumule ni ne se partage entre présentateurs sur un même poste ; rien ne quitte le navigateur (aucune donnée réelle, tout est FICTIF ou saisi pour la démo).
+- **Alternatives** : `localStorage` (survit à la fermeture : un poste partagé garderait les réservations de la présentation précédente) ; remonter le store dans le layout racine (+9 kB sur l'accueil, ADR-040).
+- **Conséquences** : le store reste un état de démo ; aucune donnée personnelle saisie dans la démo n'est envoyée à un serveur. Test unitaire (`tests/core/persist.test.ts`, 6 cas dont stockage bloqué) et e2e (réservation → accueil → admin → rechargement → réinitialisation, à 375 et 1280 px).
+- **Statut** : **À VALIDER**.
+
+### ADR-042 — Personnalisation par la marque : vocabulaire, logo, pictogrammes, mention de pied de page
+- **Contexte** : une app cliente ne modifie que `src/brand/`, `public/brand/`, `brand.config.ts`, le seed et les métadonnées (jamais `src/core` ni `src/ui`). Or le socle écrivait en dur « soin », « praticien », un logo SVG unique, une mention « Marque fictive » et une rotation fixe de pictogrammes : un barbershop affichait « Réserver un soin ».
+- **Décision** : (1) `src/brand/copy/vocab.ts` exporte `vocab` (type `Vocabulary`) : mots de base (service / soin, praticien / barbier, pluriels et capitales dérivés) et six phrases d'accueil et de tunnel ; `src/ui` et `src/core` lisent `vocab` et n'écrivent plus ces mots (26 fichiers) ; (2) `BrandConfig` gagne `logoImage` (logo complet, plaque claire en thème sombre), `logoMark` (pastille image + wordmark texte) et `footerNote` ; (3) `FeaturedCare.icon` choisit le pictogramme des prestations vedettes parmi huit.
+- **Conséquence** : tout ce qui change d'une marque à l'autre passe par `src/brand/`. Une évolution du socle reste mergée par `git merge upstream/main`.
+- **Alternatives** : bibliothèque d'i18n (interdit en v1, STANDARDS §7) ; modifier `src/ui` dans chaque app (conflits de merge permanents).
+- **Statut** : **À VALIDER**.
+
+### ADR-043 — Plan allégé
+- **Contexte** : la présentation au client a lieu le soir même ; le contrat est signé et le plan v1.1 comptait 18 runs. Yass demande un plan allégé : apps de démonstration d'abord, puis trois runs de fond.
+- **Décision** : `docs/PLAN.md` §5 est remplacé par RUN-P (apps + staging), RUN-A (PostgreSQL, Drizzle, authentification, rôles, audit, CI), RUN-B (référentiel, catalogue, agenda serveur, réservation publique persistante, acompte manuel, « Gérer mon RDV »), RUN-C (back-office des réservations, clients, WhatsApp N1, notifications par polling, sauvegarde, en-têtes, runbook), plus une section **« Reporté en maintenance »** (RLS, pg-boss / worker, SSE, PWA / push, rôles `comptable` et `support_tech`, caisse, fidélité, stock, RH, rapports, WhatsApp Cloud API, walk-in, réservation groupée). Après chaque run A, B ou C : `git merge upstream/main` dans les deux apps.
+- **Conséquences** : les STANDARDS qui mentionnent RLS, pg-boss, SSE ou PWA décrivent la cible complète ; ce qui est reporté l'est explicitement. Les rôles du RUN-A sont `super_admin`, `gerante`, `reception`, `praticien` (portée par site).
+- **Statut** : **ACCEPTÉ** (consigne de Yass pour le RUN-P).
+
+### ADR-044 — Tests du socle indépendants de la marque ; e2e pilotés par la marque
+- **Contexte** : les tests du socle (planification, KPI, exports, WhatsApp) lisaient le seed d'OVAGLOW (`site-aurore`, « Soin Lumière », `OVG-`) ; l'e2e contenait des noms en dur. Dans une app cliente, qui remplace la marque, ces tests auraient échoué, et les modifier aurait créé des conflits à chaque merge de la souche.
+- **Décision** : `tests/core/fixture-brand/` est une copie figée du seed de référence (neutre : « MARQUE-TEST », préfixe `TST`) utilisée par `tests/core/fixtures.ts` ; seul `seed.test.ts` lit la marque réelle (invariants du seed : références valides, aucun chevauchement, cinq statuts, historique par client). `e2e/brand-data.ts` dérive de `brand.config` et de `vocab` les noms que les scénarios utilisent. La CI de la souche et celles des apps sont ainsi identiques.
+- **Conséquence** : un seed de marque doit respecter les invariants de `seed.test.ts` ; sinon la CI de l'app échoue (voulu).
+- **Statut** : **À VALIDER**.
+
+### ADR-045 — Dérivation des apps depuis `demo-v0.1` et publication GHCR
+- **Contexte** : le plan (ADR-003) prévoyait « historique propre » à la création des apps, avant un `git merge upstream/main`. Or un merge de la souche exige un ancêtre commun.
+- **Décision** : chaque app est créée **avec l'historique de la souche**, à partir du tag `demo-v0.1` (remote `upstream` = souche, push sur `main` de l'app). L'historique est ré-écrit à la cession (déjà prévu au PLAN §2). Chaque app ajoute `.github/workflows/release.yml` : sur `main`, build de l'image et push vers `ghcr.io/nothineazi/<dépôt>` (tags `latest` et SHA du commit), avec `GITHUB_TOKEN` et la permission `packages: write`. `CI` identique à la souche. `git diff upstream/main -- src/core` reste vide.
+- **Alternatives** : historique propre (merges ultérieurs impossibles sans ancêtre commun) ; image construite sur le serveur (interdit : ADR-018).
 - **Statut** : **À VALIDER**.

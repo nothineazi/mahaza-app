@@ -212,7 +212,8 @@ docs/
 - **Matrice d'autorisation générée** : chaque rôle × chaque action × un autre site → refus attendu.
 - **E2E Playwright** à 375 et 1280 px : réservation publique, connexion + 2FA, parcours clés du back-office. axe sans violation sérieuse.
 - **Concurrence** : 20 réservations parallèles sur le même créneau → **1 seule** réussit.
-- **Anti-fuite de marque** : dans la souche, `git grep -i` sur « mahaza » et « st louis » ne renvoie rien (hors `docs/runs/`).
+- **Anti-fuite de marque** : dans la souche, `git grep -i` sur « mahaza » et « st louis » ne renvoie rien (hors `docs/runs/`). Dans une app cliente, `scripts/check-brand-leak.mjs` interdit « ovaglow » et la marque de l'autre client (hors `docs/` et `CLAUDE.md`).
+- **Indépendance de la marque** (ADR-044) : les tests du socle utilisent `tests/core/fixture-brand/` ; l'e2e lit la marque (`e2e/brand-data.ts`) ; aucune chaîne de marque en dur dans `tests/` ni `e2e/`.
 
 ---
 

@@ -19,7 +19,7 @@ src/
     clients/                 loyalty, phone
     sites/                   sites (multi-site, site par défaut)
     whatsapp/                whatsapp (liens wa.me), messages, reminders
-    state/                   store.tsx (état en mémoire, transitoire)
+    state/                   store.tsx (état de la démo, transitoire) + persist.ts (sessionStorage, ADR-041)
     lib/                     dates (Africa/Douala), utils (FCFA), runtime (APP_ENV), csv, ics, download, use-now
     types.ts                 types du domaine et BrandConfig
   brand/                     MARQUE (seul dossier modifié par un dépôt client)
@@ -70,8 +70,9 @@ Les évolutions du socle circulent dans un seul sens : souche → tag → `git m
 - **Thème** : `src/brand/theme/tokens.css` (seul fichier de couleurs de la marque, OKLCH, teinte `--brand-h`), relié aux classes Tailwind par `@theme inline` dans `src/app/globals.css`. Clair / sombre par la classe `.dark` sur `<html>` (`next-themes`, défaut = thème du système, bouton dans la coque du back-office, `color-scheme` natif). Surfaces toujours sombres du site public : `inverse`, accent doré : `gold`, filet décoratif : `line`.
 - **Polices** (`src/brand/theme/fonts.ts`, fichiers et licences OFL dans `src/brand/fonts/`) : trois rôles `--font-sans` (Inter), `--font-display` (Cormorant Garamond), `--font-mono` (JetBrains Mono), tous auto-hébergés par `next/font/local` ; le build ne contacte aucun service (ADR-038).
 - **Temps** : stocké en UTC dans la cible ; affichage `Africa/Douala` (`src/core/lib/dates.ts`). **Montants** : FCFA entiers (`formatPrice`).
+- **Vocabulaire et personnalisation** (ADR-042) : `src/brand/copy/vocab.ts` (`vocab`) fournit soin / service, praticien / barbier et les phrases d'accueil ; `src/ui` et `src/core` n'écrivent jamais ces mots. `BrandConfig` porte aussi `logoImage`, `logoMark`, `footerNote`.
 - **Planification** : les fonctions de `src/core/booking/` sont pures (contexte passé en paramètre) et couvertes par les tests unitaires : créneaux, enchaînement multi-soins, conflits praticien / salle, cycle de vie, expiration d'acompte.
-- **Store** (`src/core/state/store.tsx`) : état de la démo en mémoire, **transitoire** (ADR-030). Il sera remplacé par des services serveur adossés à PostgreSQL ; les fonctions pures de `core/booking/` en seront le moteur.
+- **Store** (`src/core/state/store.tsx`) : état de la démo, **transitoire** (ADR-030), persisté dans `sessionStorage` (`persist.ts`, ADR-041 : instantané du jour, version, clé par marque, repli en mémoire) ; `resetDemo()` repart du seed. Il sera remplacé par des services serveur adossés à PostgreSQL ; les fonctions pures de `core/booking/` en seront le moteur.
 
 ## 5. Build, image, CI
 

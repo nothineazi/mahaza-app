@@ -185,9 +185,21 @@ export interface SocialLink {
   url: string;
 }
 
+export interface BrandImage {
+  src: string;
+  width: number;
+  height: number;
+  alt: string;
+}
+
+/** Pictogrammes disponibles pour les prestations vedettes de l'accueil (`FeaturedCare.icon`). */
+export type FeaturedIcon = "flower" | "droplets" | "waves" | "hand" | "scissors" | "sparkles" | "flame" | "crown";
+
 export interface FeaturedCare {
   title: string;
   description: string;
+  /** Pictogramme ; absent = rotation par défaut selon la position. */
+  icon?: FeaturedIcon;
 }
 
 /** Contenu éditorial de l'accueil (`src/brand/copy/home.ts`). */
@@ -200,6 +212,37 @@ export interface HomeContent {
   process: { title: string; image?: { src: string; width: number; height: number; alt: string } }[];
   gift: { title: string; text: string; image: { src: string; width: number; height: number; alt: string }; amounts: number[] };
   decorImage: { src: string; width: number; height: number };
+}
+
+/**
+ * Vocabulaire de la marque (`src/brand/copy/vocab.ts`) : institut (soin, praticien) ou barbershop (service, barbier).
+ * Les formes au pluriel et en capitale sont dérivées par `makeVocab`. Le socle n'écrit jamais ces mots en dur.
+ */
+export interface Vocabulary {
+  service: string;
+  services: string;
+  Service: string;
+  Services: string;
+  practitioner: string;
+  practitioners: string;
+  Practitioner: string;
+  Practitioners: string;
+  /** Libellé du bouton principal de l'accueil. */
+  bookCta: string;
+  /** Lien du héros vers la section des prestations vedettes. */
+  discoverCta: string;
+  /** Entrée du menu public vers cette section. */
+  navServices: string;
+  featuredKicker: string;
+  featuredTitle: string;
+  /** Titre de l'étape « choix des prestations » du tunnel de réservation. */
+  composeTitle: string;
+  /** Titre de la section catalogue de l'accueil. */
+  catalogTitle: string;
+  /** Aide de l'étape « choix des prestations ». */
+  composeHint: string;
+  /** Exemple dans le champ de recherche de l'étape « choix des prestations ». */
+  searchExample: string;
 }
 
 /** Fonctionnalités optionnelles du socle, activées par chaque marque (`brand.config.ts`). Non construites au RUN-01 : le drapeau seul existe. */
@@ -218,6 +261,12 @@ export interface BrandConfig {
   description: string;
   /** Wordmark texte de la marque (affiché par `BrandLogo`). */
   logoText: string;
+  /** Logo complet (image dans `public/brand/`) : remplace la pastille et le wordmark. Posé sur une plaque claire en thème sombre. */
+  logoImage?: BrandImage;
+  /** Pastille de marque (image dans `public/brand/`) : remplace la pastille par défaut, le wordmark texte reste affiché à côté. */
+  logoMark?: BrandImage;
+  /** Mention en bas de page (démo). Par défaut : « Marque fictive de démonstration… ». */
+  footerNote?: string;
   city: string;
   address: string;
   /** Horaires détaillés (affichés tels quels) ; `hoursToConfirm` ajoute la mention « à confirmer par site ». */

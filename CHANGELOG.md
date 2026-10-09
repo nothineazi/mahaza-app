@@ -2,6 +2,16 @@
 
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Les versions de la souche sont des tags `core-vX.Y` (le premier : fin du RUN-10).
 
+## [Non publié] — RUN-P : apps de démonstration (tag `demo-v0.1`)
+
+### Ajouté
+- **État de la démo conservé dans l'onglet** (`sessionStorage`, repli en mémoire, lié au jour et à la marque) : une réservation faite sur `/reserver` reste visible dans `/admin`, même via l'accueil ou après rechargement ; bouton **« Réinitialiser la démo »** avec confirmation (ADR-041).
+- **Couche de personnalisation par la marque** (ADR-042) : `src/brand/copy/vocab.ts` (soin / service, praticien / barbier et phrases d'accueil), `logoImage`, `logoMark`, `footerNote`, pictogrammes des prestations vedettes.
+- Tests : `persist.test.ts` (6), e2e de persistance (375 et 1280 px) ; tests du socle indépendants de la marque (`tests/core/fixture-brand/`) et e2e pilotés par la marque (`e2e/brand-data.ts`), ADR-044.
+
+### Modifié
+- ADR 036 à 040 acceptés (039 provisoirement). Plan allégé : RUN-P, RUN-A, RUN-B, RUN-C, le reste reporté en maintenance (ADR-043).
+
 ## [Non publié] — RUN-01b : fondations design et outillage
 
 ### Modifié

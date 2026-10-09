@@ -1,5 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { expect, test } from "@playwright/test";
+import { data } from "./brand-data";
 import { BRAND_LEAK, adminNav, expectNoHorizontalScroll, expectNoSeriousA11yViolations, layoutShiftScore } from "./helpers";
 
 const BANNER = "Version de développement – données fictives";
@@ -7,7 +8,7 @@ const BANNER = "Version de développement – données fictives";
 test.describe("accueil", () => {
   test("affiche la marque fictive, le bandeau et reste stable", async ({ page }) => {
     await page.goto("/");
-    await expect(page.getByRole("heading", { level: 1, name: "Bienvenue chez OVAGLOW" })).toBeVisible();
+    await expect(page.getByRole("heading", { level: 1, name: data.heroTitle })).toBeVisible();
     await expect(page.getByRole("status").filter({ hasText: BANNER })).toBeVisible();
     await expect(page.getByRole("link", { name: "Prendre rendez-vous" }).first()).toBeVisible();
     await expect(page.locator("body")).not.toContainText(BRAND_LEAK);
@@ -17,10 +18,10 @@ test.describe("accueil", () => {
 
   test("catalogue FICTIF, sites et pied de page", async ({ page }) => {
     await page.goto("/");
-    await expect(page.getByRole("heading", { name: "Nos services" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: data.catalogTitle })).toBeVisible();
     await expect(page.getByText("Prix en FCFA, FICTIFS")).toBeVisible();
     await expect(page.locator("#sites").getByRole("heading", { name: "Nos sites" })).toBeVisible();
-    await expect(page.getByText("Marque fictive de démonstration. Aucune réservation")).toBeVisible();
+    await expect(page.getByText(data.footerNote)).toBeVisible();
   });
 
   test("accessibilité (axe) en clair et en sombre", async ({ page }) => {
@@ -41,14 +42,14 @@ test.describe("réservation multi-soins", () => {
     await expect(page.getByRole("status").filter({ hasText: BANNER })).toBeVisible();
 
     // 1. Site
-    await page.getByRole("button", { name: /Site Aurore/ }).click();
+    await page.getByRole("button", { name: data.siteButton }).click();
     // 2. Deux soins dans le panier
-    await expect(page.getByRole("heading", { level: 1, name: "Composez votre moment" })).toBeVisible();
-    await page.getByRole("button", { name: /Soin Lumière/ }).first().click();
-    await page.getByRole("button", { name: /Manucure complète/ }).first().click();
+    await expect(page.getByRole("heading", { level: 1, name: data.composeTitle })).toBeVisible();
+    await page.getByRole("button", { name: data.serviceAButton }).first().click();
+    await page.getByRole("button", { name: data.serviceBButton }).first().click();
     await page.getByRole("button", { name: "Continuer" }).click();
     // 3. Praticien : « sans préférence » par défaut
-    await expect(page.getByRole("heading", { level: 1, name: "Votre praticien" })).toBeVisible();
+    await expect(page.getByRole("heading", { level: 1, name: data.practitionerTitle })).toBeVisible();
     await page.getByRole("button", { name: "Choisir le créneau" }).click();
     // 4. Créneau
     await expect(page.getByRole("heading", { level: 1, name: "Choisissez votre créneau" })).toBeVisible();
@@ -66,9 +67,9 @@ test.describe("réservation multi-soins", () => {
     await page.getByRole("button", { name: "Confirmer ma réservation" }).click();
     // 6. Confirmation
     await expect(page.getByRole("heading", { level: 1, name: "Votre réservation" })).toBeVisible();
-    await expect(page.getByText(/OVG-\d{4}/).first()).toBeVisible();
-    await expect(page.getByText("Soin Lumière").first()).toBeVisible();
-    await expect(page.getByText("Manucure complète").first()).toBeVisible();
+    await expect(page.getByText(data.reference).first()).toBeVisible();
+    await expect(page.getByText(data.serviceA).first()).toBeVisible();
+    await expect(page.getByText(data.serviceB).first()).toBeVisible();
     // En-dehors de la production, le lien WhatsApp n'a pas de destinataire.
     const wa = page.getByRole("link", { name: /Envoyer la confirmation sur WhatsApp/ });
     await expect(wa).toHaveAttribute("href", /^https:\/\/wa\.me\/\?text=/);
@@ -76,14 +77,56 @@ test.describe("réservation multi-soins", () => {
     expect(decodeURIComponent(href)).toContain("FICTIF – ne pas payer");
     // .ics
     const [download] = await Promise.all([page.waitForEvent("download"), page.getByRole("button", { name: "Ajouter au calendrier" }).click()]);
-    expect(download.suggestedFilename()).toMatch(/^rdv-OVG-\d{4}\.ics$/);
+    expect(download.suggestedFilename()).toMatch(data.icsFile);
     const ics = await readFile((await download.path())!, "utf8");
     expect(ics).toContain("BEGIN:VCALENDAR");
-    expect(ics).toContain("SUMMARY:[DÉMO] OVAGLOW");
+    expect(ics).toContain(data.icsSummary);
     // Simulation de la confirmation du site
     await page.getByRole("button", { name: "Simuler la confirmation du salon" }).click();
     await expect(page.getByText("Confirmée").first()).toBeVisible();
     await expectNoSeriousA11yViolations(page);
+  });
+});
+
+test.describe("état de la démo conservé dans l'onglet (ADR-041)", () => {
+  test("une réservation faite sur /reserver reste visible dans /admin, même via l'accueil et après rechargement ; « Réinitialiser la démo » l'efface", async ({ page }) => {
+    const customer = "Cliente Persistance";
+    await page.goto("/reserver");
+    await page.getByRole("button", { name: data.siteButton }).click();
+    await page.getByRole("button", { name: data.serviceAButton }).first().click();
+    await page.getByRole("button", { name: "Continuer" }).click();
+    await page.getByRole("button", { name: "Choisir le créneau" }).click();
+    await page.locator('section[aria-labelledby="slot-day"] button:not([disabled])').first().click();
+    await page.locator('section[aria-labelledby="slot-time"] button').first().click();
+    await page.getByRole("button", { name: "Continuer vers l'acompte" }).click();
+    await page.getByLabel("Nom complet").fill(customer);
+    await page.getByLabel(/Téléphone/).fill("6 12 34 56 79");
+    await page.getByRole("button", { name: "Confirmer ma réservation" }).click();
+    await expect(page.getByRole("heading", { level: 1, name: "Votre réservation" })).toBeVisible();
+    const reference = (await page.getByText(data.reference).first().textContent())?.match(data.reference)?.[0] ?? "";
+    expect(reference).not.toBe("");
+
+    // Détour par l'accueil (autre groupe de routes : le store est démonté), puis le back-office.
+    await page.goto("/");
+    await expect(page.getByRole("heading", { level: 1, name: data.heroTitle })).toBeVisible();
+    await page.goto("/admin/reservations");
+    const search = page.getByRole("searchbox", { name: /Rechercher un client/ });
+    await search.fill(reference);
+    await expect(page.getByText(customer).and(page.locator(":visible")).first()).toBeVisible();
+
+    // Rechargement complet : toujours là.
+    await page.reload();
+    await page.getByRole("searchbox", { name: /Rechercher un client/ }).fill(reference);
+    await expect(page.getByText(customer).and(page.locator(":visible")).first()).toBeVisible();
+
+    // Réinitialisation (confirmée) : la réservation disparaît.
+    await adminNav(page);
+    await page.getByRole("button", { name: "Réinitialiser la démo" }).and(page.locator(":visible")).first().click();
+    await expect(page.getByRole("alert").filter({ hasText: "revenir aux données de départ" })).toBeVisible();
+    await page.getByRole("button", { name: "Réinitialiser", exact: true }).and(page.locator(":visible")).first().click();
+    await page.goto("/admin/reservations");
+    await page.getByRole("searchbox", { name: /Rechercher un client/ }).fill(reference);
+    await expect(page.getByText(customer)).toHaveCount(0); // ni carte mobile, ni ligne de tableau
   });
 });
 
@@ -106,12 +149,12 @@ test.describe("chargement différé (poids du premier chargement)", () => {
   test("réservation : récapitulatif détaillé (feuille mobile) ouvert à la demande", async ({ page }) => {
     test.skip((page.viewportSize()?.width ?? 1280) >= 1024, "la barre du panier n'existe que sous 1024 px");
     await page.goto("/reserver");
-    await page.getByRole("button", { name: /Site Aurore/ }).click();
-    await page.getByRole("button", { name: /Soin Lumière/ }).first().click();
-    await page.getByRole("button", { name: /Voir le récapitulatif|1 soin/ }).first().click();
+    await page.getByRole("button", { name: data.siteButton }).click();
+    await page.getByRole("button", { name: data.serviceAButton }).first().click();
+    await page.getByRole("button", { name: data.cartSummaryButton }).first().click();
     const dialog = page.getByRole("dialog");
     await expect(dialog.getByRole("heading", { name: "Votre réservation" })).toBeVisible();
-    await expect(dialog.getByText("Soin Lumière").first()).toBeVisible();
+    await expect(dialog.getByText(data.serviceA).first()).toBeVisible();
     await page.keyboard.press("Escape");
     await expect(dialog).toBeHidden();
   });

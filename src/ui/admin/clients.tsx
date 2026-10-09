@@ -22,6 +22,7 @@ import { Panel, PanelHeader } from "@/ui/kv/panel";
 import { LoadingRegion, Skeleton } from "@/ui/kv/skeleton";
 import { StateBlock } from "@/ui/kv/state-block";
 import { BookingStatusBadge, StatusBadge } from "@/ui/kv/status-badge";
+import { vocab } from "@/brand/copy/vocab";
 
 const loyalty = (c: Client, history: Reservation[]) => loyaltyFor(c, history.map((r) => r.status), brand.policies.loyalty);
 
@@ -150,7 +151,7 @@ function ClientDetail({ client, history, onBack }: { client: Client; history: Re
 
   const columns: Column<Reservation>[] = [
     { id: "when", header: "Quand", cell: (r) => <><span className="inline-block first-letter:uppercase">{formatDateShort(r.date)}</span> · {r.lines[0].start} – {reservationEnd(r.lines)}</> },
-    { id: "services", header: "Soins", cell: serviceNames, maxWidth: "max-w-[260px]" },
+    { id: "services", header: vocab.Services, cell: serviceNames, maxWidth: "max-w-[260px]" },
     { id: "status", header: "Statut", cell: (r) => <BookingStatusBadge status={r.status} /> },
   ];
 
@@ -172,7 +173,7 @@ function ClientDetail({ client, history, onBack }: { client: Client; history: Re
           <Metric k="Visites terminées" v={String(l.visits)} />
           <Metric k="No-shows" v={String(noShows)} />
           <Metric k="Annulations" v={String(cancelled)} />
-          <Metric k="Praticien habituel" v={fav ?? "—"} />
+          <Metric k={`${vocab.Practitioner} habituel`} v={fav ?? "—"} />
         </dl>
       </Panel>
 

@@ -20,6 +20,7 @@ import { StatusPill } from "@/ui/primitives/pill";
 import { DepositCountdown } from "@/ui/booking/countdown";
 import { CancelDialog, ModifyDialog } from "@/ui/booking/manage-dialogs";
 import type { Draft } from "@/ui/booking/types";
+import { vocab } from "@/brand/copy/vocab";
 
 export function StepConfirmation({ draft, onUpdate, onRestart }: { draft: Draft; onUpdate: (patch: Partial<Draft>) => void; onRestart: () => void }) {
   const { reservations, staff, rooms, setStatus } = useAppStore();
@@ -115,7 +116,7 @@ export function StepConfirmation({ draft, onUpdate, onRestart }: { draft: Draft;
           </ul>
           <p className="flex gap-2 text-xs text-muted-foreground">
             <Clock className="mt-0.5 size-3.5 shrink-0" aria-hidden />
-            Praticiens, salles et acompte : données FICTIVES de démonstration. Durées à confirmer par {brand.name}.
+            {vocab.Practitioners}, salles et acompte : données FICTIVES de démonstration. Durées à confirmer par {brand.name}.
           </p>
         </div>
       </Card>

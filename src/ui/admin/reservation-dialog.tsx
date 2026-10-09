@@ -25,6 +25,7 @@ import { Field } from "@/ui/kv/field";
 import { FictiveTag } from "@/ui/kv/fictive-tag";
 import { Modal, ModalBody, ModalContent, ModalHeader } from "@/ui/kv/modal";
 import { BookingStatusBadge } from "@/ui/kv/status-badge";
+import { vocab } from "@/brand/copy/vocab";
 
 const serviceName = (id: string) => brand.services.find((s) => s.id === id)?.name;
 const hhmm = (ms: number) => new Intl.DateTimeFormat("fr-FR", { hour: "2-digit", minute: "2-digit", timeZone: "Africa/Douala" }).format(ms);
@@ -109,7 +110,7 @@ function Detail({ reservation, onClose }: { reservation: Reservation; onClose: (
           <Row k="Quand">
             <span className="first-letter:uppercase">{formatDateLong(reservation.date)}</span>, {reservation.lines[0].start} – {reservationEnd(reservation.lines)} <span className="text-muted-foreground">(indicatif)</span>
           </Row>
-          <Row k="Soins">
+          <Row k={vocab.Services}>
             <ul className="space-y-1">
               {reservation.lines.map((l) => (
                 <li key={l.serviceId}>
@@ -253,7 +254,7 @@ function MoveForm({ reservation, onDone }: { reservation: Reservation; onDone: (
       {reservation.lines.map((l, i) => (
         <fieldset key={l.serviceId} className="grid gap-4 rounded-lg border bg-card p-3 sm:grid-cols-2">
           <legend className="px-1 text-kv-section">{serviceName(l.serviceId)}</legend>
-          <Field label="Praticien" htmlFor={`${uid}-p-${i}`}>
+          <Field label={vocab.Practitioner} htmlFor={`${uid}-p-${i}`}>
             <select id={`${uid}-p-${i}`} className={fieldControl} value={assign[i].practitionerId} onChange={(e) => setAssignField(i, "practitionerId", e.target.value)}>
               {siteStaff.map((p) => (
                 <option key={p.id} value={p.id}>{p.name}{p.active ? "" : " (inactif)"}</option>
