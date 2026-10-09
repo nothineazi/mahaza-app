@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { BrandLogo } from "@/ui/brand-logo";
 import { Button } from "@/ui/primitives/button";
+import { vocab } from "@/brand/copy/vocab";
 
 const NAV = [
-  { href: "/#soins", label: "Nos soins" },
+  { href: "/#soins", label: vocab.navServices },
   { href: "/#cartes-cadeaux", label: "Cartes cadeaux" },
   { href: "/#sites", label: "Nos sites" },
   { href: "/#contact", label: "Contact" },

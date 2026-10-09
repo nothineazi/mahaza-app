@@ -13,8 +13,34 @@ import { checkTransition, reoccupiesSlot } from "@/core/booking/lifecycle";
 import { phoneKey } from "@/core/clients/phone";
 import { planLines, FAILURE_LABELS, type PlanContext, type Wanted } from "@/core/booking/scheduling";
 import { buildSeedReservations } from "@/core/booking/seed";
+import { clearSnapshot, loadSnapshot, saveSnapshot, SNAPSHOT_VERSION } from "@/core/state/persist";
+import { vocab } from "@/brand/copy/vocab";
 
 const policies = brand.policies;
+/** Clé propre à la marque : deux marques servies sur la même origine (jamais en production) ne partagent pas leur état. */
+const STORAGE_KEY = `${brand.referencePrefix.toLowerCase()}-demo-state`;
+
+/** État de départ : données seed de la marque, dates calculées par rapport à `today`. */
+function seedState(today: string) {
+  return {
+    reservations: buildSeedReservations(
+      {
+        demo: demoReservations,
+        services: brand.services,
+        defaultDurationMin: brand.defaultDurationMin ?? 60,
+        referencePrefix: brand.referencePrefix,
+        depositFor: (siteId) => depositForService({}, getSite(siteId)),
+        today,
+        nowMs: Date.now(),
+        seedHoldMin: policies.seedHoldMin,
+      },
+      demoClients,
+    ),
+    clients: demoClients,
+    rooms: brand.rooms,
+    staff: brand.practitioners,
+  };
+}
 
 export type Result<T = void> = { ok: true; value: T } | { ok: false; reason: string; conflicts?: Conflict[] };
 const fail = (reason: string, conflicts?: Conflict[]): { ok: false; reason: string; conflicts?: Conflict[] } => ({ ok: false, reason, conflicts });
@@ -56,6 +82,8 @@ interface Store {
   saveStaff: (member: Practitioner) => void;
   removeStaff: (id: string) => void;
   newId: (prefix: string) => string;
+  /** Efface l'état persisté et repart des données seed (bouton « Réinitialiser la démo »). */
+  resetDemo: () => void;
 }
 
 const StoreContext = createContext<Store | null>(null);
@@ -64,8 +92,9 @@ const wantedOf = (lines: ReservationLine[]): Wanted[] =>
   lines.map((l) => ({ serviceId: l.serviceId, practitionerId: l.noPreference ? null : l.practitionerId }));
 
 /**
- * État de la démo (transitoire, remplacé par les services serveur de `src/core/**` aux runs suivants) : tout vit en mémoire (React state). Un rechargement remet les données seed
- * d'origine — rien n'est envoyé ni stocké nulle part.
+ * État de la démo (transitoire, remplacé par les services serveur de `src/core/**` au RUN-A/B) : React state, persisté dans `sessionStorage`
+ * (ADR-041, voir `persist.ts`) pour survivre à un rechargement et à un passage par l'accueil. Rien n'est envoyé hors du navigateur.
+ * `resetDemo()` repart des données seed.
  */
 export function AppStoreProvider({ children }: { children: ReactNode }) {
   const [today, setToday] = useState("");
@@ -83,28 +112,31 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
   // eslint-disable-next-line react-hooks/refs
   latest.current = { reservations, clients, rooms, staff };
 
+  // Vrai une fois l'état lu (instantané ou seed) : tant qu'il est faux, rien n'est écrit (on n'écraserait pas l'instantané par le seed).
+  const hydrated = useRef(false);
+
   useEffect(() => {
     const t = todayISO();
-    // Initialisation côté client uniquement (la date du jour et l'horloge n'existent pas au rendu serveur : évite un décalage d'hydratation).
+    // Initialisation côté client uniquement (date du jour, horloge et sessionStorage n'existent pas au rendu serveur : évite un décalage d'hydratation).
+    // Un instantané du jour (ADR-041) permet de retrouver une réservation faite sur /reserver après un passage par l'accueil ou un rechargement.
+    const snap = loadSnapshot(STORAGE_KEY, t);
+    const state = snap ?? seedState(t);
     /* eslint-disable react-hooks/set-state-in-effect */
     setToday(t);
-    setReservations(
-      buildSeedReservations(
-        {
-          demo: demoReservations,
-          services: brand.services,
-          defaultDurationMin: brand.defaultDurationMin ?? 60,
-          referencePrefix: brand.referencePrefix,
-          depositFor: (siteId) => depositForService({}, getSite(siteId)),
-          today: t,
-          nowMs: Date.now(),
-          seedHoldMin: policies.seedHoldMin,
-        },
-        demoClients,
-      ),
-    );
+    setReservations(state.reservations);
+    setClients(state.clients);
+    setRooms(state.rooms);
+    setStaff(state.staff);
+    if (snap) setAdminSiteId(snap.adminSiteId);
     /* eslint-enable react-hooks/set-state-in-effect */
+    hydrated.current = true;
   }, []);
+
+  // Persistance : à chaque changement d'état, après l'hydratation.
+  useEffect(() => {
+    if (!hydrated.current || today === "") return;
+    saveSnapshot(STORAGE_KEY, { v: SNAPSHOT_VERSION, day: today, reservations, clients, rooms, staff, adminSiteId });
+  }, [today, reservations, clients, rooms, staff, adminSiteId]);
 
   // Expiration des acomptes : un seul minuteur léger, sans mise à jour d'état tant que rien n'expire.
   useEffect(() => {
@@ -143,7 +175,7 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
 
   const createReservation = useCallback(
     (input: NewReservation): Result<Reservation> => {
-      if (input.lines.length === 0) return fail("Aucun soin dans la réservation.");
+      if (input.lines.length === 0) return fail(`Aucun ${vocab.service} dans la réservation.`);
       const ctx = planContext(input.siteId);
       const conflicts = findConflicts(ctx, input.date, input.lines);
       if (hasBlocking(conflicts)) return fail("Ce créneau n'est plus disponible.", conflicts);
@@ -225,6 +257,19 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
     [planContext],
   );
 
+  const resetDemo = useCallback(() => {
+    const t = todayISO();
+    const fresh = seedState(t);
+    clearSnapshot(STORAGE_KEY);
+    setToday(t);
+    setReservations(fresh.reservations);
+    setClients(fresh.clients);
+    setRooms(fresh.rooms);
+    setStaff(fresh.staff);
+    setAdminSiteId(firstSiteId);
+    setFocusClientId(null);
+  }, []);
+
   const value = useMemo<Store>(
     () => ({
       ready: today !== "",
@@ -250,8 +295,9 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
       saveStaff: (member) => setStaff((prev) => (prev.some((p) => p.id === member.id) ? prev.map((p) => (p.id === member.id ? member : p)) : [...prev, member])),
       removeStaff: (id) => setStaff((prev) => prev.filter((p) => p.id !== id)),
       newId,
+      resetDemo,
     }),
-    [today, reservations, clients, rooms, staff, adminSiteId, focusClientId, nextReference, planContext, createReservation, setStatus, moveReservation, rescheduleReservation, newId],
+    [today, reservations, clients, rooms, staff, adminSiteId, focusClientId, nextReference, planContext, createReservation, setStatus, moveReservation, rescheduleReservation, newId, resetDemo],
   );
 
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;

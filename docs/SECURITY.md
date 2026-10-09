@@ -8,7 +8,7 @@
 
 | Sujet | État |
 |---|---|
-| Données | Aucune donnée réelle. Tout est FICTIF et en mémoire dans le navigateur ; rien n'est envoyé ni stocké. |
+| Données | Aucune donnée réelle. Tout est FICTIF ; l'état de la démo est conservé dans le `sessionStorage` de l'onglet (vidé à sa fermeture, jamais envoyé) ; rien n'est stocké côté serveur (ADR-041). |
 | Secrets | Aucun secret dans le dépôt, l'image ou les logs. Aucune variable secrète requise. `.env*` ignoré (sauf `.env.example`). |
 | Authentification / autorisation | **Aucune.** `/admin` est ouvert à quiconque atteint l'application. Acceptable parce que la souche n'est jamais déployée ; **bloquant pour tout déploiement** avant les RUN-02 et RUN-03. |
 | En-têtes HTTP (CSP, HSTS, `frame-ancestors`…) | Non configurés (RUN-04). |

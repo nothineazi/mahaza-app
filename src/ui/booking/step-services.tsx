@@ -8,6 +8,7 @@ import { cn, formatDuration } from "@/core/lib/utils";
 import { Card } from "@/ui/primitives/card";
 import { Input } from "@/ui/primitives/field";
 import type { Draft } from "@/ui/booking/types";
+import { vocab } from "@/brand/copy/vocab";
 
 
 /** Panier multi-soins : recherche, filtre par catégorie, ajout / retrait d'un soin. */
@@ -29,9 +30,9 @@ export function StepServices({ draft, onToggle, max }: { draft: Draft; onToggle:
     <div className="space-y-6">
       <div className="space-y-4">
         <div className="relative">
-          <label htmlFor={`${uid}-q`} className="sr-only">Rechercher un soin</label>
+          <label htmlFor={`${uid}-q`} className="sr-only">Rechercher un {vocab.service}</label>
           <Search className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
-          <Input id={`${uid}-q`} type="search" className="pl-11" placeholder="Rechercher un soin (ex. massage, manucure…)" value={query} onChange={(e) => setQuery(e.target.value)} />
+          <Input id={`${uid}-q`} type="search" className="pl-11" placeholder={`Rechercher un ${vocab.service} (ex. ${vocab.searchExample})`} value={query} onChange={(e) => setQuery(e.target.value)} />
         </div>
         <div role="group" aria-label="Filtrer par catégorie" className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:px-0">
           {[null, ...brand.categories].map((c) => (
@@ -45,18 +46,18 @@ export function StepServices({ draft, onToggle, max }: { draft: Draft; onToggle:
                 category === c ? "border-primary bg-primary text-primary-foreground" : "border-line bg-card hover:border-primary",
               )}
             >
-              {c ?? "Tous les soins"}
+              {c ?? `Tous les ${vocab.services}`}
             </button>
           ))}
         </div>
         <p aria-live="polite" className="text-sm text-muted-foreground">
-          {draft.cart.length === 0 ? `Ajoutez jusqu'à ${max} soins : ils s'enchaîneront sur un même créneau.` : `${draft.cart.length} soin${draft.cart.length > 1 ? "s" : ""} dans votre panier${full ? " (maximum atteint)" : ""}.`}
+          {draft.cart.length === 0 ? `Ajoutez jusqu'à ${max} ${vocab.services} : ils s'enchaîneront sur un même créneau.` : `${draft.cart.length} ${draft.cart.length > 1 ? vocab.services : vocab.service} dans votre panier${full ? " (maximum atteint)" : ""}.`}
         </p>
       </div>
 
       {groups.length === 0 ? (
         <Card className="p-8 text-center">
-          <p className="font-display text-2xl font-medium">Aucun soin trouvé</p>
+          <p className="font-display text-2xl font-medium">Aucun {vocab.service} trouvé</p>
           <p className="mt-1 text-sm text-muted-foreground">Essayez un autre mot-clé ou une autre catégorie.</p>
         </Card>
       ) : (

@@ -2,6 +2,7 @@ import type { Practitioner, Reservation, Room, Service } from "@/core/types";
 import { endTime } from "@/core/lib/dates";
 import { STATUS_LABELS, isDepositReceived } from "@/core/booking/status";
 import { reservationEnd } from "@/core/booking/scheduling";
+import { vocab } from "@/brand/copy/vocab";
 
 const SEP = ";";
 const BOM = "\uFEFF";
@@ -30,8 +31,8 @@ export const CSV_HEADER = [
   "Site",
   "Client",
   "Téléphone",
-  "Soins",
-  "Praticiens",
+  vocab.Services,
+  vocab.Practitioners,
   "Salles",
   "Acompte (FCFA)",
   "Acompte reçu",

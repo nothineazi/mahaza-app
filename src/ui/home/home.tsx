@@ -1,15 +1,18 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, ClipboardList, Droplets, Flower2, Hand, MapPin, Waves, type LucideIcon } from "lucide-react";
+import { ArrowRight, ClipboardList, Crown, Droplets, Flame, Flower2, Hand, MapPin, Scissors, Sparkles, Waves, type LucideIcon } from "lucide-react";
 import { brand } from "@/brand/brand.config";
 import { formatDuration, formatPrice } from "@/core/lib/utils";
+import type { FeaturedIcon } from "@/core/types";
 import { sites } from "@/core/sites/sites";
 import { Button } from "@/ui/primitives/button";
 import { Card } from "@/ui/primitives/card";
 import { SectionTitle } from "@/ui/primitives/section-title";
 import { GiftCardSection } from "@/ui/home/gift-card-section";
 import { HeroCarousel } from "@/ui/home/hero-carousel";
+import { vocab } from "@/brand/copy/vocab";
 
+const ICONS: Record<FeaturedIcon, LucideIcon> = { flower: Flower2, droplets: Droplets, waves: Waves, hand: Hand, scissors: Scissors, sparkles: Sparkles, flame: Flame, crown: Crown };
 const FEATURED_ICONS: LucideIcon[] = [Flower2, Droplets, Waves, Hand];
 
 /** Accueil premium : contenu éditorial dans `brand.home` (tout est FICTIF dans la souche). */
@@ -45,7 +48,7 @@ export function Home() {
         <div className="space-y-6">
           <SectionTitle kicker={brand.name} title={home.about.title} lead={home.about.text} />
           <Button asChild size="lg">
-            <Link href="/reserver">Réserver un soin</Link>
+            <Link href="/reserver">{vocab.bookCta}</Link>
           </Button>
         </div>
       </section>
@@ -53,10 +56,10 @@ export function Home() {
       {/* Soins vedettes */}
       <section id="soins" className="scroll-mt-20 bg-muted/60">
         <div className="mx-auto max-w-6xl px-4 py-24 sm:px-6">
-          <SectionTitle kicker="Nos soins signature" title="Nos soins vedettes" />
+          <SectionTitle kicker={vocab.featuredKicker} title={vocab.featuredTitle} />
           <ul className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {home.featured.map((f, i) => {
-              const Icon = FEATURED_ICONS[i % FEATURED_ICONS.length];
+              const Icon = f.icon ? ICONS[f.icon] : FEATURED_ICONS[i % FEATURED_ICONS.length];
               return (
                 <li key={f.title}>
                   <Card interactive className="flex h-full flex-col gap-4 p-6">
@@ -104,7 +107,7 @@ export function Home() {
 
       {/* Catalogue */}
       <section className="mx-auto max-w-4xl px-4 pb-24 sm:px-6">
-        <SectionTitle kicker="Le catalogue" title="Nos services" lead="Prix en FCFA, FICTIFS : donnés à titre d'exemple." />
+        <SectionTitle kicker="Le catalogue" title={vocab.catalogTitle} lead="Prix en FCFA, FICTIFS : donnés à titre d'exemple." />
         <div className="mt-10 space-y-3">
           {brand.categories.map((category) => (
             <details key={category} className="group rounded-2xl border border-line bg-card shadow-soft transition-shadow open:shadow-lift">

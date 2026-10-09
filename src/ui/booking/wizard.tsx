@@ -17,6 +17,7 @@ import { StepSite } from "@/ui/booking/step-site";
 import { Stepper } from "@/ui/booking/stepper";
 import { SummaryBar, SummaryPanel, type PrimaryAction } from "@/ui/booking/summary";
 import { DEPOSIT_FORM_ID, STEP_TITLES, emptyDraft, wantedFromDraft, type Draft, type StepKey } from "@/ui/booking/types";
+import { vocab } from "@/brand/copy/vocab";
 
 /**
  * Les étapes après le choix des soins sont chargées à la demande (ADR-040) : le premier écran (site, soins, panier) ne
@@ -52,9 +53,9 @@ const FLOW: StepKey[] = multiSite
   : ["services", "practitioners", "slot", "deposit", "confirmation"];
 
 const LEADS: Partial<Record<StepKey, string>> = {
-  site: "Chaque site a ses propres praticiens, salles et disponibilités.",
-  services: "Composez votre moment : plusieurs soins peuvent s'enchaîner sur un même créneau.",
-  slot: "Les soins du panier s'enchaînent à partir de l'heure choisie.",
+  site: `Chaque site a ses propres ${vocab.practitioners}, salles et disponibilités.`,
+  services: vocab.composeHint,
+  slot: `Les ${vocab.services} du panier s'enchaînent à partir de l'heure choisie.`,
 };
 
 const newDraft = (): Draft => emptyDraft(multiSite ? null : firstSiteId);
@@ -139,9 +140,9 @@ export function BookingWizard() {
 
   const action: PrimaryAction | null =
     step === "services"
-      ? { label: "Continuer", disabled: draft.cart.length === 0, onClick: () => go("practitioners"), hint: "Ajoutez au moins un soin." }
+      ? { label: "Continuer", disabled: draft.cart.length === 0, onClick: () => go("practitioners"), hint: `Ajoutez au moins un ${vocab.service}.` }
       : step === "practitioners"
-        ? { label: "Choisir le créneau", disabled: blockedService, onClick: () => go("slot"), hint: "Un soin n'a aucun praticien dans ce site." }
+        ? { label: "Choisir le créneau", disabled: blockedService, onClick: () => go("slot"), hint: `Un ${vocab.service} n'a aucun ${vocab.practitioner} dans ce site.` }
         : step === "slot"
           ? { label: "Continuer vers l'acompte", disabled: !lines, onClick: () => go("deposit"), hint: plan && !plan.ok ? FAILURE_LABELS[plan.reason] : "Choisissez un jour et une heure." }
           : step === "deposit"

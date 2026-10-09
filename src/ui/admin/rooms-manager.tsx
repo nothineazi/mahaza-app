@@ -18,6 +18,7 @@ import { LoadingRegion, Skeleton } from "@/ui/kv/skeleton";
 import { StateBlock } from "@/ui/kv/state-block";
 import { StatusBadge } from "@/ui/kv/status-badge";
 import { LabeledSwitch } from "@/ui/kv/switch";
+import { vocab } from "@/brand/copy/vocab";
 
 export function RoomsManager() {
   const { ready, rooms, reservations, saveRoom, removeRoom, newId, siteId, site } = useAdminData();
@@ -137,7 +138,7 @@ function RoomForm({ initial, isNew, usedBy, onSave, onDelete, onClose }: FormPro
 
   return (
     <>
-      <ModalHeader title={isNew ? "Nouvelle salle" : `Modifier « ${initial.name} »`} description="Une salle n'accueille que les soins des catégories cochées." />
+      <ModalHeader title={isNew ? "Nouvelle salle" : `Modifier « ${initial.name} »`} description={`Une salle n'accueille que les ${vocab.services} des catégories cochées.`} />
       <ModalBody>
         <form
           id={formId}
@@ -154,7 +155,7 @@ function RoomForm({ initial, isNew, usedBy, onSave, onDelete, onClose }: FormPro
             <textarea id={`${formId}-desc`} className={textareaControl} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
           </Field>
           <fieldset className="space-y-1">
-            <legend className="mb-1 text-kv-label uppercase text-muted-foreground">Catégories de soins</legend>
+            <legend className="mb-1 text-kv-label uppercase text-muted-foreground">Catégories de {vocab.services}</legend>
             {brand.categories.map((c) => (
               <label key={c} className="flex h-11 items-center gap-2 text-kv-body md:h-8">
                 <input type="checkbox" className="size-4 accent-primary" checked={form.categories.includes(c)} onChange={() => setForm({ ...form, categories: toggle(form.categories, c) })} />

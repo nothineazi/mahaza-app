@@ -14,6 +14,7 @@ import { formatPrice } from "@/core/lib/utils";
 import { Button } from "@/ui/primitives/button";
 import { Card } from "@/ui/primitives/card";
 import type { Draft } from "@/ui/booking/types";
+import { vocab } from "@/brand/copy/vocab";
 
 export interface PrimaryAction {
   label: string;
@@ -52,9 +53,9 @@ export function SummaryBody({ draft, lines, onRemove }: Props) {
       )}
 
       <div>
-        <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Vos soins</p>
+        <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Vos {vocab.services}</p>
         {services.length === 0 ? (
-          <p className="mt-2 rounded-xl border border-dashed border-line p-4 text-muted-foreground">Votre panier est vide. Ajoutez un ou plusieurs soins.</p>
+          <p className="mt-2 rounded-xl border border-dashed border-line p-4 text-muted-foreground">Votre panier est vide. Ajoutez un ou plusieurs {vocab.services}.</p>
         ) : (
           <ul className="mt-2 divide-y divide-line">
             {services.map((s, i) => {
@@ -65,7 +66,7 @@ export function SummaryBody({ draft, lines, onRemove }: Props) {
                   <div className="min-w-0">
                     <p className="font-medium leading-snug">{s.name}</p>
                     <p className="text-xs text-muted-foreground">
-                      {line ? `${line.start} – ${endTime(line.start, line.durationMin)}${s.durationMin == null ? " (indicatif)" : ""}` : practitioner ? "Praticien choisi" : "Sans préférence de praticien"}
+                      {line ? `${line.start} – ${endTime(line.start, line.durationMin)}${s.durationMin == null ? " (indicatif)" : ""}` : practitioner ? `${vocab.Practitioner} choisi` : `Sans préférence de ${vocab.practitioner}`}
                     </p>
                   </div>
                   {onRemove && (
@@ -87,7 +88,7 @@ export function SummaryBody({ draft, lines, onRemove }: Props) {
         {services.length > 0 && !total && (
           <p className="mt-2 flex gap-2 text-xs text-muted-foreground">
             <Info className="mt-0.5 size-3.5 shrink-0" aria-hidden />
-            Durées des soins à confirmer par {brand.name} : créneaux indicatifs de {brand.defaultDurationMin} min par soin (FICTIF).
+            Durées des {vocab.services} à confirmer par {brand.name} : créneaux indicatifs de {brand.defaultDurationMin} min par {vocab.service} (FICTIF).
           </p>
         )}
       </div>
@@ -169,7 +170,7 @@ export function SummaryBar({ draft, lines, action, onRemove }: Props & { action:
           >
             <span className="min-w-0">
               <span className="block truncate text-sm font-medium">
-                {count === 0 ? "Panier vide" : `${count} soin${count > 1 ? "s" : ""}`}
+                {count === 0 ? "Panier vide" : `${count} ${count > 1 ? vocab.services : vocab.service}`}
                 {multiSite && site ? ` · ${site.name}` : ""}
               </span>
               <span className="block text-xs text-muted-foreground">Voir le récapitulatif</span>

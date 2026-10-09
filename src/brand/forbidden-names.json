@@ -1,0 +1,4 @@
+{
+  "_": "Noms (expressions régulières, insensibles à la casse) qui ne doivent jamais apparaître dans cette base de code : marques des AUTRES dépôts. Lu par scripts/check-brand-leak.mjs et par l'e2e. Un dépôt client remplace cette liste (docs/ et CLAUDE.md sont exclus du contrôle).",
+  "patterns": ["mahaza", "st[ _-]?louis"]
+}

@@ -3,8 +3,7 @@ import { parseAppEnv, recipientlessLinks, showDevBanner } from "@/core/lib/runti
 import { whatsappLink } from "@/core/whatsapp/whatsapp";
 import { giftCardWaLink } from "@/core/booking/gift-card";
 import { reminderLink } from "@/core/whatsapp/reminders";
-import { brand } from "@/brand/brand.config";
-import { reservation } from "./fixtures";
+import { brand, reservation } from "./fixtures";
 
 describe("APP_ENV", () => {
   it("accepte les trois environnements, sinon retombe sur « development »", () => {

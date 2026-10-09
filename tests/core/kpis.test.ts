@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { brand } from "@/brand/brand.config";
 import { estimatedRevenue, estimatedServiceValue, occupancyRate, pendingDeposits, periodDays, remindersDue, upcoming, weekBreakdown, type KpiContext } from "@/core/booking/kpis";
-import { NOW_MS, policies, reservation, seedAll, SITE, TODAY } from "./fixtures";
+import { NOW_MS, brand, policies, reservation, seedAll, SITE, TODAY } from "./fixtures";
 
 const staff = brand.practitioners.filter((p) => p.siteId === SITE);
 const ctxOf = (reservations: ReturnType<typeof seedAll>): KpiContext => ({

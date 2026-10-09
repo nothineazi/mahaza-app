@@ -22,6 +22,7 @@ import { Segmented } from "@/ui/kv/segmented";
 import { LoadingRegion, Skeleton } from "@/ui/kv/skeleton";
 import { StateBlock } from "@/ui/kv/state-block";
 import { BookingStatusBadge } from "@/ui/kv/status-badge";
+import { vocab } from "@/brand/copy/vocab";
 
 const pct = (v: number | null) => (v == null ? "—" : `${Math.round(v * 100)} %`);
 
@@ -97,7 +98,7 @@ export function Dashboard() {
           value={String(pendingAll.count)}
           note={pendingAll.count ? `${formatPrice(pendingAll.amount)}${pendingAll.nextExpiry && now ? ` · prochaine expiration dans ${formatCountdown(remainingMs(pendingAll.nextExpiry, now))}` : ""}` : "Aucun acompte en attente"}
         />
-        <Kpi icon={Percent} label={`Taux de remplissage ${label}`} value={pct(occupancy)} note="Minutes réservées ÷ minutes d'ouverture × praticiens actifs (créneaux de 60 min indicatifs)">
+        <Kpi icon={Percent} label={`Taux de remplissage ${label}`} value={pct(occupancy)} note={`Minutes réservées ÷ minutes d'ouverture × ${vocab.practitioners} actifs (créneaux de 60 min indicatifs)`}>
           {occupancy != null && (
             <div className="mt-2 h-2 overflow-hidden rounded-full bg-muted" role="meter" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(occupancy * 100)} aria-label="Taux de remplissage">
               {/* check-design-allow(style-inline): largeur calculée de la jauge */}

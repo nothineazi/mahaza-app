@@ -1,5 +1,5 @@
 {
-  "_note": "Budget de First Load JS (kB gzip) des routes publiques, mesuré par scripts/measure-first-load.mjs : mesure du RUN-01b (après allègement, ADR-040) + ~1,5 % de marge (non-régression). Base d'origine : 142 / 168 (Next 15.5.27). Voir docs/DECISIONS.md, ADR-024 et ADR-040.",
+  "_note": "Budget de First Load JS (kB gzip) des routes publiques, mesuré par scripts/measure-first-load.mjs : mesure du RUN-01b (après allègement, ADR-040) + ~1,5 % de marge. Base d'origine : 142 / 168 (Next 15.5.27). RUN-P : /reserver passe à 176 : le seed de la marque (catalogue, sites, clients) est embarqué dans le tunnel, un catalogue de 56 soins sur 5 sites pèse ~1,8 kB de plus que celui de la souche (170,9 → 172,0 kB). Voir docs/DECISIONS.md, ADR-040.",
   "/": 149,
-  "/reserver": 172
+  "/reserver": 176
 }

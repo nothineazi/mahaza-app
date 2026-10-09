@@ -59,7 +59,8 @@ export function SiteFooter() {
         </div>
         <div className="mt-12 flex flex-col gap-2 border-t border-inverse-foreground/20 pt-6 text-xs text-inverse-foreground/75 sm:flex-row sm:items-center sm:justify-between">
           <p>
-            Marque fictive de démonstration. Aucune réservation n&apos;est réellement enregistrée et aucun paiement n&apos;est effectué. Les données marquées FICTIF sont inventées.
+            {brand.footerNote ??
+              "Marque fictive de démonstration. Aucune réservation n'est réellement enregistrée et aucun paiement n'est effectué. Les données marquées FICTIF sont inventées."}
           </p>
           <Link href="/admin" className="shrink-0 text-gold underline underline-offset-4 hover:text-inverse-foreground">
             Accès back-office (démo)

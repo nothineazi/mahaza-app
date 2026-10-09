@@ -3,7 +3,27 @@ import { brand } from "@/brand/brand.config";
 import { demoClients } from "@/brand/seed/demo";
 import { occupiesSlot } from "@/core/booking/status";
 import { timeToMin } from "@/core/lib/dates";
-import { seedAll } from "./fixtures";
+import { buildSeedReservations } from "@/core/booking/seed";
+import { demoReservations } from "@/brand/seed/demo";
+import { getSite } from "@/core/sites/sites";
+import { depositForService } from "@/core/booking/availability";
+
+// Invariants du seed de la marque active (chaque dépôt client doit les respecter) : calculé sur la marque réelle, pas sur le jeu de test.
+const TODAY = "2026-10-07"; // mercredi
+const seedAll = () =>
+  buildSeedReservations(
+    {
+      demo: demoReservations,
+      services: brand.services,
+      defaultDurationMin: brand.defaultDurationMin ?? 60,
+      referencePrefix: brand.referencePrefix,
+      depositFor: (siteId) => depositForService({}, getSite(siteId)),
+      today: TODAY,
+      nowMs: Date.UTC(2026, 9, 7, 8, 0),
+      seedHoldMin: brand.policies.seedHoldMin,
+    },
+    demoClients,
+  );
 
 describe("données seed (FICTIF)", () => {
   const all = seedAll();

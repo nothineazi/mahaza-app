@@ -18,6 +18,7 @@ import { Segmented } from "@/ui/kv/segmented";
 import { LoadingRegion, Skeleton } from "@/ui/kv/skeleton";
 import { StateBlock } from "@/ui/kv/state-block";
 import { BookingStatusBadge, STATUS_BLOCK, STATUS_DOT } from "@/ui/kv/status-badge";
+import { vocab } from "@/brand/copy/vocab";
 
 type View = "jour" | "semaine";
 type GroupBy = "praticien" | "salle";
@@ -70,7 +71,7 @@ export function Planning() {
               value={groupBy}
               onChange={setGroupBy}
               options={[
-                { value: "praticien", label: "Praticiens" },
+                { value: "praticien", label: vocab.Practitioners },
                 { value: "salle", label: "Salles" },
               ]}
               className="max-md:hidden"

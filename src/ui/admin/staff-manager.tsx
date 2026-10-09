@@ -18,6 +18,7 @@ import { LoadingRegion, Skeleton } from "@/ui/kv/skeleton";
 import { StateBlock } from "@/ui/kv/state-block";
 import { StatusBadge } from "@/ui/kv/status-badge";
 import { LabeledSwitch } from "@/ui/kv/switch";
+import { vocab } from "@/brand/copy/vocab";
 
 export function StaffManager() {
   const { ready, staff, reservations, saveStaff, removeStaff, newId, siteId, site } = useAdminData();
@@ -45,7 +46,7 @@ export function StaffManager() {
         subtitle={site.name}
         action={
           <button type="button" onClick={startNew} className={controlPrimary}>
-            <Plus aria-hidden /> Ajouter un praticien
+            <Plus aria-hidden /> Ajouter un {vocab.practitioner}
           </button>
         }
       />
@@ -54,11 +55,11 @@ export function StaffManager() {
         <Panel>
           <StateBlock
             icon={UserRound}
-            title="Aucun praticien"
+            title={`Aucun ${vocab.practitioner}`}
             text="Ajoutez-en un pour ouvrir des créneaux à la réservation."
             action={
               <button type="button" onClick={startNew} className={controlSecondary}>
-                <Plus aria-hidden /> Ajouter un praticien
+                <Plus aria-hidden /> Ajouter un {vocab.practitioner}
               </button>
             }
           />
@@ -86,7 +87,7 @@ export function StaffManager() {
                     <StatusBadge key={id} tone="completed">{brand.services.find((s) => s.id === id)?.name ?? id}</StatusBadge>
                   ))}
                   {p.serviceIds.length > 6 && <StatusBadge tone="neutral">+{p.serviceIds.length - 6}</StatusBadge>}
-                  {p.serviceIds.length === 0 && <span className="text-kv-meta text-muted-foreground">Aucun soin assigné</span>}
+                  {p.serviceIds.length === 0 && <span className="text-kv-meta text-muted-foreground">Aucun {vocab.service} assigné</span>}
                 </div>
                 <div className="mt-auto flex items-center justify-between gap-2">
                   <LabeledSwitch id={`staff-${p.id}`} label="Réservable" checked={p.active} onCheckedChange={(v) => saveStaff({ ...p, active: v })} />
@@ -142,7 +143,7 @@ function StaffForm({ initial, isNew, usedBy, onSave, onDelete, onClose }: FormPr
 
   return (
     <>
-      <ModalHeader title={isNew ? "Nouveau praticien" : `Modifier « ${initial.name} »`} description="Un praticien n'est proposé que pour les soins cochés." />
+      <ModalHeader title={isNew ? `Nouveau ${vocab.practitioner}` : `Modifier « ${initial.name} »`} description={`Un ${vocab.practitioner} n'est proposé que pour les ${vocab.services} cochés.`} />
       <ModalBody>
         <form
           id={formId}
@@ -159,7 +160,7 @@ function StaffForm({ initial, isNew, usedBy, onSave, onDelete, onClose }: FormPr
             <input id={`${formId}-role`} className={fieldControl} value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })} required />
           </Field>
           <fieldset className="space-y-4">
-            <legend className="mb-1 text-kv-label uppercase text-muted-foreground">Soins assurés</legend>
+            <legend className="mb-1 text-kv-label uppercase text-muted-foreground">{vocab.Services} assurés</legend>
             {brand.categories.map((category) => (
               <div key={category} className="space-y-1">
                 <p className="text-kv-section text-primary-text">{category}</p>
@@ -176,7 +177,7 @@ function StaffForm({ initial, isNew, usedBy, onSave, onDelete, onClose }: FormPr
           </fieldset>
         </form>
         {confirmDelete && <DeleteConfirm name={initial.name} onConfirm={() => onDelete(initial.id)} onCancel={() => setConfirmDelete(false)} />}
-        {!isNew && usedBy > 0 && <p className="text-kv-meta text-muted-foreground">Suppression impossible : {usedBy} réservation(s) liée(s). Désactivez le praticien à la place.</p>}
+        {!isNew && usedBy > 0 && <p className="text-kv-meta text-muted-foreground">Suppression impossible : {usedBy} réservation(s) liée(s). Désactivez le {vocab.practitioner} à la place.</p>}
       </ModalBody>
       <ActionBar
         primary={{ label: "Enregistrer", submitForm: formId, disabled: !valid }}
