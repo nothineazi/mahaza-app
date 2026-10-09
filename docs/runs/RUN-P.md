@@ -1,71 +1,67 @@
-# RUN-P — Apps de démonstration et staging (souche)
+# RUN-P — mahaza-app : version de démonstration pour la présentation
 
-Branches : `run/p-prep` (PR #3, mergée dans `main` le 2026-10-09, `ceb8b71`) et `run/p-rapport` (ce rapport) · exception validée par Yass pour ce run : l'agent merge ses PR dès la CI verte. Documents liés : `docs/DECISIONS.md` (ADR-036 à 045), `docs/PLAN.md` §5 (plan allégé). Rapports des apps : `mahaza-app` et `stlouis-app`, `docs/runs/RUN-P.md`.
+Dépôt `nothineazi/mahaza-app` · `main` créé depuis le commit `ceb8b71` de la souche (merge de la PR #3 ; le tag `demo-v0.1` n'a pas pu être poussé par l'agent, voir la souche) **avec l'historique** (remote `upstream` = `ovatech-spa-core`) · 2026-10-09. Contrastes détaillés : `RUN-P-contrastes.md`. Déploiement : `docs/RUNBOOK.md`.
 
 ## 1. Fait / non fait
 
 | Élément | Résultat |
 |---|---|
-| ADR 036, 037, 038, 040 → ACCEPTÉ ; ADR 039 → ACCEPTÉ provisoirement | Fait ; question 13 ajoutée à `PLAN.md` §6 (valider la matrice d'actions avec la gérante et la réception). |
-| État de la démo persisté (`sessionStorage`) | Fait (ADR-041) : instantané lié au jour, à la version et à la marque ; repli en mémoire ; jamais d'exception. Une réservation faite sur `/reserver` reste visible dans `/admin`, via l'accueil et après rechargement (e2e à 375 et 1280 px). |
-| Bouton « Réinitialiser la démo » | Fait : barre latérale et tiroir mobile du back-office, avec confirmation. |
-| Plan allégé (`PLAN.md` §5) | Fait (ADR-043) : RUN-P, RUN-A, RUN-B, RUN-C, section « Reporté en maintenance » ; règle « `git merge upstream/main` dans les deux apps après chaque run A/B/C ». |
-| Souche prête à être dérivée par une app qui ne touche que `src/brand/` | Fait (ADR-042, 044) : couche vocabulaire (`vocab.ts`), logo image ou pastille, mention de pied de page, pictogrammes des vedettes, noms interdits par dépôt (`forbidden-names.json`), tests du socle indépendants de la marque, e2e pilotés par la marque. |
-| Tag `demo-v0.1` sur `main` | **Non fait par l'agent** : le proxy de la session refuse (403) tout push de tag et toute écriture sur l'API des références. Les apps ont été créées depuis le commit exact `ceb8b71` (merge de la PR #3). Commande à lancer par Yass : voir §7. |
+| Création depuis la souche avec historique, remote `upstream` | Fait. `git diff upstream/main -- src/core src/ui` : **vide**. |
+| Seuls `src/brand/`, `public/brand/`, icône, métadonnées (`package.json`), README, CHANGELOG modifiés | Fait (voir `git diff upstream/main --stat`). |
+| Anti-fuite adapté | Fait : `src/brand/forbidden-names.json` interdit « ovaglow » et « st louis » (hors `docs/` et `CLAUDE.md`) ; 0 occurrence (174 fichiers). |
+| Identité premium reprise de `mahaza-demo` | Fait : or du logo (`#E9B93C`), charbon, crème, fleur saumon (visuels) ; convertie en jetons OKLCH selon la recette factory (neutres teintés, teinte 80) ; texte et boutons en **bronze** dérivé de l'or (`oklch(0.45 0.09 80)` ≈ `#6F4F07`, texte sur crème) ; en sombre, l'or lui-même sert d'accent. |
+| Logo et médias de l'ancien site | Fait : logo PNG (151 × 51, taille native, posé sur une plaque claire en thème sombre), photos converties en WebP (mêmes dimensions ; 2,2 Mo → 0,12 Mo), icône d'application (`src/app/icon.png`). |
+| Contrastes vérifiés par script dans les deux thèmes | Fait : **79 couples × 2 thèmes, 0 échec** (`npm run check:contrast`), extraits : texte courant 14,91 (clair) / 18,86 (sombre) ; texte atténué sur carte 6,03 / 7,29 ; or sur surface inversée ≥ 4,5. |
+| Données réelles autorisées | Utilisées : le nom de la marque, les **5 noms de sites** (Douala Bonapriso, Douala Yassa, Yaoundé Bastos, Yaoundé Dragage, Best Western Airport), les **8 catégories et 54 noms de soins** de l'ancien site. |
+| Tout le reste FICTIF et marqué | Fait : prix (barème déterministe), durées (créneaux indicatifs de 60 min), adresses (« Adresse fictive (à confirmer) »), numéros (MoMo `6 00 00 00 00`, WhatsApp, téléphones des clients `+237 600 00 00 NN`, tous « FICTIF – ne pas payer »), horaires (« à confirmer par site »), 30 membres du personnel (initiales), clients et réservations (badge « FICTIF »). Aucun avis, aucun KPI présenté comme réel. |
+| Cartes cadeaux Mahaza (simulation marquée) | Fait : palier de 20 000 à 100 000 FCFA (fourchette de l'ancien site, pas FICTIF à confirmer), texte « simulation FICTIVE, aucune carte n'est réellement émise ni payée », code `GC-…`, « FICTIF – ne pas payer ». |
+| `ci.yml` identique à la souche | Fait (aucune modification). |
+| `release.yml` : image `ghcr.io/nothineazi/mahaza-app`, tags `latest` + SHA, `GITHUB_TOKEN`, `packages: write` | Fait ; build, test (`APP_ENV=staging`, health, bandeau, pas de lien WhatsApp avec numéro, non-root) puis publication. |
+| Image testée | Fait (voir §4). |
+| `docs/RUNBOOK.md` Dokploy pas à pas | Fait. |
+| Réseaux sociaux et e-mail réels de l'ancien site | **Non repris** (hors périmètre autorisé : seuls les noms de sites et de soins sont réels) : e-mail `contact@mahaza-demo.invalid`, aucun lien de réseau social. |
 
 ## 2. Écarts au plan
 
-1. **Vocabulaire hors de `src/brand/`** : le socle écrivait « soin » et « praticien » en dur dans 21 fichiers de `src/ui` et `src/core`. Les apps ne pouvant modifier que `src/brand/`, il a fallu (ADR-042) les lire dans `vocab.ts`. Écart de périmètre de la souche, nécessaire à la consigne « ne pas toucher `src/core` ».
-2. **Tests et e2e rendus indépendants de la marque** (ADR-044) : sinon la CI « identique à la souche » aurait échoué dans les apps.
-3. **Budget `/reserver` relevé de 172 à 176 kB** : le seed d'une marque est embarqué dans le tunnel (56 soins sur 5 sites : +1,8 kB). Le premier essai (`next/image` dans le logo) coûtait +5,6 kB : remplacé par un `<img>` simple, mesuré.
-4. **Apps créées avec l'historique de la souche** (ADR-045) : l'historique propre prévu en ADR-003 empêche tout `git merge upstream/main` ; il sera ré-écrit à la cession.
-5. **Les dépôts d'app n'étaient pas vides** : chacun contenait un « Initial commit » (README). Il est rattaché par un merge `-s ours` (arbre de la souche conservé, aucun push forcé).
+1. Photos : le hero 2 et l'« à propos » montrent des **personnes reconnaissables** (photos de l'ancien site, reprises sur consigne). STANDARDS §9 interdit les visages reconnaissables pour les images générées ou libres ; ici ce sont les médias du client. **Droits et consentements à confirmer** avant toute mise en production.
+2. Photos servies en WebP (conversion locale, qualité 78-84) au lieu des PNG d'origine, pour le poids ; l'optimiseur `next/image` (AVIF/WebP) reste actif.
+3. `npm run assets:generate` est neutralisé dans cette app (aucun visuel généré).
 
-## 3. Décisions À VALIDER
+## 3. Décisions À VALIDER (ce run)
 
-ADR-041 (sessionStorage), 042 (couche de personnalisation), 044 (tests indépendants de la marque), 045 (apps avec historique, publication GHCR).
+- Bronze `#6F4F07` comme couleur de texte et de bouton en clair (or du logo assombri pour atteindre 4,5:1) ; or du logo conservé comme décor et accent en sombre.
+- Prix FICTIFS calculés par catégorie (de 5 500 à 39 000 FCFA selon le soin) : uniquement pour que la démonstration soit lisible.
+- Horaires de l'ancien site repris et signalés « à confirmer par site ».
+- Aucun réseau social ni e-mail réel.
 
-## 4. Résultats de tests (souche, fin de run)
+## 4. Résultats de tests (cette app, fin de run)
 
 | Contrôle | Résultat |
 |---|---|
 | Typecheck, lint | 0 erreur |
-| Vitest | **61 / 61** (55 + 6 de persistance) |
-| Playwright (375 et 1280 px) | **27 passés**, 1 ignoré (récapitulatif mobile, bureau exclu) ; dont le nouveau scénario « réservation → accueil → admin → rechargement → réinitialisation » |
+| Vitest | **61 / 61** (dont `seed.test.ts` sur le seed Mahaza : références valides, aucun chevauchement, cinq statuts, historique par client) |
+| Playwright (375 et 1280 px), sur le build **et sur l'image Docker** (`APP_ENV=staging`) | **27 passés**, 1 ignoré (mobile seul) |
 | axe | 0 violation sérieuse ou critique (accueil, 6 écrans du back-office, clair et sombre) |
-| Contrastes AA | 79 couples par thème, 0 échec |
-| `check-design --strict` | 38 fichiers, 0 violation |
-| Anti-fuite | 0 occurrence (175 fichiers) |
-| CI de la PR #3 | verte : `verify`, `e2e`, `docker` |
+| `check-design --strict` | 0 violation |
+| Anti-fuite | 0 occurrence |
+| CI GitHub Actions | verte sur `main` (`verify`, `e2e`, `docker`) |
+| Image Docker | build OK, 326 Mo ; `/api/health` 200 ; bandeau « données fictives » présent ; aucun lien `wa.me/<numéro>` ; utilisateur `node` (uid 1000) ; optimiseur d'images opérationnel |
+| Mémoire du conteneur | **77 Mo au repos, 146 Mo** après la suite e2e complète (limite proposée : 512 Mo) |
 
 ## 5. Mesures (First Load JS, kB gzip)
 
-| Route | RUN-01b | Fin de RUN-P (souche) | Budget |
-|---|---:|---:|---:|
-| `/` | 146,9 | 146,9 | 149 |
-| `/reserver` | 170,2 | 170,9 | 176 (était 172) |
-| `/admin` | 187,6 | 188,8 | – |
+`/` 146,9 (budget 149) · `/reserver` 172,0 (budget 176 : le seed de 54 soins sur 5 sites ajoute 1,8 kB) · `/admin` 189,9 · `/admin/planning` 188,8.
 
 ## 6. Revues avant push
 
-- **Simplification** : `makeVocab` dérive les pluriels et capitales ; `seedState()` partagé entre le démarrage et la réinitialisation ; test helpers regroupés.
-- **Revue** : l'état persisté est validé par forme (version, jour, tableaux) avant usage ; une valeur absente, périmée ou corrompue est ignorée ; l'écriture ne précède jamais l'hydratation (sinon le seed écraserait l'instantané).
-- **Sécurité** (run non sensible : ni auth, ni autorisation, ni acompte réel, ni lien client, ni donnée de santé) : aucune donnée ne quitte le navigateur ; `sessionStorage` est propre à l'onglet ; aucun `dangerouslySetInnerHTML`, `eval` ni import dynamique d'entrée utilisateur ajouté ; aucun secret (recherche de motifs dans le diff : rien) ; images `<img>` à source constante issue de la configuration.
-- **Scan de secrets** : gitleaks absent de la sandbox ; recherche manuelle de motifs dans le diff et les fichiers suivis : rien. (À brancher en CI au RUN-A, voir plan.)
+Simplification et revue : aucun code applicatif écrit dans cette app (données et styles seulement). Sécurité (run non sensible) : aucun secret ; liens externes absents ; `.invalid` pour l'adresse de contact. Scan de secrets : recherche manuelle de motifs dans les fichiers suivis : rien (gitleaks arrive en CI au RUN-A).
 
 ## 7. Risques ouverts
 
-1. **Tag `demo-v0.1` à poser par Yass** (PowerShell) :
-   ```powershell
-   git clone https://github.com/nothineazi/ovatech-spa-core.git ; cd ovatech-spa-core
-   git tag -a demo-v0.1 ceb8b71 -m "demo-v0.1 : souche prête pour les apps de démonstration"
-   git push origin demo-v0.1
-   ```
-2. **Fond du site public** (ADR-036, accepté) à revoir en vrai sur chaque marque ; **bordure des cartes en sombre** décorative (1,70:1).
-3. **Store transitoire** : persisté dans l'onglet seulement ; une réservation faite sur un autre appareil n'apparaît pas (disparaît avec le RUN-A / RUN-B).
-4. **`next-themes`** injecte un `<script>` en ligne : la CSP du RUN-C devra le couvrir (nonce).
-5. **Image Docker** : 326 Mo (écart avec 235 Mo au RUN-01 toujours non expliqué).
+1. Droits et consentements des photos (§2).
+2. Vérification visuelle humaine des 4 combinaisons (375 et 1280 px × clair et sombre) avant la présentation : captures prises et relues par l'agent, pas par Yass.
+3. Planning : la vue « Jour » n’affiche que les réservations du jour choisi (le seed les répartit sur la semaine) : montrer la vue « Semaine » pour voir l’agenda rempli.
+4. Store transitoire (état dans l'onglet du navigateur) : voir la souche.
+5. Staging en HTTP sur IP : risque accepté (`docs/SECURITY.md`).
 
-## 8. Prochain run : RUN-A — base de données, authentification, autorisation
-
-À préparer par Yass au démarrage du run seulement : Docker Desktop (PostgreSQL local), puis `BETTER_AUTH_SECRET` et les identifiants des premiers super admins (guide PowerShell donné à ce moment). Voir `PLAN.md` §5.
+## 8. Prochain run : RUN-A (souche), puis `git merge upstream/main` dans cette app.
