@@ -1,61 +1,78 @@
 import type { Practitioner, Room, SeedBooking, Service, Site } from "@/core/types";
 
 /**
- * Données de la marque OVAGLOW (marque FICTIVE de la souche).
+ * Données de Mahaza Beauty.
  *
- * TOUT est FICTIF : sites, soins, prix, praticiens, salles, réservations. Aucune adresse, aucun numéro, aucune personne réelle.
- * Chaque entrée de personne ou de lieu porte `fictive: true` (badge « FICTIF » dans l'UI).
- * Un dépôt client remplace ce dossier (`src/brand/seed/`) par ses données ; la souche n'est jamais déployée.
+ * RÉEL (issu de l'ancien site de Mahaza Beauty, autorisé) : les noms des 5 sites, les catégories et les noms des soins.
+ * FICTIF (inventé pour la démonstration, marqué « FICTIF » à l'écran) : prix, durée par défaut des créneaux, adresses, acompte,
+ * numéros de téléphone, personnel (praticiens), salles, clients et réservations. Aucune adresse, aucun numéro, aucune personne réelle.
+ * Chaque entrée de personne ou de lieu fictive porte `fictive: true` (badge « FICTIF » dans l'UI).
  */
 
 // ---------------------------------------------------------------------------
-// Sites (FICTIFS)
+// Sites (RÉEL pour les noms ; adresses inconnues)
 // ---------------------------------------------------------------------------
 
-/** FICTIF : acompte forfaitaire de démonstration, en FCFA, configurable par site. */
+/** FICTIF : acompte forfaitaire de démo, en FCFA, configurable par site. */
 const FICTIVE_DEPOSIT_FCFA = 5000;
 
-const ADDRESS_FICTIVE = "Adresse fictive";
+const ADDRESS_TBC = "Adresse fictive (à confirmer)";
 
 export const seedSites: Site[] = [
-  { id: "site-aurore", name: "Site Aurore", city: "Ville fictive", address: ADDRESS_FICTIVE, depositAmount: FICTIVE_DEPOSIT_FCFA },
-  { id: "site-brise", name: "Site Brise", city: "Ville fictive", address: ADDRESS_FICTIVE, depositAmount: FICTIVE_DEPOSIT_FCFA },
-  { id: "site-cedre", name: "Site Cèdre", city: "Ville fictive", address: ADDRESS_FICTIVE, depositAmount: FICTIVE_DEPOSIT_FCFA },
+  { id: "douala-bonapriso", name: "Douala Bonapriso", city: "Douala", address: ADDRESS_TBC, depositAmount: FICTIVE_DEPOSIT_FCFA },
+  { id: "douala-yassa", name: "Douala Yassa", city: "Douala", address: ADDRESS_TBC, depositAmount: FICTIVE_DEPOSIT_FCFA },
+  { id: "yaounde-bastos", name: "Yaoundé Bastos", city: "Yaoundé", address: ADDRESS_TBC, depositAmount: FICTIVE_DEPOSIT_FCFA },
+  { id: "yaounde-dragage", name: "Yaoundé Dragage", city: "Yaoundé", address: ADDRESS_TBC, depositAmount: FICTIVE_DEPOSIT_FCFA },
+  // Ville non indiquée sur le site actuel : volontairement non renseignée.
+  { id: "best-western-airport", name: "Best Western Airport", address: ADDRESS_TBC, depositAmount: FICTIVE_DEPOSIT_FCFA },
 ];
 
 // ---------------------------------------------------------------------------
-// Catalogue (FICTIF) — noms, prix indicatifs en FCFA ; durées non renseignées (créneaux de 60 min FICTIFS)
+// Catalogue de services (RÉEL) — pas de prix, pas de durée, pas de description
 // ---------------------------------------------------------------------------
 
 const CATALOG = [
   {
+    key: "mp",
+    category: "Beauté des mains et des pieds",
+    services: ["Pose de vernis simple", "Pose de vernis Gel", "Gainage", "Remplissage Gel", "Pose de gel", "Manucure spa", "Pédicure spa"],
+  },
+  {
     key: "vi",
-    category: "Soins du visage",
-    services: [["Soin Lumière", 18000], ["Soin Pureté", 20000], ["Gommage doux", 12000], ["Masque Hydra", 15000]],
+    category: "Soin de visage",
+    services: ["Soin éclat", "Soin classique", "Soin acnéique", "Soin anti-âge", "Microneedling", "Hydrafacial", "Peeling du visage"],
   },
   {
     key: "co",
-    category: "Soins du corps",
-    services: [["Massage Détente", 25000], ["Gommage Sable", 18000], ["Rituel Lagune", 35000], ["Enveloppement Argile", 22000]],
+    category: "Soin du corps",
+    services: ["Hammam/Gommage", "Sauna", "Jacuzzi", "Couverture chauffante", "Rituel endocrinien", "Massage relaxant et détente", "Soin anti-vergeture"],
   },
   {
-    key: "mp",
-    category: "Mains et pieds",
-    services: [["Manucure express", 8000], ["Manucure complète", 12000], ["Pédicure complète", 15000], ["Pose de vernis", 5000]],
+    key: "ep",
+    category: "Épilation",
+    services: ["Vajacial", "Maillot", "Jambe et demi-jambes", "Aisselles", "Bras", "Menton", "Sourcils"],
+  },
+  {
+    key: "re",
+    category: "Beauté du regard",
+    services: ["Extension de cils", "Remplissage de cils", "Microblading", "Microshading", "Make-up marié", "Make-up jour", "Make-up soir"],
   },
   {
     key: "cf",
-    category: "Coiffure",
-    services: [["Coupe et brushing", 15000], ["Soin capillaire Nutrition", 12000], ["Coiffure événement", 25000], ["Coloration", 30000]],
+    category: "Coiffure femme",
+    services: ["Soin capillaire", "Coloration", "Lissage brésilien", "Pose frontale", "Coiffure africaine", "Tissage", "Brushing"],
   },
   {
-    key: "ba",
-    category: "Barbier",
-    services: [["Coupe homme", 5000], ["Dégradé", 6000], ["Taille de barbe", 4000], ["Rasage serviette chaude", 8000]],
+    key: "ho",
+    category: "Soin pour homme",
+    services: ["Coiffure", "Soin de visage", "Soin de corps", "Pédicure", "Manucure", "Massage relaxant"],
+  },
+  {
+    key: "en",
+    category: "Soin pour enfant (garçon et fille)",
+    services: ["Coiffure garçon", "Coiffure fille", "Soin de visage jeunesse", "Manucure", "Pédicure", "Massage relaxant"],
   },
 ] as const;
-
-type CatKey = (typeof CATALOG)[number]["key"];
 
 const slug = (name: string) =>
   name
@@ -66,36 +83,48 @@ const slug = (name: string) =>
     .replace(/^-|-$/g, "");
 
 /** Identifiant stable d'un service : `<clé catégorie>-<nom slugifié>`. */
-const sid = (key: CatKey, name: string) => `${key}-${slug(name)}`;
+const sid = (key: (typeof CATALOG)[number]["key"], name: string) => `${key}-${slug(name)}`;
 
 export const seedCategories: string[] = CATALOG.map((c) => c.category);
 
+/** FICTIF : prix de base par catégorie (FCFA). Les prix réels ne sont pas fournis ; ceux-ci servent uniquement à la démonstration. */
+const FICTIVE_BASE_PRICE: Record<(typeof CATALOG)[number]["key"], number> = { mp: 12000, vi: 22000, co: 28000, ep: 8000, re: 18000, cf: 20000, ho: 12000, en: 7000 };
+
+/** FICTIF : prix d'un soin = base de la catégorie × un coefficient déterministe (0,8 à 1,4), arrondi à 500 FCFA. */
+const fictivePrice = (key: (typeof CATALOG)[number]["key"], index: number) => Math.round((FICTIVE_BASE_PRICE[key] * (0.8 + 0.15 * ((index * 3) % 5))) / 500) * 500;
+
 export const seedServices: Service[] = CATALOG.flatMap((c) =>
-  c.services.map(([name, price]): Service => ({ id: sid(c.key, name), name, category: c.category, price })),
+  c.services.map((name, index): Service => ({ id: sid(c.key, name), name, category: c.category, price: fictivePrice(c.key, index) })),
 );
 
-const idsOf = (key: CatKey) => CATALOG.find((c) => c.key === key)!.services.map(([n]) => sid(key, n));
+const idsOf = (key: (typeof CATALOG)[number]["key"]) => CATALOG.find((c) => c.key === key)!.services.map((n) => sid(key, n));
 
 // ---------------------------------------------------------------------------
-// Praticiens et salles par site (FICTIFS)
+// Praticiens et salles par site (FICTIF)
 // ---------------------------------------------------------------------------
 
-type RoleKey = "face" | "body" | "nails" | "hair" | "barber";
+type RoleKey = "nails" | "face" | "body" | "eyes" | "hair" | "kids";
 
 const ROLES: Record<RoleKey, { role: string; serviceIds: string[] }> = {
-  face: { role: "Esthéticienne", serviceIds: idsOf("vi") },
-  body: { role: "Spa-thérapeute", serviceIds: idsOf("co") },
   nails: { role: "Prothésiste ongulaire", serviceIds: idsOf("mp") },
-  hair: { role: "Coiffeur·se", serviceIds: idsOf("cf") },
-  barber: { role: "Barbier", serviceIds: idsOf("ba") },
+  face: { role: "Esthéticienne", serviceIds: [...idsOf("vi"), ...idsOf("ep")] },
+  body: { role: "Spa-thérapeute", serviceIds: idsOf("co") },
+  eyes: { role: "Experte regard & make-up", serviceIds: idsOf("re") },
+  hair: { role: "Coiffeuse", serviceIds: [...idsOf("cf"), sid("en", "Coiffure garçon"), sid("en", "Coiffure fille")] },
+  kids: {
+    role: "Praticien homme & enfant",
+    serviceIds: [...idsOf("ho"), ...idsOf("en").filter((id) => !id.startsWith("en-coiffure"))],
+  },
 };
-const ROLE_ORDER: RoleKey[] = ["face", "body", "nails", "hair", "barber"];
+const ROLE_ORDER: RoleKey[] = ["nails", "face", "body", "eyes", "hair", "kids"];
 
 // Noms inventés (FICTIF), un par rôle et par site.
 const STAFF_NAMES: Record<string, string[]> = {
-  "site-aurore": ["Inès M.", "Lucas B.", "Sana K.", "Maëlle D.", "Karim T."],
-  "site-brise": ["Awa S.", "Théo R.", "Nadia L.", "Eliot P.", "Moussa C."],
-  "site-cedre": ["Léa F.", "Hugo N.", "Yasmine O.", "Chloé V.", "Samir A."],
+  "douala-bonapriso": ["Nadège T.", "Aïcha N.", "Mireille K.", "Carole B.", "Estelle M.", "Désiré E."],
+  "douala-yassa": ["Sandra F.", "Brigitte L.", "Noëlle M.", "Larissa T.", "Prisca A.", "Hervé N."],
+  "yaounde-bastos": ["Pauline D.", "Julienne O.", "Cynthia B.", "Raïssa K.", "Adèle E.", "Boris T."],
+  "yaounde-dragage": ["Mariam D.", "Floriane S.", "Ketsia M.", "Yolande P.", "Odile N.", "Cédric A."],
+  "best-western-airport": ["Laetitia W.", "Rosine C.", "Inès B.", "Esther J.", "Gisèle H.", "Alain M."],
 };
 
 export const seedPractitioners: Practitioner[] = seedSites.flatMap((site) =>
@@ -111,11 +140,11 @@ export const seedPractitioners: Practitioner[] = seedSites.flatMap((site) =>
 );
 
 const ROOM_DEFS = [
-  { key: "visage", name: "Cabine visage", description: "Soins du visage.", categories: ["Soins du visage"] },
-  { key: "corps", name: "Cabine corps", description: "Massages, gommages et rituels.", categories: ["Soins du corps"] },
-  { key: "mains", name: "Espace mains & pieds", description: "Postes de manucure et de pédicure.", categories: ["Mains et pieds"] },
-  { key: "coiffure", name: "Salon de coiffure", description: "Espace coiffure avec bacs de lavage.", categories: ["Coiffure"] },
-  { key: "barbier", name: "Espace barbier", description: "Fauteuils de barbier.", categories: ["Barbier"] },
+  { key: "mains", name: "Espace mains & pieds", description: "Postes de manucure et de pédicure.", categories: ["Beauté des mains et des pieds"] },
+  { key: "visage", name: "Cabine visage & regard", description: "Soins du visage, épilation, cils et maquillage.", categories: ["Soin de visage", "Épilation", "Beauté du regard"] },
+  { key: "corps", name: "Espace hammam & corps", description: "Hammam, sauna, jacuzzi et massages.", categories: ["Soin du corps"] },
+  { key: "coiffure", name: "Salon de coiffure", description: "Espace coiffure avec bacs de lavage.", categories: ["Coiffure femme"] },
+  { key: "famille", name: "Espace homme & enfant", description: "Soins pour homme et pour enfant.", categories: ["Soin pour homme", "Soin pour enfant (garçon et fille)"] },
 ] as const;
 
 export const seedRooms: Room[] = seedSites.flatMap((site) =>
@@ -134,52 +163,80 @@ export const seedRooms: Room[] = seedSites.flatMap((site) =>
 // Réservations seed par site (FICTIF : clients, horaires, statuts d'acompte)
 // ---------------------------------------------------------------------------
 
+type CatKey = (typeof CATALOG)[number]["key"];
 /** [jour (0 = lundi de la semaine en cours), heure, clé catégorie, nom du service, acompte reçu] */
 type SeedRow = [number, string, CatKey, string, boolean];
 
-// Créneaux de 60 min (durée par défaut FICTIVE). Horaires FICTIFS : lun–ven 9h–19h, sam 9h–18h, dim 10h–16h.
+// Créneaux de 60 min (durée par défaut FICTIVE). Horaires : lun–ven dès 8h30, sam dès 10h, dim dès 11h, fermeture 20h.
 const SEED_ROWS: Record<string, SeedRow[]> = {
-  "site-aurore": [
-    [0, "09:30", "vi", "Soin Lumière", true],
-    [0, "11:00", "mp", "Manucure complète", true],
-    [1, "10:00", "ba", "Dégradé", true],
-    [1, "14:00", "co", "Rituel Lagune", false],
-    [2, "15:30", "cf", "Coupe et brushing", false],
-    [3, "09:00", "co", "Massage Détente", true],
-    [4, "16:00", "mp", "Pédicure complète", false],
-    [5, "11:00", "vi", "Masque Hydra", true],
-    [6, "11:00", "ba", "Taille de barbe", false],
+  "douala-bonapriso": [
+    [0, "09:00", "vi", "Hydrafacial", true],
+    [0, "10:30", "mp", "Manucure spa", true],
+    [0, "14:00", "co", "Rituel endocrinien", false],
+    [1, "09:30", "re", "Extension de cils", true],
+    [1, "11:00", "cf", "Brushing", true],
+    [2, "15:00", "ho", "Massage relaxant", false],
+    [3, "10:00", "co", "Hammam/Gommage", true],
+    [4, "16:30", "mp", "Pédicure spa", false],
+    [5, "11:00", "vi", "Soin éclat", true],
+    [6, "14:00", "en", "Coiffure fille", false],
   ],
-  "site-brise": [
-    [0, "10:00", "ba", "Coupe homme", true],
-    [1, "09:30", "vi", "Soin Pureté", true],
-    [1, "13:00", "co", "Gommage Sable", false],
-    [2, "11:30", "mp", "Pose de vernis", true],
-    [3, "14:30", "cf", "Soin capillaire Nutrition", true],
-    [4, "10:00", "ba", "Rasage serviette chaude", false],
-    [5, "12:00", "co", "Enveloppement Argile", true],
-    [6, "13:00", "vi", "Gommage doux", false],
+  "douala-yassa": [
+    [0, "10:00", "mp", "Pose de vernis Gel", true],
+    [1, "09:00", "co", "Massage relaxant et détente", true],
+    [1, "13:00", "vi", "Soin acnéique", false],
+    [2, "11:30", "ep", "Jambe et demi-jambes", true],
+    [2, "17:00", "cf", "Tissage", false],
+    [3, "09:30", "re", "Make-up jour", true],
+    [4, "14:30", "ho", "Coiffure", true],
+    [5, "12:00", "co", "Sauna", false],
+    [6, "15:00", "mp", "Remplissage Gel", true],
   ],
-  "site-cedre": [
-    [0, "09:00", "co", "Massage Détente", true],
-    [0, "12:00", "vi", "Soin Lumière", false],
-    [1, "10:30", "cf", "Coloration", true],
-    [2, "14:00", "mp", "Manucure express", true],
-    [3, "09:30", "ba", "Dégradé", true],
-    [3, "16:00", "cf", "Coiffure événement", false],
-    [4, "11:00", "mp", "Pédicure complète", true],
-    [5, "13:00", "co", "Rituel Lagune", false],
-    [6, "12:00", "ba", "Coupe homme", true],
+  "yaounde-bastos": [
+    [0, "09:00", "co", "Jacuzzi", true],
+    [0, "11:00", "vi", "Soin anti-âge", false],
+    [1, "10:00", "cf", "Coloration", true],
+    [2, "14:00", "mp", "Pose de gel", true],
+    [3, "09:30", "ep", "Sourcils", true],
+    [3, "16:00", "re", "Make-up soir", false],
+    [4, "11:00", "en", "Manucure", true],
+    [5, "13:00", "co", "Soin anti-vergeture", false],
+    [6, "12:00", "vi", "Peeling du visage", true],
+  ],
+  "yaounde-dragage": [
+    [0, "12:00", "vi", "Soin classique", true],
+    [1, "09:00", "mp", "Gainage", false],
+    [1, "15:30", "co", "Couverture chauffante", true],
+    [2, "10:30", "cf", "Lissage brésilien", true],
+    [3, "13:30", "re", "Microblading", false],
+    [4, "09:30", "ho", "Soin de visage", true],
+    [4, "18:00", "mp", "Pose de vernis simple", true],
+    [5, "10:30", "co", "Hammam/Gommage", false],
+    [6, "16:00", "en", "Massage relaxant", true],
+  ],
+  "best-western-airport": [
+    [0, "09:00", "co", "Massage relaxant et détente", true],
+    [0, "13:00", "mp", "Manucure spa", false],
+    [1, "10:00", "vi", "Hydrafacial", true],
+    [2, "09:30", "re", "Remplissage de cils", true],
+    [2, "16:00", "cf", "Pose frontale", false],
+    [3, "11:00", "ep", "Maillot", true],
+    [4, "15:00", "co", "Rituel endocrinien", true],
+    [5, "14:00", "ho", "Pédicure", false],
+    [6, "13:00", "vi", "Soin éclat", true],
   ],
 };
 
-// Noms inventés (FICTIF).
+// Noms et numéros inventés (FICTIF).
 const CUSTOMERS = [
-  "Alice Dupré", "Bruno Tessier", "Camille Rivière", "Dora Mensah", "Émile Vasseur", "Fanny Colombe",
-  "Gaël Marchetti", "Hélène Aubry", "Ibrahim Lefort", "Jade Moreau", "Kévin Barrault", "Lina Chevalier",
-  "Mathis Perrin", "Noémie Gauthier", "Omar Benali", "Pauline Roussel", "Quentin Lacroix", "Rita Fontaine",
-  "Sofia Navarro", "Tom Delmas", "Ursule Pichon", "Victor Hamel", "Wendy Lambert", "Xavier Costa",
-  "Yanis Morel", "Zoé Brunet", "Adèle Fabre", "Basile Carré",
+  "Carine Mbarga", "Ruth Tchoumi", "Sandrine Fotso", "Flore Ngassa", "Danielle Essomba", "Priscille Kamga",
+  "Ornella Biyick", "Laure Nkoulou", "Brenda Ewane", "Mélanie Dongmo", "Nicole Manga", "Yvanna Tagne",
+  "Estelle Pouth", "Gaëlle Mekou", "Josiane Abena", "Stéphanie Njoh", "Patricia Etoundi", "Armelle Kouam",
+  "Chantal Wouembe", "Vanessa Ndjock", "Marlène Fouda", "Inès Tchamba", "Sylvie Bella", "Hortense Lekane",
+  "Clarisse Ondoa", "Judith Abanda", "Laurence Mvondo", "Reine Atangana", "Sabine Owona", "Colette Eyenga",
+  "Christelle Bikoko", "Viviane Tsogo", "Aurélie Nana", "Corinne Fokou", "Rachel Mouelle", "Eliane Tchuente",
+  "Béatrice Ngo", "Ghislaine Zang", "Monique Edimo", "Lydie Sock", "Pélagie Menye", "Odette Nken",
+  "Solange Mba", "Thérèse Ayissi", "Yolande Beyala", "Mirabelle Kenfack", "Florence Yimga",
 ];
 
 let customerIdx = 0;

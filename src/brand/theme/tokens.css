@@ -1,8 +1,8 @@
 /*
- * Jetons de couleur d'OVAGLOW (marque FICTIVE de la souche), thèmes clair et sombre. Seul fichier de couleurs de la marque.
+ * Jetons de couleur de Mahaza Beauty (identité premium : or du logo, charbon, crème, fleur saumon), thèmes clair et sombre. Seul fichier de couleurs de la marque.
  *
  * Recette « neutres teintés » de la factory (docs/reference/factory-core.md §2.2) : les rapports L / C sont structurels, seule la
- * teinte --brand-h (teal, 200) et l'accent (--primary) sont propres à la marque. Les chromas sont bornés à la gamme sRGB
+ * teinte --brand-h (or, 80) et l'accent (--primary, bronze dérivé de l'or du logo #E9B93C assombri pour le texte) sont propres à la marque. Les chromas sont bornés à la gamme sRGB
  * pour cette teinte (le script le vérifie).
  *
  * Thème : classe `.dark` sur <html>, posée par next-themes (défaut = thème du système). `color-scheme` suit le thème
@@ -14,34 +14,34 @@
 
 :root {
   color-scheme: light;
-  --brand-h: 200;
+  --brand-h: 80;
 
   /* Surfaces et texte */
-  --background: oklch(0.985 0.002 var(--brand-h));
-  --foreground: oklch(0.145 0 0);
+  --background: oklch(0.985 0.012 85);
+  --foreground: oklch(0.26 0.006 20);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
+  --card-foreground: oklch(0.26 0.006 20);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --muted: oklch(0.96 0.02 var(--brand-h));
-  --muted-foreground: oklch(0.5 0.065 var(--brand-h));
+  --popover-foreground: oklch(0.26 0.006 20);
+  --muted: oklch(0.955 0.022 85);
+  --muted-foreground: oklch(0.5 0.035 70);
 
   /* Accent de marque : action, lien, focus, état actif */
-  --primary: oklch(0.434 0.061 var(--brand-h));
+  --primary: oklch(0.45 0.09 80);
   --primary-foreground: oklch(1 0 0);
   --primary-text: var(--primary);
   --ring: var(--primary);
 
   /* Surfaces teintées discrètes (survol, élément actif) */
-  --secondary: oklch(0.94 0.04 var(--brand-h));
-  --secondary-foreground: oklch(0.35 0.06 var(--brand-h));
-  --accent: oklch(0.94 0.04 var(--brand-h));
-  --accent-foreground: oklch(0.35 0.06 var(--brand-h));
+  --secondary: oklch(0.945 0.045 90);
+  --secondary-foreground: oklch(0.34 0.06 80);
+  --accent: oklch(0.945 0.045 90);
+  --accent-foreground: oklch(0.34 0.06 80);
 
   /* Bordures : `border` / `input` ≥ 3:1 (WCAG 1.4.11) ; `line` = filet décoratif du site public */
-  --border: oklch(0.653 0.03 var(--brand-h));
-  --input: oklch(0.653 0.03 var(--brand-h));
-  --line: oklch(0.9 0.012 var(--brand-h));
+  --border: oklch(0.65 0.045 80);
+  --input: oklch(0.65 0.045 80);
+  --line: oklch(0.9 0.025 85);
 
   /* Sémantique */
   --destructive: oklch(0.52 0.19 27);
@@ -73,26 +73,26 @@
   --sidebar-accent-foreground: oklch(0.35 0.06 var(--brand-h));
 
   /* Registre éditorial du site public : laiton (dorure) et surfaces toujours sombres (pied de page, hero, carte cadeau, infobulle) */
-  --gold: oklch(0.731 0.1 80);
-  --gold-foreground: oklch(0.25 0.04 80);
-  --inverse: oklch(0.24 0.02 var(--brand-h));
-  --inverse-foreground: oklch(0.96 0.008 85);
+  --gold: oklch(0.8 0.145 85);
+  --gold-foreground: oklch(0.25 0.045 80);
+  --inverse: oklch(0.25 0.012 30);
+  --inverse-foreground: oklch(0.965 0.014 85);
 }
 
 .dark {
   color-scheme: dark;
 
-  --background: oklch(0.13 0.02 var(--brand-h));
+  --background: oklch(0.15 0.012 60);
   --foreground: oklch(0.985 0 0);
-  --card: oklch(0.18 0.03 var(--brand-h));
+  --card: oklch(0.2 0.016 60);
   --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.18 0.03 var(--brand-h));
+  --popover: oklch(0.2 0.016 60);
   --popover-foreground: oklch(0.985 0 0);
   --muted: oklch(0.25 0.04 var(--brand-h));
   --muted-foreground: oklch(0.72 0.05 var(--brand-h));
 
-  --primary: oklch(0.79 0.078 190.5);
-  --primary-foreground: oklch(0.2 0.03 var(--brand-h));
+  --primary: oklch(0.82 0.13 85);
+  --primary-foreground: oklch(0.2 0.035 80);
   --primary-text: var(--primary);
   --ring: var(--primary);
 
@@ -122,8 +122,8 @@
   --sidebar-accent: oklch(0.25 0.04 var(--brand-h));
   --sidebar-accent-foreground: oklch(0.9 0.04 var(--brand-h));
 
-  --gold: oklch(0.784 0.091 81.5);
+  --gold: oklch(0.82 0.13 85);
   --gold-foreground: oklch(0.22 0.04 80);
-  --inverse: oklch(0.29 0.025 var(--brand-h));
+  --inverse: oklch(0.3 0.014 40);
   --inverse-foreground: oklch(0.96 0.008 85);
 }

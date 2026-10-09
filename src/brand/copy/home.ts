@@ -1,37 +1,39 @@
 import type { HomeContent } from "@/core/types";
 
 /**
- * Textes et visuels de l'accueil d'OVAGLOW (marque FICTIVE). Les images sont des illustrations SVG générées
- * (`npm run assets:generate`), servies depuis `public/brand/`. Un dépôt client remplace ce fichier.
+ * Textes et visuels de l'accueil de Mahaza Beauty. Textes et photos repris de l'ancien site de la marque (avec l'accord de Yass pour la démonstration) ;
+ * les médias sont servis depuis `public/brand/` (WebP convertis depuis les PNG d'origine, mêmes dimensions). Droits et consentements des personnes
+ * photographiées : à confirmer avec Mahaza avant toute mise en production.
  */
 export const homeCopy: HomeContent = {
-  heroKicker: "Marque fictive de démonstration",
-  heroTitle: "Bienvenue chez OVAGLOW",
+  heroKicker: "Un voyage sensoriel au cœur du bien-être",
+  heroTitle: "Bienvenue à Mahaza Beauty",
   heroImages: [
-    { src: "/brand/hero-1.svg", width: 1290, height: 610, alt: "Illustration abstraite : galets empilés et feuillage" },
-    { src: "/brand/hero-2.svg", width: 1290, height: 610, alt: "Illustration abstraite : vagues et soleil levant" },
+    { src: "/brand/hero-1.webp", width: 1290, height: 610, alt: "Soin des pieds au spa Mahaza : plateau de gommages et fleurs" },
+    { src: "/brand/hero-2.webp", width: 1290, height: 610, alt: "Soin du visage au spa Mahaza" },
   ],
   about: {
-    title: "Prendre soin de soi",
-    text: "Soins du visage et du corps, mains et pieds, coiffure et barbier : un parcours de réservation clair, pensé pour le mobile. Tous les sites, soins, prix et personnes présentés ici sont fictifs.",
-    image: { src: "/brand/about.svg", width: 500, height: 477, alt: "Illustration abstraite : arches et feuilles" },
+    title: "La magie du bien-être",
+    text: "Hammam, soins du visage et du corps, beauté des mains et des pieds, épilation, regard, coiffure : des soins pour femme, homme et enfant, dans nos 5 spas à Douala et Yaoundé.",
+    image: { src: "/brand/about.webp", width: 500, height: 477, alt: "Pédicure spa chez Mahaza" },
   },
   featured: [
-    { title: "Rituel Lagune", description: "Un soin du corps enveloppant, entre gommage et détente." },
-    { title: "Soin Lumière", description: "Un soin du visage pour un teint frais et éclatant." },
-    { title: "Massage Détente", description: "Un moment de calme pour relâcher les tensions." },
-    { title: "Rasage serviette chaude", description: "Le rituel du barbier, à l'ancienne." },
+    { title: "Rituel endocrinien sensuel", description: "Hammam, gommage sensuel et masque à la fleur de rose.", icon: "flower" },
+    { title: "Soin hydrafacial", description: "Nettoie en profondeur et purifie la peau pour un teint frais et éclatant.", icon: "droplets" },
+    { title: "Relaxation ultime", description: "Jacuzzi, massage relaxant et détente, soin de visage.", icon: "waves" },
+    { title: "Manucure et pédicure spa", description: "Un soin luxueux pour des mains et des pieds doux et élégants.", icon: "hand" },
   ],
   process: [
     { title: "Diagnostic" },
-    { title: "Soins", image: { src: "/brand/process-2.svg", width: 200, height: 200, alt: "Illustration abstraite : cercles" } },
-    { title: "Conseils & suivi", image: { src: "/brand/process-3.svg", width: 200, height: 200, alt: "Illustration abstraite : feuilles" } },
+    { title: "Soins", image: { src: "/brand/process-2.webp", width: 200, height: 200, alt: "Soin du visage" } },
+    { title: "Conseils & suivi", image: { src: "/brand/process-3.webp", width: 200, height: 200, alt: "Conseils et suivi après le soin" } },
   ],
   gift: {
     title: "Cartes cadeaux",
-    text: "Simulation d'une carte cadeau : choisissez un montant fictif et prévisualisez la carte.",
-    image: { src: "/brand/gift.svg", width: 500, height: 250, alt: "Illustration abstraite : carte et ruban" },
-    amounts: [10000, 20000, 40000, 60000, 100000],
+    text: "Offrez un moment de bien-être. Choisissez le montant de la carte cadeau : simulation FICTIVE, aucune carte n'est réellement émise ni payée.",
+    image: { src: "/brand/gift.webp", width: 500, height: 250, alt: "Carte cadeau avec ruban rouge" },
+    // Paliers de 20 000 à 100 000 FCFA (fourchette de l'ancien site ; pas exact à confirmer par Mahaza).
+    amounts: [20000, 40000, 60000, 80000, 100000],
   },
-  decorImage: { src: "/brand/decor.svg", width: 193, height: 158 },
+  decorImage: { src: "/brand/flower.webp", width: 193, height: 158 },
 };

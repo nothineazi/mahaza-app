@@ -1,8 +1,7 @@
 import type { Vocabulary } from "@/core/types";
 
 /**
- * Vocabulaire d'OVAGLOW (marque FICTIVE, institut & barbershop). Un dépôt client remplace ce fichier : barbershop = « service » / « barbier »,
- * institut = « soin » / « praticien ». Le socle (`src/core`, `src/ui`) lit uniquement `vocab` et n'écrit jamais ces mots en dur (ADR-041).
+ * Vocabulaire de Mahaza Beauty (institut) : « soin » / « praticien ». Le socle (`src/core`, `src/ui`) lit uniquement `vocab` et n'écrit jamais ces mots en dur (ADR-041).
  */
 const cap = (word: string) => word.charAt(0).toUpperCase() + word.slice(1);
 
@@ -30,7 +29,7 @@ export const vocab: Vocabulary = makeVocab(
     featuredKicker: "Nos soins signature",
     featuredTitle: "Nos soins vedettes",
     composeTitle: "Composez votre moment",
-    catalogTitle: "Nos services",
+    catalogTitle: "Nos soins",
     composeHint: "Composez votre moment : plusieurs soins peuvent s'enchaîner sur un même créneau.",
     searchExample: "massage, manucure…",
   },
