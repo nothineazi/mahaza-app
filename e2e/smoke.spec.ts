@@ -18,7 +18,7 @@ test.describe("accueil", () => {
 
   test("catalogue FICTIF, sites et pied de page", async ({ page }) => {
     await page.goto("/");
-    await expect(page.getByRole("heading", { name: data.catalogTitle })).toBeVisible();
+    await expect(page.getByRole("heading", { name: data.catalogTitle, exact: true })).toBeVisible();
     await expect(page.getByText("Prix en FCFA, FICTIFS")).toBeVisible();
     await expect(page.locator("#sites").getByRole("heading", { name: "Nos sites" })).toBeVisible();
     await expect(page.getByText(data.footerNote)).toBeVisible();
@@ -139,7 +139,7 @@ test.describe("chargement différé (poids du premier chargement)", () => {
     await page.locator("#cartes-cadeaux").scrollIntoViewIfNeeded();
     const generate = page.getByRole("button", { name: /Générer ma carte cadeau/ });
     await expect(generate).toBeVisible();
-    await page.getByRole("button", { name: /^10 000 FCFA$/ }).first().click();
+    await page.getByRole("button", { name: data.giftAmountButton }).first().click();
     await generate.click();
     await expect(page.getByText(/GC-[A-Z0-9]{4}-[A-Z0-9]{4}/).first()).toBeVisible();
     await expect(page.getByText("FICTIF – ne pas payer").first()).toBeVisible();

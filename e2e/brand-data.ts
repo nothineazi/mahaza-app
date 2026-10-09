@@ -1,5 +1,6 @@
 import { brand } from "../src/brand/brand.config";
 import { vocab } from "../src/brand/copy/vocab";
+import { formatPrice } from "../src/core/lib/utils";
 
 /**
  * Valeurs de la marque active utilisées par les scénarios e2e : les scénarios ne contiennent aucun nom de marque, de site ou de
@@ -34,4 +35,6 @@ export const data = {
   footerNote: (brand.footerNote ?? "Marque fictive de démonstration. Aucune réservation").slice(0, 40),
   cartSummaryButton: new RegExp(`Voir le récapitulatif|1 ${vocab.service}`),
   referencePrefix: brand.referencePrefix,
+  /** Premier palier de la carte cadeau (bouton de montant). */
+  giftAmountButton: new RegExp(`^${formatPrice(brand.home.gift.amounts[0]).replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`),
 };
