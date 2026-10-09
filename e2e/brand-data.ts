@@ -36,5 +36,5 @@ export const data = {
   cartSummaryButton: new RegExp(`Voir le récapitulatif|1 ${vocab.service}`),
   referencePrefix: brand.referencePrefix,
   /** Premier palier de la carte cadeau (bouton de montant). */
-  giftAmountButton: new RegExp(`^${formatPrice(brand.home.gift.amounts[0]).replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`),
+  giftAmountButton: new RegExp(`^${formatPrice(brand.home.gift.amounts[0]).replace(/\s+/g, " ").replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`),
 };
