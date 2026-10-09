@@ -41,8 +41,8 @@ test.describe("réservation multi-soins", () => {
     await page.goto("/reserver");
     await expect(page.getByRole("status").filter({ hasText: BANNER })).toBeVisible();
 
-    // 1. Site
-    await page.getByRole("button", { name: data.siteButton }).click();
+    // 1. Site (l'étape n'existe pas pour une marque mono-site)
+    if (data.multiSite) await page.getByRole("button", { name: data.siteButton }).click();
     // 2. Deux soins dans le panier
     await expect(page.getByRole("heading", { level: 1, name: data.composeTitle })).toBeVisible();
     await page.getByRole("button", { name: data.serviceAButton }).first().click();
@@ -92,7 +92,7 @@ test.describe("état de la démo conservé dans l'onglet (ADR-041)", () => {
   test("une réservation faite sur /reserver reste visible dans /admin, même via l'accueil et après rechargement ; « Réinitialiser la démo » l'efface", async ({ page }) => {
     const customer = "Cliente Persistance";
     await page.goto("/reserver");
-    await page.getByRole("button", { name: data.siteButton }).click();
+    if (data.multiSite) await page.getByRole("button", { name: data.siteButton }).click();
     await page.getByRole("button", { name: data.serviceAButton }).first().click();
     await page.getByRole("button", { name: "Continuer" }).click();
     await page.getByRole("button", { name: "Choisir le créneau" }).click();
@@ -149,7 +149,7 @@ test.describe("chargement différé (poids du premier chargement)", () => {
   test("réservation : récapitulatif détaillé (feuille mobile) ouvert à la demande", async ({ page }) => {
     test.skip((page.viewportSize()?.width ?? 1280) >= 1024, "la barre du panier n'existe que sous 1024 px");
     await page.goto("/reserver");
-    await page.getByRole("button", { name: data.siteButton }).click();
+    if (data.multiSite) await page.getByRole("button", { name: data.siteButton }).click();
     await page.getByRole("button", { name: data.serviceAButton }).first().click();
     await page.getByRole("button", { name: data.cartSummaryButton }).first().click();
     const dialog = page.getByRole("dialog");

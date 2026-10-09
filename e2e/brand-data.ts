@@ -8,6 +8,8 @@ import { formatPrice } from "../src/core/lib/utils";
  */
 const sites = brand.sites ?? [];
 if (sites.length === 0) throw new Error("e2e : la marque doit déclarer au moins un site");
+/** Marque multi-sites : le tunnel commence par le choix du site. */
+const multiSite = sites.length > 1;
 
 // Deux prestations de catégories différentes (praticiens et salles distincts), prises dans l'ordre du catalogue.
 const firstService = brand.services[0];
@@ -18,6 +20,7 @@ const exact = (name: string) => new RegExp(`^${name.replace(/[.*+?^${}()|[\]\\]/
 export const data = {
   brandName: brand.name,
   heroTitle: brand.home.heroTitle,
+  multiSite,
   siteName: sites[0].name,
   siteButton: exact(sites[0].name),
   serviceA: firstService.name,
